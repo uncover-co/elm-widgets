@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "**/elm-stuff": true,
+    "**/node_modules": true
+  }
+}

@@ -1,0 +1,13 @@
+[build.environment]
+  NPM_FLAGS = "--version"
+  ELM_HOME = "$NETLIFY_BUILD_BASE/cache/elm"
+
+[build]
+  command = "npm run build"
+  publish = "dist/"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+

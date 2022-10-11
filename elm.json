@@ -1,0 +1,42 @@
+{
+    "type": "package",
+    "name": "uncover-co/elm-widgets",
+    "summary": "A collection of widgets themed through ThemeSpec.",
+    "license": "MPL-2.0",
+    "version": "1.0.0",
+    "exposed-modules": [
+        "W.Button",
+        "W.ButtonGroup",
+        "W.DataRow",
+        "W.Field",
+        "W.InputAutocomplete",
+        "W.InputCheckbox",
+        "W.InputDate",
+        "W.InputNumber",
+        "W.InputRadio",
+        "W.InputSelect",
+        "W.InputSlider",
+        "W.InputText",
+        "W.InputTextArea",
+        "W.InputTime",
+        "W.Loading",
+        "W.Modal",
+        "W.Menu",
+        "W.Popover",
+        "W.Styles"
+    ],
+    "elm-version": "0.19.0 <= v < 0.20.0",
+    "dependencies": {
+        "elm/core": "1.0.0 <= v < 2.0.0",
+        "elm/html": "1.0.0 <= v < 2.0.0",
+        "elm/json": "1.0.0 <= v < 2.0.0",
+        "elm/svg": "1.0.1 <= v < 2.0.0",
+        "elm/time": "1.0.0 <= v < 2.0.0",
+        "justinmimbs/date": "4.0.0 <= v < 5.0.0",
+        "justinmimbs/time-extra": "1.1.0 <= v < 2.0.0",
+        "uncover-co/elm-theme-spec": "8.0.1 <= v < 9.0.0"
+    },
+    "test-dependencies": {
+        "elm-explorations/test": "1.2.2 <= v < 2.0.0"
+    }
+}
