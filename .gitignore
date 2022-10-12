@@ -1,4 +1,4 @@
 node_modules
 elm-stuff
-example/index.html
+example/dist/main.js
 .DS_Store
