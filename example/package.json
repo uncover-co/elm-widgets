@@ -7,7 +7,7 @@
     "postinstall": "elm-tooling install",
     "start": "run-pty % npm run start:elm % npm run start:http",
     "start:elm": "elm-watch hot",
-    "start:http": "serve build",
+    "start:http": "serve dist -s",
     "build": "elm-watch make --optimize"
   },
   "author": "",

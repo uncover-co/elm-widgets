@@ -1,2 +1,101 @@
 /* @tailwind components; */
 @tailwind utilities;
+
+/* 
+ * ======================================================
+ * Loading
+ * ======================================================
+ */
+
+.ew-loading-dots {
+  display: inline-block;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+}
+.ew-loading-dots div {
+    position: absolute;
+    top: calc(var(--size) * 0.4);
+    width: calc(var(--size) * 0.2);
+    height: calc(var(--size) * 0.2);
+    border-radius: calc(var(--size) * 0.2);
+    background: var(--color);
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.ew-loading-dots > div:nth-child(1) {
+    left: 0;
+    animation: ew-loading-dots-1 0.6s infinite;
+}
+.ew-loading-dots > div:nth-child(2) {
+    left: 0;
+    animation: ew-loading-dots-2 0.6s infinite;
+}
+.ew-loading-dots > div:nth-child(3) {
+    left: calc(var(--size) * 0.4);
+    animation: ew-loading-dots-2 0.6s infinite;
+}
+.ew-loading-dots > div:nth-child(4) {
+    left: calc(var(--size) * 0.8);
+    animation: ew-loading-dots-3 0.6s infinite;
+}
+
+
+@keyframes ew-loading-dots-1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes ew-loading-dots-2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(calc(var(--size) * 0.4), 0);
+  }
+}
+@keyframes ew-loading-dots-3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
+.ew-loading-ripples {
+  display: inline-block;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+}
+.ew-loading-ripples > div {
+    position: absolute;
+    border: calc(var(--size) * 0.06) solid var(--color);
+    opacity: 1;
+    border-radius: 50%;
+    animation: ew-loading-ripples 1.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.ew-loading-ripples > div:nth-child(2) {
+    animation-delay: -0.6s;
+}
+
+@keyframes ew-loading-ripples {
+  0% {
+    top: calc(var(--size) * 0.5);
+    left: calc(var(--size) * 0.5);
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: 0;
+    left: 0;
+    width: var(--size);
+    height: var(--size);
+    opacity: 0;
+  }
+}
+

@@ -24,10 +24,8 @@ import ElmBook exposing (Book, book, withChapterGroups, withStatefulOptions, wit
 import ElmBook.Chapter
 import ElmBook.StatefulOptions
 import ElmBook.ThemeOptions
-import ThemeProvider
-import ThemeSpec
+import Theme
 import W.Styles
-import W.StylesTw
 
 
 type alias SharedState =
@@ -57,12 +55,12 @@ main =
             ]
         |> withThemeOptions
             [ ElmBook.ThemeOptions.globals
-                [ ThemeProvider.globalProviderWithDarkMode
-                    { light = ThemeSpec.theme ThemeSpec.lightTheme
-                    , dark = ThemeSpec.theme ThemeSpec.darkTheme
-                    , strategy = ThemeProvider.ClassStrategy "elm-book-dark-mode"
+                [ Theme.globalProviderWithDarkMode
+                    { light = Theme.lightTheme
+                    , dark = Theme.darkTheme
+                    , strategy = Theme.classStrategy "elm-book-dark-mode"
                     }
-                , W.StylesTw.globalStyles
+                , W.Styles.globalStyles
                 ]
             ]
         |> withChapterGroups

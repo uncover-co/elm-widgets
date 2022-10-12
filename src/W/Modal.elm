@@ -78,28 +78,36 @@ view attrs_ props =
     in
     H.div
         [ HA.attribute "role" "dialog"
-        , HA.class "ew ew-modal"
+        , HA.class "ew-inset-0 ew-flex ew-flex-col ew-items-center ew-justify-center ew-p-6"
         , HA.classList
-            [ ( "ew-m-absolute", attrs.absolute )
-            , ( "ew-m-can-close", props.onClose /= Nothing )
+            [ ( "ew-absolute", attrs.absolute )
+            , ( "ew-fixed", not attrs.absolute )
             ]
         ]
         [ H.div
-            [ HA.class "ew ew-modal-background"
+            [ HA.class "ew-absolute ew-inset-0 ew-opacity-20"
+            , HA.style "background" "rgba(0, 0, 0, 0.4)"
+            , HA.classList
+                [ ( "hover:ew-opacity-[0.15]", props.onClose /= Nothing )
+                ]
             , WH.maybeAttr HE.onClick props.onClose
             ]
             []
         , WH.maybeHtml
             (\onClose ->
                 H.button
-                    [ HA.class "ew ew-modal-close"
+                    [ HA.class "ew-relative ew-self-end"
+                    , HA.class "ew-p-4 ew-bg-transparent ew-border-0 ew-shadow-none"
+                    , HA.class "ew-text-base-bg"
                     , HE.onClick onClose
                     ]
                     [ W.Internal.Icons.close { size = 24 } ]
             )
             props.onClose
         , H.div
-            [ HA.class "ew ew-modal-content"
+            [ HA.class "ew-relative"
+            , HA.class "ew-bg-base-bg ew-shadow-lg ew-rounded-lg"
+            , HA.class "ew-w-full ew-max-w-md ew-max-h-[80%] ew-overflow-auto"
             ]
             [ props.content
             ]

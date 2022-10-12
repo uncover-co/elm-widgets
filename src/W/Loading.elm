@@ -24,7 +24,7 @@ import Html as H
 import Html.Attributes as HA
 import Svg as S
 import Svg.Attributes as SA
-import ThemeSpec
+import Theme
 import W.Internal.Helpers as WH
 
 
@@ -54,7 +54,7 @@ defaultAttrs : Attributes msg
 defaultAttrs =
     { id = Nothing
     , size = 25
-    , color = ThemeSpec.base.aux
+    , color = Theme.baseAux
     , htmlAttributes = []
     }
 
@@ -99,7 +99,7 @@ circles attrs_ =
         (attrs.htmlAttributes
             ++ [ WH.maybeSvgAttr SA.id attrs.id
                , SA.style ("--color: " ++ attrs.color)
-               , SA.class "ew ew-loading-circle"
+               , SA.class "ew-loading-circle"
                , SA.viewBox "0 0 40 40"
                , SA.height (String.fromFloat attrs.size ++ "px")
                , SA.width (String.fromFloat attrs.size ++ "px")
@@ -141,7 +141,7 @@ dots attrs_ =
     H.div
         (attrs.htmlAttributes
             ++ [ WH.maybeAttr HA.id attrs.id
-               , HA.class "ew ew-loading-dots"
+               , HA.class "ew-loading-dots"
                , WH.styles
                     [ ( "--color", attrs.color )
                     , ( "--size", String.fromFloat attrs.size ++ "px" )
@@ -166,7 +166,7 @@ ripples attrs_ =
     H.div
         (attrs.htmlAttributes
             ++ [ WH.maybeAttr HA.id attrs.id
-               , HA.class "ew ew-loading-ripples"
+               , HA.class "ew-loading-ripples"
                , WH.styles
                     [ ( "--size", String.fromFloat attrs.size ++ "px" )
                     , ( "--color", attrs.color )

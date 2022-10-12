@@ -2,12 +2,12 @@
     "type": "application",
     "source-directories": [
         "src",
-        "../src",
-        "../../elm-theme/src"
+        "../src"
     ],
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
+            "avh4/elm-color": "1.0.0",
             "dtwrks/elm-book": "1.4.1",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
@@ -21,7 +21,6 @@
             "uncover-co/elm-theme-spec": "8.0.1"
         },
         "indirect": {
-            "avh4/elm-color": "1.0.0",
             "dillonkearns/elm-markdown": "7.0.0",
             "elm/parser": "1.1.0",
             "elm/regex": "1.0.0",
