@@ -3,6 +3,7 @@ node_modules
 elm-stuff
 
 # Dist
+styles/output
 example/dist/main.js
 
 # System
