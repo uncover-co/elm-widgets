@@ -1,5 +1,17 @@
-/* @tailwind components; */
+@tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .ew-btn {
+    @apply ew-box-border;
+    @apply ew-inline-flex ew-items-center ew-justify-center ew-py-0;
+    @apply ew-font-text ew-font-semibold ew-leading-none ew-tracking-wider ew-no-underline;
+  }
+  .ew-btn-like {
+      @apply ew-appearance-none ew-no-underline;
+      @apply ew-box-border ew-rounded-lg ew-border-0;
+  }
+}
 
 /* 
  * ======================================================

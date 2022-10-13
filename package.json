@@ -7,7 +7,7 @@
     "start": "concurrently \"npm:watch:*\"",
     "watch:styles": "watch 'node ./styles/build-styles.js' ./styles/output",
     "watch:tailwind": "tailwindcss -i ./styles/index.css -o ./styles/output/index.css --watch",
-    "watch:tailwind:min": "tailwindcss -i ./styles/index.css -o ./styles/output/index.css --minify --watch",
+    "min:watch:tailwind": "tailwindcss -i ./styles/index.css -o ./styles/output/index.css --minify --watch",
     "start:old": "watch 'node ./styles/build-styles.js' ./styles",
     "docs": "elm-doc-preview"
   },

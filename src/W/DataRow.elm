@@ -104,30 +104,49 @@ view attrs_ children =
         attrs =
             applyAttrs attrs_
 
+        mainAttrs : List (H.Attribute msg)
+        mainAttrs =
+            [ HA.class "ew-grow ew-flex ew-items-center"
+            , HA.class "ew-w-full ew-p-2 ew-bg-transparent"
+            , HA.class "ew-btn-like ew-text-base ew-text-left ew-font-text ew-text-base-fg"
+            ]
+
+        mainClickableClass : H.Attribute msg
+        mainClickableClass =
+            HA.class "hover:ew-bg-base-aux/[0.07] active:ew-bg-base-aux/10"
+
+        main_ : List (H.Html msg) -> H.Html msg
         main_ =
             case ( attrs.onClick, attrs.href ) of
                 ( Just onClick_, _ ) ->
                     H.button
-                        [ HA.class "ew ew-focusable ew-data-row-main ew-m-button", HE.onClick onClick_ ]
+                        (mainAttrs
+                            ++ [ mainClickableClass
+                               , HE.onClick onClick_
+                               ]
+                        )
 
                 ( Nothing, Just href_ ) ->
                     H.a
-                        [ HA.class "ew ew-focusable ew-data-row-main ew-m-link", HA.href href_ ]
+                        (mainAttrs
+                            ++ [ mainClickableClass
+                               , HA.href href_
+                               ]
+                        )
 
                 _ ->
-                    H.div
-                        [ HA.class "ew ew-data-row-main" ]
+                    H.div mainAttrs
     in
-    H.div [ HA.class "ew ew-data-row" ]
+    H.div [ HA.class "ew-flex ew-items-center ew-p-2 ew-box-border ew-bg-base-bg" ]
         [ main_
-            [ WH.maybeHtml (\left_ -> H.div [ HA.class "ew ew-data-row-left" ] [ left_ ]) attrs.left
-            , H.div [ HA.class "ew ew-data-row-main-main" ]
-                [ WH.maybeHtml (\header_ -> H.div [ HA.class "ew ew-data-row-header" ] [ header_ ]) attrs.header
+            [ WH.maybeHtml (\left_ -> H.div [ HA.class "ew-shrink-0 ew-px-3 ew-py-2 ew-pl-0" ] [ left_ ]) attrs.left
+            , H.div [ HA.class "ew-grow" ]
+                [ WH.maybeHtml (\header_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pb-1" ] [ header_ ]) attrs.header
                 , H.div [ HA.class "ew ew-data-row-label" ] children
-                , WH.maybeHtml (\footer_ -> H.div [ HA.class "ew ew-data-row-footer" ] [ footer_ ]) attrs.footer
+                , WH.maybeHtml (\footer_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pt-0.5" ] [ footer_ ]) attrs.footer
                 ]
             ]
         , attrs.right
-            |> Maybe.map (\right_ -> H.div [ HA.class "ew ew-data-row-actions" ] right_)
+            |> Maybe.map (\right_ -> H.div [ HA.class "ew-shrink-0 ew-pl-2" ] right_)
             |> Maybe.withDefault (H.text "")
         ]
