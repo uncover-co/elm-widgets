@@ -74,6 +74,24 @@
 
 /* 
  * ======================================================
+ * Tooltip
+ * ======================================================
+ */
+
+.ew-tooltip::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -2px;
+  border-style: solid;
+  border-width: 4px 4px 0 4px;
+  border-color: var(--theme-neutral-bg) transparent transparent transparent;
+}
+
+/* 
+ * ======================================================
  * Loading
  * ======================================================
  */

@@ -210,6 +210,14 @@ globalStyles =
   background-color: rgb(var(--theme-base-aux-ch) / 0.25);
 }
 
+.ew-pointer-events-none {
+  pointer-events: none;
+}
+
+.ew-visible {
+  visibility: visible;
+}
+
 .ew-fixed {
   position: fixed;
 }
@@ -241,9 +249,9 @@ globalStyles =
   bottom: 0px;
 }
 
-.ew-inset-x-\\[10px\\] {
-  left: 10px;
-  right: 10px;
+.ew-inset-x-\\[12px\\] {
+  left: 12px;
+  right: 12px;
 }
 
 .ew-inset-x-0 {
@@ -264,11 +272,6 @@ globalStyles =
 .ew-inset-x-1 {
   left: 0.25rem;
   right: 0.25rem;
-}
-
-.ew-inset-x-\\[12px\\] {
-  left: 12px;
-  right: 12px;
 }
 
 .ew-top-1\\/2 {
@@ -299,12 +302,16 @@ globalStyles =
   right: 0.75rem;
 }
 
-.ew-z-\\[9999\\] {
-  z-index: 9999;
+.ew-bottom-full {
+  bottom: 100%;
 }
 
 .ew-z-0 {
   z-index: 0;
+}
+
+.ew-z-\\[9999\\] {
+  z-index: 9999;
 }
 
 .ew-m-0 {
@@ -331,6 +338,18 @@ globalStyles =
   margin-top: -0px;
 }
 
+.-ew-mt-\\[3px\\] {
+  margin-top: -3px;
+}
+
+.-ew-ml-5 {
+  margin-left: -1.25rem;
+}
+
+.-ew-mt-5 {
+  margin-top: -1.25rem;
+}
+
 .-ew-ml-4 {
   margin-left: -1rem;
 }
@@ -347,10 +366,6 @@ globalStyles =
   margin-left: -0.75rem;
 }
 
-.-ew-mt-\\[3px\\] {
-  margin-top: -3px;
-}
-
 .-ew-ml-6 {
   margin-left: -1.5rem;
 }
@@ -359,12 +374,16 @@ globalStyles =
   margin-top: -1.5rem;
 }
 
-.-ew-ml-5 {
-  margin-left: -1.25rem;
+.ew-mb-2 {
+  margin-bottom: 0.5rem;
 }
 
-.-ew-mt-5 {
-  margin-top: -1.25rem;
+.ew-mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.-ew-ml-1 {
+  margin-left: -0.25rem;
 }
 
 .ew-box-border {
@@ -407,16 +426,20 @@ globalStyles =
   height: 0.25rem;
 }
 
+.ew-h-\\[6px\\] {
+  height: 6px;
+}
+
+.ew-h-10 {
+  height: 2.5rem;
+}
+
 .ew-h-8 {
   height: 2rem;
 }
 
 .ew-h-6 {
   height: 1.5rem;
-}
-
-.ew-h-10 {
-  height: 2.5rem;
 }
 
 .ew-h-full {
@@ -451,14 +474,6 @@ globalStyles =
   height: 0.5rem;
 }
 
-.ew-h-1\\.5 {
-  height: 0.375rem;
-}
-
-.ew-h-\\[6px\\] {
-  height: 6px;
-}
-
 .ew-h-fit {
   height: -moz-fit-content;
   height: fit-content;
@@ -470,6 +485,10 @@ globalStyles =
 
 .ew-h-7 {
   height: 1.75rem;
+}
+
+.ew-h-1\\.5 {
+  height: 0.375rem;
 }
 
 .ew-max-h-\\[80\\%\\] {
@@ -492,6 +511,10 @@ globalStyles =
   width: 60%;
 }
 
+.ew-w-10 {
+  width: 2.5rem;
+}
+
 .ew-w-8 {
   width: 2rem;
 }
@@ -512,21 +535,17 @@ globalStyles =
   width: 1.5rem;
 }
 
-.ew-w-1\\.5 {
-  width: 0.375rem;
-}
-
 .ew-w-12 {
   width: 3rem;
-}
-
-.ew-w-10 {
-  width: 2.5rem;
 }
 
 .ew-w-fit {
   width: -moz-fit-content;
   width: fit-content;
+}
+
+.ew-w-1\\.5 {
+  width: 0.375rem;
 }
 
 .ew-min-w-full {
@@ -547,6 +566,16 @@ globalStyles =
 
 .ew-grow {
   flex-grow: 1;
+}
+
+.ew-translate-y-0 {
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.ew-translate-y-0\\.5 {
+  --tw-translate-y: 0.125rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .ew-rotate-\\[45deg\\] {
@@ -820,20 +849,23 @@ globalStyles =
   background-color: rgb(var(--theme-base-fg-ch) / var(--tw-bg-opacity));
 }
 
+.ew-bg-primary-bg {
+  --tw-bg-opacity: 1;
+  background-color: rgb(var(--theme-primary-bg-ch) / var(--tw-bg-opacity));
+}
+
+.ew-bg-neutral-bg {
+  --tw-bg-opacity: 1;
+  background-color: rgb(var(--theme-neutral-bg-ch) / var(--tw-bg-opacity));
+}
+
+.ew-bg-neutral-aux {
+  --tw-bg-opacity: 1;
+  background-color: rgb(var(--theme-neutral-aux-ch) / var(--tw-bg-opacity));
+}
+
 .ew-bg-base-aux\\/\\[0\\.07\\] {
   background-color: rgb(var(--theme-base-aux-ch) / 0.07);
-}
-
-.ew-bg-success-fg\\/30 {
-  background-color: rgb(var(--theme-success-fg-ch) / 0.3);
-}
-
-.ew-bg-warning-fg\\/30 {
-  background-color: rgb(var(--theme-warning-fg-ch) / 0.3);
-}
-
-.ew-bg-danger-fg\\/30 {
-  background-color: rgb(var(--theme-danger-fg-ch) / 0.3);
 }
 
 .ew-p-2 {
@@ -903,6 +935,16 @@ globalStyles =
 .ew-px-6 {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+}
+
+.ew-px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.ew-py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 .ew-pl-0 {
@@ -1071,12 +1113,26 @@ globalStyles =
   color: rgb(var(--theme-base-bg-ch) / var(--tw-text-opacity));
 }
 
+.ew-text-primary-aux {
+  --tw-text-opacity: 1;
+  color: rgb(var(--theme-primary-aux-ch) / var(--tw-text-opacity));
+}
+
+.ew-text-neutral-aux {
+  --tw-text-opacity: 1;
+  color: rgb(var(--theme-neutral-aux-ch) / var(--tw-text-opacity));
+}
+
 .ew-no-underline {
   text-decoration-line: none;
 }
 
 .ew-opacity-20 {
   opacity: 0.2;
+}
+
+.ew-opacity-\\[0\\.55\\] {
+  opacity: 0.55;
 }
 
 .ew-opacity-40 {
@@ -1099,14 +1155,12 @@ globalStyles =
   opacity: 0.5;
 }
 
-.ew-opacity-\\[0\\.55\\] {
-  opacity: 0.55;
+.ew-opacity-0 {
+  opacity: 0;
 }
 
-.ew-shadow-none {
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+.ew-opacity-100 {
+  opacity: 1;
 }
 
 .ew-shadow-lg {
@@ -1118,6 +1172,12 @@ globalStyles =
 .ew-shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.ew-shadow-none {
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
@@ -1185,6 +1245,14 @@ globalStyles =
   transition-duration: 150ms;
 }
 
+.ew-delay-500 {
+  transition-delay: 500ms;
+}
+
+.ew-delay-1000 {
+  transition-delay: 1000ms;
+}
+
 /* 
  * ======================================================
  * Input Reset and Icons
@@ -1225,6 +1293,24 @@ globalStyles =
   width: 24px;
   border-radius: 50%;
   background: currentColor;
+}
+
+/* 
+ * ======================================================
+ * Tooltip
+ * ======================================================
+ */
+
+.ew-tooltip::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -2px;
+  border-style: solid;
+  border-width: 4px 4px 0 4px;
+  border-color: var(--theme-neutral-bg) transparent transparent transparent;
 }
 
 /* 
@@ -1485,6 +1571,23 @@ globalStyles =
   --tw-scale-x: 1;
   --tw-scale-y: 1;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.ew-group:hover .group-hover\\:ew-translate-y-0 {
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.ew-group:hover .group-hover\\:ew-opacity-100 {
+  opacity: 1;
+}
+
+.ew-group:hover .group-hover\\:ew-delay-500 {
+  transition-delay: 500ms;
+}
+
+.ew-group:hover .group-hover\\:ew-delay-1000 {
+  transition-delay: 1000ms;
 }
 
 """ ]
