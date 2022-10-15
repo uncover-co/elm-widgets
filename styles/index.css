@@ -32,6 +32,19 @@
   }
 }
 
+@layer utilities {
+  .ew-focusable {
+    @apply ew-transition;
+    @apply ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50;
+    @apply focus:ew-ring focus:ew-border-primary-fg;
+  }
+  .ew-focusable-outline {
+    @apply ew-transition;
+    @apply ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50;
+    @apply focus:ew-ring;
+  }
+}
+
 /* 
  * ======================================================
  * Input Reset and Icons

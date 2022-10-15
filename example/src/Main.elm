@@ -21,6 +21,8 @@ import Chapters.Information.Pagination
 import Chapters.Information.Popover
 import Chapters.Information.Tag
 import Chapters.Information.Tooltip
+import Chapters.Information.Badge
+import Chapters.Information.Message
 import Chapters.Layout.Modal
 import ElmBook exposing (Book, book, withChapterGroups, withStatefulOptions, withThemeOptions)
 import ElmBook.Chapter
@@ -85,10 +87,10 @@ main =
                 , Chapters.Information.Tooltip.chapter_
                 , Chapters.Information.Menu.chapter_
                 , Chapters.Information.Tag.chapter_
-                , wip "Badge"
+                , Chapters.Information.Badge.chapter_
                 , wip "Table"
                 , wip "Toast"
-                , wip "Message"
+                , Chapters.Information.Message.chapter_
                 , Chapters.Information.Pagination.chapter_
                 ]
               )
