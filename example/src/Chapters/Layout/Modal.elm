@@ -25,7 +25,7 @@ chapter_ =
                 ]
                 []
     in
-    chapter "- Modal"
+    chapter "Modal"
         |> renderComponentList
             [ ( "Modal"
               , wrapper

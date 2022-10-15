@@ -1,4 +1,4 @@
-module W.Styles exposing (globalStyles)
+module W.Styles exposing (baseTheme, globalStyles)
 
 {-|
 
@@ -6,10 +6,18 @@ module W.Styles exposing (globalStyles)
 
 -}
 
-import Html as H exposing (Html)
+import Html as H
+import Theme
+
 
 {-| -}
-globalStyles : Html msg
+baseTheme : H.Html msg
+baseTheme =
+    Theme.globalProvider Theme.lightTheme
+
+
+{-| -}
+globalStyles : H.Html msg
 globalStyles =
     H.node "style"
         []

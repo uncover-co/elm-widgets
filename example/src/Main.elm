@@ -28,7 +28,6 @@ import ElmBook exposing (Book, book, withChapterGroups, withStatefulOptions, wit
 import ElmBook.Chapter
 import ElmBook.StatefulOptions
 import ElmBook.ThemeOptions
-import Theme
 import W.Styles
 
 
@@ -59,11 +58,12 @@ main =
             ]
         |> withThemeOptions
             [ ElmBook.ThemeOptions.globals
-                [ Theme.globalProviderWithDarkMode
-                    { light = Theme.lightTheme
-                    , dark = Theme.darkTheme
-                    , strategy = Theme.classStrategy "elm-book-dark-mode"
-                    }
+                -- [ Theme.globalProviderWithDarkMode
+                --     { light = Theme.lightTheme
+                --     , dark = Theme.darkTheme
+                --     , strategy = Theme.classStrategy "elm-book-dark-mode"
+                --     }
+                [ W.Styles.baseTheme
                 , W.Styles.globalStyles
                 ]
             ]
