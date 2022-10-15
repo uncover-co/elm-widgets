@@ -22,6 +22,7 @@ import Html.Events as HE
 import Time
 import Time.Extra
 import W.Internal.Helpers as WH
+import W.Internal.Input
 
 
 
@@ -169,7 +170,7 @@ view attrs_ props =
         (attrs.htmlAttributes
             ++ [ HA.type_ "time"
                , WH.maybeAttr HA.id attrs.id
-               , HA.class "ew ew-input ew-focusable"
+               , HA.class W.Internal.Input.baseClass
                , HA.class attrs.class
                , HA.required attrs.required
                , HA.disabled attrs.disabled

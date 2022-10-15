@@ -17,6 +17,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import W.Internal.Helpers as WH
+import W.Internal.Input
 
 
 
@@ -95,10 +96,10 @@ viewGroups attrs_ props =
                 |> List.map (\a -> ( props.toValue a, a ))
                 |> Dict.fromList
     in
-    H.div [ HA.class "ew ew-select-wrapper" ]
+    H.div [ HA.class "ew-select ew-relative" ]
         [ H.select
             [ WH.maybeAttr HA.id attrs.id
-            , HA.class "ew ew-focusable ew-input ew-select"
+            , HA.class W.Internal.Input.baseClass
             , HA.disabled attrs.disabled
             , HA.readonly attrs.readOnly
             , HA.placeholder "Select"
@@ -136,7 +137,8 @@ viewGroups attrs_ props =
                         )
                 ]
             )
-        , H.div [ HA.class "ew ew-select-icon" ] []
+        , W.Internal.Input.iconWrapper "ew-text-base-aux"
+            W.Internal.Input.iconChevronDown
         ]
 
 

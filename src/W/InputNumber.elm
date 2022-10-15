@@ -20,6 +20,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import W.Internal.Helpers as WH
+import W.Internal.Input
 
 
 
@@ -175,7 +176,7 @@ view attrs_ props =
         (attrs.htmlAttributes
             ++ [ HA.type_ "number"
                , WH.maybeAttr HA.id attrs.id
-               , HA.class "ew ew-input ew-focusable"
+               , HA.class W.Internal.Input.baseClass
                , HA.class attrs.class
                , HA.required attrs.required
                , HA.disabled attrs.disabled

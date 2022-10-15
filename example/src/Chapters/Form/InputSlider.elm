@@ -65,10 +65,7 @@ chapter_ =
             , ( "Custom Color"
               , \{ range } ->
                     W.InputSlider.view
-                        [ W.InputSlider.theme
-                            { color = "red"
-                            , shadow = "rgba(255, 0, 0, 0.1)"
-                            }
+                        [ W.InputSlider.color "red"
                         ]
                         { min = 0
                         , max = 10

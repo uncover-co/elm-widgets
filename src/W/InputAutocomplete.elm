@@ -18,6 +18,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as D
 import W.Internal.Helpers as WH
+import W.Internal.Input
 import W.Loading
 
 
@@ -149,7 +150,7 @@ view attrs_ props =
         optionsDict =
             Dict.fromList options
     in
-    H.div [ HA.class "ew ew-autocomplete" ]
+    H.div [ HA.class "ew-relative" ]
         [ H.input
             (attrs.htmlAttributes
                 ++ [ WH.maybeAttr HA.placeholder attrs.placeholder
@@ -159,7 +160,8 @@ view attrs_ props =
                    , HA.autocomplete False
                    , HA.id props.id
                    , HA.class attrs.class
-                   , HA.class "ew ew-input ew-focusable"
+                   , HA.class W.Internal.Input.baseClass
+                   , HA.class "ew-input-with-picker ew-pr-10"
                    , HA.list (props.id ++ "-list")
                    , HA.value props.search
                    , WH.maybeAttr HE.onFocus attrs.onFocus
@@ -185,12 +187,11 @@ view attrs_ props =
                         H.option [ HA.value label ] []
                     )
             )
-        , if props.options == Nothing then
-            H.div
-                [ HA.class "ew ew-autocomplete-loading" ]
-                [ W.Loading.circles [ W.Loading.size 28 ]
-                ]
+        , W.Internal.Input.iconWrapper "ew-text-base-aux"
+            (if props.options == Nothing then
+                W.Loading.circles [ W.Loading.size 28 ]
 
-          else
-            H.text ""
+             else
+                W.Internal.Input.iconChevronDown
+            )
         ]

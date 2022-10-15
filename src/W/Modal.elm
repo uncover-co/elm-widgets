@@ -93,17 +93,6 @@ view attrs_ props =
             , WH.maybeAttr HE.onClick props.onClose
             ]
             []
-        , WH.maybeHtml
-            (\onClose ->
-                H.button
-                    [ HA.class "ew-relative ew-self-end"
-                    , HA.class "ew-p-4 ew-bg-transparent ew-border-0 ew-shadow-none"
-                    , HA.class "ew-text-base-bg"
-                    , HE.onClick onClose
-                    ]
-                    [ W.Internal.Icons.close { size = 24 } ]
-            )
-            props.onClose
         , H.div
             [ HA.class "ew-relative"
             , HA.class "ew-bg-base-bg ew-shadow-lg ew-rounded-lg"

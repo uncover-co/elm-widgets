@@ -19,6 +19,7 @@ import Chapters.Information.DataRow
 import Chapters.Information.Menu
 import Chapters.Information.Pagination
 import Chapters.Information.Popover
+import Chapters.Information.Tag
 import Chapters.Layout.Modal
 import ElmBook exposing (Book, book, withChapterGroups, withStatefulOptions, withThemeOptions)
 import ElmBook.Chapter
@@ -82,7 +83,7 @@ main =
                 , Chapters.Information.Popover.chapter_
                 , wip "Tooltip"
                 , Chapters.Information.Menu.chapter_
-                , wip "Tag"
+                , Chapters.Information.Tag.chapter_
                 , wip "Badge"
                 , wip "Table"
                 , wip "Toast"

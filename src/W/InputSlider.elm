@@ -1,13 +1,13 @@
 module W.InputSlider exposing
     ( view
-    , id, theme, disabled, readOnly
+    , id, color, disabled, readOnly
     , Attribute
     )
 
 {-|
 
 @docs view
-@docs id, theme, disabled, readOnly
+@docs id, color, disabled, readOnly
 @docs Attribute
 
 -}
@@ -16,7 +16,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as D
-import ThemeSpec
+import Theme
 import W.Internal.Helpers as WH
 
 
@@ -33,7 +33,7 @@ type alias Attributes =
     { id : Maybe String
     , disabled : Bool
     , readOnly : Bool
-    , theme : { color : String, shadow : String }
+    , color : String
     , format : Float -> String
     }
 
@@ -48,10 +48,7 @@ defaultAttrs =
     { id = Nothing
     , disabled = False
     , readOnly = False
-    , theme =
-        { color = ThemeSpec.primary.bg
-        , shadow = "rgb(" ++ ThemeSpec.primary.bgChannels ++ " / 0.2)"
-        }
+    , color = Theme.primaryForeground
     , format = String.fromFloat
     }
 
@@ -67,9 +64,9 @@ id v =
 
 
 {-| -}
-theme : { color : String, shadow : String } -> Attribute msg
-theme v =
-    Attribute <| \attrs -> { attrs | theme = v }
+color : String -> Attribute msg
+color v =
+    Attribute <| \attrs -> { attrs | color = v }
 
 
 {-| -}
@@ -103,26 +100,79 @@ view attrs_ props =
     let
         attrs : Attributes
         attrs =
-            applyAttrs attrs_
+            applyAttrs attrs_ |> Debug.log ""
+
+        valueString : String
+        valueString =
+            (props.value - props.min)
+                / (props.max - props.min)
+                |> (*) 100
+                |> String.fromFloat
+                |> (\s -> s ++ "%")
+
+        colorAttr : H.Attribute msg
+        colorAttr =
+            if attrs.disabled then
+                HA.class "ew-text-base-aux"
+
+            else
+                HA.style "color" attrs.color
     in
-    H.div [ HA.class "ew ew-slider-wrapper" ]
-        [ H.div [ HA.class "ew ew-slider-value-wrapper" ]
-            [ H.p
-                [ HA.class "ew ew-slider-bounds ew-m-min" ]
-                [ H.text <| attrs.format props.min ]
-            , H.p
-                [ HA.class "ew ew-slider-value"
+    H.div
+        [ HA.class "ew-group ew-relative ew-full"
+        , colorAttr
+        ]
+        [ H.div [ HA.class "ew-absolute ew-inset-y-0 ew-inset-x-[12px]" ]
+            [ -- Track
+              H.div
+                [ HA.class "ew-absolute ew-rounded"
+                , HA.class "ew-inset-x-0 ew-top-1/2"
+                , HA.class "ew-bg-base-aux/30"
+                , HA.class "ew-h-1 -ew-mt-0.5"
                 ]
-                [ H.text <| attrs.format props.value ]
-            , H.p
-                [ HA.class "ew ew-slider-bounds ew-m-max" ]
-                [ H.text <| attrs.format props.max ]
+                []
+            , -- Value Track Background
+              H.div
+                [ HA.class "ew-absolute ew-z-1 ew-rounded"
+                , HA.class "ew-left-0 ew-top-1/2"
+                , HA.class "ew-bg-base-bg"
+                , HA.class "ew-h-[6px] -ew-mt-[3px]"
+                , HA.style "width" valueString
+                ]
+                []
+            , -- Value Track
+              H.div
+                [ HA.class "ew-absolute ew-z-0 ew-rounded"
+                , HA.class "ew-left-0 ew-top-1/2"
+                , HA.class "ew-bg-current"
+                , HA.class "ew-opacity-[0.55]"
+                , HA.class "ew-h-[6px] -ew-mt-[3px]"
+                , HA.style "width" valueString
+                ]
+                []
+            , -- Value Ring
+              H.div
+                [ HA.class "ew-absolute ew-rounded-full"
+                , HA.class "ew-top-1/2"
+                , HA.class "ew-bg-current"
+                , HA.class "ew-opacity-20"
+                , HA.class "ew-h-10 ew-w-10 -ew-ml-5 -ew-mt-5"
+                , HA.class "ew-scale-0 ew-transition-transform"
+                , HA.class "group-focus-within:ew-scale-100"
+                , HA.style "left" valueString
+                ]
+                []
             ]
-        , H.input
+        , -- Thumb
+          H.input
             [ WH.maybeAttr HA.id attrs.id
-            , HA.class "ew ew-slider"
-            , HA.classList [ ( "ew-m-read-only", attrs.readOnly ) ]
+            , HA.class "ew-relative"
+            , HA.class "ew-slider ew-appearance-none"
+            , HA.class "ew-bg-transparent"
+            , HA.class "ew-m-0 ew-w-full"
+            , HA.class "focus:ew-outline-0"
             , HA.type_ "range"
+            , colorAttr
 
             -- This is a fallback since range elements will not respect read only attributes
             , HA.disabled (attrs.disabled || attrs.readOnly)
@@ -146,11 +196,6 @@ view attrs_ props =
                         )
                     |> D.map props.onInput
                 )
-            , WH.stylesList
-                [ ( "--color", attrs.theme.color, not attrs.disabled )
-                , ( "--shadow", attrs.theme.shadow, not attrs.disabled )
-                , ( "--color", "var(--theme-base-aux)", attrs.disabled )
-                ]
             ]
             []
         ]

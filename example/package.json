@@ -14,7 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "elm-tooling": "^1.8.0",
-    "elm-watch": "^1.0.2",
+    "elm-watch": "^1.1.0-beta.2",
     "run-pty": "^4.0.2",
     "serve": "^14.0.1"
   }

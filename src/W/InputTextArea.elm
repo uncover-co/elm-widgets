@@ -20,6 +20,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import W.Internal.Helpers as WH
+import W.Internal.Input
 
 
 {-| -}
@@ -169,20 +170,27 @@ view attrs_ props =
         attrs =
             applyAttrs attrs_
 
+        resizeStyle : H.Attribute msg
+        resizeStyle =
+            if attrs.autogrow then
+                HA.style "resize" "none"
+
+            else
+                WH.stringIf attrs.resizable "vertical" "none"
+                    |> HA.style "resize"
+
         inputAttrs : List (H.Attribute msg)
         inputAttrs =
             attrs.htmlAttributes
                 ++ [ WH.maybeAttr HA.id attrs.id
-                   , HA.classList
-                        [ ( "ew ew-textarea-input ew-focusable", not attrs.unstyled && attrs.autogrow )
-                        , ( "ew ew-input ew-focusable", not attrs.unstyled && not attrs.autogrow )
-                        ]
                    , HA.class attrs.class
+                   , HA.classList [ ( W.Internal.Input.areaClass, not attrs.unstyled ) ]
+                   , HA.class "ew-pt-[10px]"
                    , HA.required attrs.required
                    , HA.disabled attrs.disabled
                    , HA.readonly attrs.readOnly
                    , HA.rows attrs.rows
-                   , HA.style "resize" resizeStyle
+                   , resizeStyle
                    , HA.value props.value
                    , HE.onInput props.onInput
                    , WH.maybeAttr HA.placeholder attrs.placeholder
@@ -190,26 +198,28 @@ view attrs_ props =
                    , WH.maybeAttr HE.onBlur attrs.onBlur
                    , WH.maybeAttr WH.onEnter attrs.onEnter
                    ]
-
-        resizeStyle : String
-        resizeStyle =
-            if attrs.autogrow then
-                "none"
-
-            else
-                WH.stringIf attrs.resizable "vertical" "none"
     in
     if not attrs.autogrow then
         H.textarea inputAttrs []
 
     else
-        H.label [ HA.class "ew ew-textarea m-autogrow" ]
-            [ if attrs.autogrow then
-                H.div
-                    [ HA.attribute "aria-hidden" "true", HA.class "ew ew-textarea-autogrow" ]
-                    [ H.text (props.value ++ " ") ]
-
-              else
-                H.text ""
-            , H.textarea inputAttrs []
+        H.div
+            [ HA.class "ew-grid ew-relative" ]
+            [ H.div
+                [ HA.attribute "aria-hidden" "true"
+                , HA.style "grid-area" "1 / 1 / 2 / 2"
+                , HA.class attrs.class
+                , HA.class "ew-overflow-hidden ew-whitespace-pre-wrap ew-text-transparent"
+                , HA.class "ew-pt-[10px]"
+                , HA.classList [ ( W.Internal.Input.areaClass, not attrs.unstyled ) ]
+                , HA.style "background" "transparent"
+                ]
+                [ H.text (props.value ++ " ") ]
+            , H.textarea
+                (inputAttrs
+                    ++ [ HA.style "grid-area" "1 / 1 / 2 / 2"
+                       , HA.class "ew-overflow-hidden ew-whitespace-pre-wrap"
+                       ]
+                )
+                []
             ]

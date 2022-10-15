@@ -14,7 +14,7 @@ chapter_ =
             , ( "Circles with Custom Size and Color"
               , W.Loading.circles
                     [ W.Loading.size 40
-                    , W.Loading.color "red"
+                    , W.Loading.color "#48CB82"
                     ]
               )
             , ( "Dots"
@@ -23,7 +23,7 @@ chapter_ =
             , ( "Dots with Custom Size and Color"
               , W.Loading.dots
                     [ W.Loading.size 40
-                    , W.Loading.color "red"
+                    , W.Loading.color "#48CB82"
                     ]
               )
             , ( "Ripples"
@@ -32,7 +32,7 @@ chapter_ =
             , ( "Ripples with Custom Size and Color"
               , W.Loading.ripples
                     [ W.Loading.size 40
-                    , W.Loading.color "red"
+                    , W.Loading.color "#48CB82"
                     ]
               )
             ]

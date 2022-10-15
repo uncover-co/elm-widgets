@@ -15,7 +15,11 @@ children :
         }
 children label =
     { content =
-        [ H.text "Content with considerable size" ]
+        [ H.p [] 
+            [ H.text "Content with considerable size"
+            , H.input [] []
+            ]
+        ]
     , children =
         [ W.Button.viewLink []
             { href = "/logAction/"

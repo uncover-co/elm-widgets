@@ -175,46 +175,77 @@ view attrs_ props =
         attrs =
             applyAttrs attrs_
 
-        positionClass : String
-        positionClass =
-            case attrs.position of
-                TopLeft ->
-                    "ew-m-top-left"
+        offsetValue : String
+        offsetValue =
+            "calc(100% + " ++ String.fromFloat attrs.offset ++ "px)"
 
-                TopRight ->
-                    "ew-m-top-right"
+        offsetIfOver : String
+        offsetIfOver =
+            if attrs.over then
+                "0"
 
-                LeftTop ->
-                    "ew-m-left-top"
+            else
+                offsetValue
 
-                LeftBottom ->
-                    "ew-m-left-bottom"
+        crossAnchor : String -> H.Attribute msg
+        crossAnchor x =
+            if attrs.full then
+                HA.style x "0"
 
-                RightTop ->
-                    "ew-m-right-top"
+            else
+                HA.style x "auto"
 
-                RightBottom ->
-                    "ew-m-right-bottom"
+        positionAttrs : List (H.Attribute msg)
+        positionAttrs =
+            case ( attrs.position, attrs.full, attrs.over ) of
+                ( TopLeft, _, _ ) ->
+                    [ HA.style "left" "0"
+                    , HA.style "bottom" offsetIfOver
+                    , crossAnchor "right"
+                    ]
 
-                BottomLeft ->
-                    "ew-m-bottom-left"
+                ( TopRight, _, _ ) ->
+                    [ HA.style "right" "0"
+                    , HA.style "bottom" offsetIfOver
+                    , crossAnchor "left"
+                    ]
 
-                BottomRight ->
-                    "ew-m-bottom-right"
+                ( BottomLeft, _, _ ) ->
+                    [ HA.style "left" "0"
+                    , HA.style "top" offsetIfOver
+                    , crossAnchor "right"
+                    ]
+
+                ( BottomRight, _, _ ) ->
+                    [ HA.style "right" "0"
+                    , HA.style "top" offsetIfOver
+                    , crossAnchor "left"
+                    ]
+
+                ( LeftTop, _, _ ) ->
+                    [ HA.style "right" offsetValue, HA.style "top" "0" ]
+
+                ( LeftBottom, _, _ ) ->
+                    [ HA.style "right" offsetValue, HA.style "bottom" "0" ]
+
+                ( RightTop, _, _ ) ->
+                    [ HA.style "left" offsetValue, HA.style "top" "0" ]
+
+                ( RightBottom, _, _ ) ->
+                    [ HA.style "left" offsetValue, HA.style "bottom" "0" ]
     in
     H.div
-        [ HA.class "ew ew-popover" ]
+        [ HA.class "ew-inline-block ew-relative ew-group" ]
         [ H.div [ HA.tabindex 0 ] props.children
         , H.div
-            [ HA.class "ew ew-popover-content"
-            , HA.class positionClass
-            , HA.classList
-                [ ( "ew-m-full", attrs.full )
-                , ( "ew-m-over", attrs.over )
-                , ( "ew-m-styled", not attrs.unstyled )
-                ]
-            , WH.styles [ ( "--offset", String.fromFloat attrs.offset ++ "px" ) ]
-            ]
+            (positionAttrs
+                ++ [ HA.class "ew-hidden ew-absolute ew-z-[9999] group-focus-within:ew-block hover:ew-block"
+                   , HA.classList
+                        [ ( "ew-min-w-full", attrs.over )
+                        , ( "ew-overflow-auto ew-bg-base-bg ew-border-lg ew-border-0.5 ew-border-base-aux/20 ew-shadow", not attrs.unstyled )
+                        ]
+                   ]
+            )
             [ H.div
                 (attrs.htmlAttributes
                     ++ [ WH.maybeAttr HA.id attrs.id

@@ -15,6 +15,7 @@ module W.InputCheckbox exposing
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Theme
 import W.Internal.Helpers as WH
 
 
@@ -43,7 +44,7 @@ applyAttrs attrs =
 defaultAttrs : Attributes
 defaultAttrs =
     { id = Nothing
-    , color = "var(--theme-primary-bg)"
+    , color = Theme.primaryBackground
     , disabled = False
     , readOnly = False
     }
@@ -94,17 +95,13 @@ view attrs_ props =
     in
     H.input
         [ WH.maybeAttr HA.id attrs.id
-        , HA.class "ew ew-focusable ew-checkbox"
-        , HA.classList
-            [ ( "ew-is-disabled", attrs.disabled && not attrs.readOnly )
-            , ( "ew-is-read-only", attrs.readOnly )
-            ]
-        , WH.styles [ ( "--color", attrs.color ) ]
+        , HA.class "ew-check-radio ew-rounded before:ew-rounded-sm"
+        , HA.style "color" attrs.color
         , HA.type_ "checkbox"
         , HA.checked props.value
 
         -- We also disable the checkbox plugin when it is readonly
-        -- Since this property is not currently respect for checkboxes
+        -- Since this property is not currently respected for checkboxes
         , HA.disabled (attrs.disabled || attrs.readOnly)
         , HA.readonly attrs.readOnly
 

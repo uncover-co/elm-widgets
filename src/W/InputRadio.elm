@@ -101,27 +101,22 @@ view attrs_ props =
     in
     H.div
         [ HA.id props.id
-        , HA.class "ew ew-radio-buttons"
+        , HA.class "ew-flex ew-gap-6"
         , HA.classList
-            [ ( "ew-m-vertical", attrs.vertical )
-            , ( "ew-is-disabled", attrs.disabled && not attrs.readOnly )
-            , ( "ew-is-read-only", attrs.readOnly )
+            [ ( "ew-flex-col", attrs.vertical )
+            , ( "", not attrs.vertical )
             ]
-        , WH.styles [ ( "--color", attrs.color ) ]
         ]
         (props.options
             |> List.map
                 (\a ->
                     H.label
                         [ HA.name props.id
-                        , HA.class "ew ew-radio-buttons--item"
+                        , HA.class "ew-inline-flex ew-items-center ew-p-0"
                         ]
                         [ H.input
-                            [ HA.class "ew ew-focusable ew-radio-buttons--item-input"
-                            , HA.classList
-                                [ ( "ew-is-disabled", attrs.disabled && not attrs.readOnly )
-                                , ( "ew-is-read-only", attrs.readOnly )
-                                ]
+                            [ HA.class "ew-check-radio ew-rounded-full before:ew-rounded-full"
+                            , HA.style "color" attrs.color
                             , HA.type_ "radio"
                             , HA.name props.id
                             , HA.value (props.toValue a)
@@ -136,7 +131,7 @@ view attrs_ props =
                             ]
                             []
                         , H.span
-                            [ HA.class "ew ew-radio-buttons--item-label"
+                            [ HA.class "ew-font-text ew-text-base-fg ew-pl-3"
                             ]
                             [ H.text (props.toLabel a) ]
                         ]

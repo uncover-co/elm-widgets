@@ -8,7 +8,7 @@ import W.Button
 
 chapter_ : Chapter x
 chapter_ =
-    chapter "Buttons"
+    chapter "- Buttons"
         |> renderComponentList
             ([ [ ( "Default", [] )
                , ( "Primary", [ W.Button.primary ] )

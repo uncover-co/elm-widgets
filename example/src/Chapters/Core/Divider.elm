@@ -8,7 +8,7 @@ import W.Divider
 
 chapter_ : Chapter x
 chapter_ =
-    chapter "Divider"
+    chapter "- Divider"
         |> renderComponentList
             [ ( "Horizontal"
               , W.Divider.horizontal

@@ -10,4 +10,5 @@ module.exports = {
         }
     },
     plugins: [require("elm-theme-tailwindcss")],
+    corePlugins: { preflight: false }
 };

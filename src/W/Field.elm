@@ -141,37 +141,67 @@ view attrs_ props =
     H.section
         (attrs.htmlAttributes
             ++ [ WH.maybeAttr HA.id attrs.id
-               , HA.class "ew ew-field"
+               , HA.class "ew-p-4 ew-bg-base-bg ew-font-text"
                , HA.class attrs.class
                ]
         )
         [ H.div
-            [ HA.class "ew ew-field-main"
-            , HA.classList [ ( "ew-m-align-right", attrs.alignRight ) ]
+            [ HA.classList [ ( "ew-flex ew-items-start ew-justify-between", attrs.alignRight ) ]
             ]
-            [ H.div [ HA.class "ew ew-field-label-wrapper" ]
-                [ H.h1 [ HA.class "ew ew-field-label" ] [ props.label ]
+            [ H.div
+                [ HA.classList [ ( "ew-w-[40%] ew-pr-4 ew-pt-1", attrs.alignRight ) ]
+                ]
+                [ H.h1
+                    [ HA.class "ew-m-0 ew-font-normal ew-text-sm ew-pb-2 ew-font-text"
+                    , HA.classList [ ( "ew-pb-0", attrs.alignRight ) ]
+                    ]
+                    [ props.label ]
                 , attrs.footer
-                    |> Maybe.map (\f -> H.p [ HA.class "ew ew-field-label-footer" ] [ f ])
+                    |> Maybe.map (\f -> H.p [ HA.class "ew-m-0 ew-pt-1 ew-text-base-aux ew-text-xs ew-font-text ew-text-aux" ] [ f ])
                     |> Maybe.withDefault (H.text "")
                 ]
-            , H.div [ HA.class "ew ew-field-input" ] [ props.input ]
+            , H.div
+                [ HA.classList [ ( "ew-w-[60%]", attrs.alignRight ) ]
+                ]
+                [ props.input
+                , case ( attrs.danger, attrs.warning, attrs.success ) of
+                    ( Just danger_, _, _ ) ->
+                        H.p
+                            [ messageBaseClass
+                            , HA.class "ew-bg-danger-fg/10 ew-text-danger-fg"
+                            ]
+                            [ H.text danger_ ]
+
+                    ( Nothing, Just warning_, _ ) ->
+                        H.p
+                            [ messageBaseClass
+                            , HA.class "ew-bg-warning-fg/10 ew-text-warning-fg"
+                            ]
+                            [ H.text warning_ ]
+
+                    ( Nothing, Nothing, Just success_ ) ->
+                        H.p
+                            [ messageBaseClass
+                            , HA.class "ew-bg-success-fg/10 ew-text-success-fg"
+                            ]
+                            [ H.text success_ ]
+
+                    ( Nothing, Nothing, Nothing ) ->
+                        case attrs.hint of
+                            Just hint_ ->
+                                H.p
+                                    [ messageBaseClass
+                                    , HA.class "ew-bg-base-aux/10 ew-text-base-fg"
+                                    ]
+                                    [ H.text hint_ ]
+
+                            Nothing ->
+                                H.text ""
+                ]
             ]
-        , case ( attrs.danger, attrs.warning, attrs.success ) of
-            ( Just danger_, _, _ ) ->
-                H.p [ HA.class "ew ew-field-message ew-m-danger" ] [ H.text danger_ ]
-
-            ( Nothing, Just warning_, _ ) ->
-                H.p [ HA.class "ew ew-field-message ew-m-warning" ] [ H.text warning_ ]
-
-            ( Nothing, Nothing, Just success_ ) ->
-                H.p [ HA.class "ew ew-field-message ew-m-success" ] [ H.text success_ ]
-
-            ( Nothing, Nothing, Nothing ) ->
-                case attrs.hint of
-                    Just hint_ ->
-                        H.p [ HA.class "ew ew-field-message" ] [ H.text hint_ ]
-
-                    Nothing ->
-                        H.text ""
         ]
+
+
+messageBaseClass : H.Attribute msg
+messageBaseClass =
+    HA.class "ew-mt-2 ew-p-3 rounded-lg"
