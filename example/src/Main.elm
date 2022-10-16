@@ -23,12 +23,14 @@ import Chapters.Information.Tag
 import Chapters.Information.Tooltip
 import Chapters.Information.Badge
 import Chapters.Information.Message
+import Chapters.Information.Notification
 import Chapters.Layout.Modal
 import ElmBook exposing (Book, book, withChapterGroups, withStatefulOptions, withThemeOptions)
 import ElmBook.Chapter
 import ElmBook.StatefulOptions
 import ElmBook.ThemeOptions
 import W.Styles
+import Theme
 
 
 type alias SharedState =
@@ -58,12 +60,11 @@ main =
             ]
         |> withThemeOptions
             [ ElmBook.ThemeOptions.globals
-                -- [ Theme.globalProviderWithDarkMode
-                --     { light = Theme.lightTheme
-                --     , dark = Theme.darkTheme
-                --     , strategy = Theme.classStrategy "elm-book-dark-mode"
-                --     }
-                [ W.Styles.baseTheme
+                [ Theme.globalProviderWithDarkMode
+                    { light = Theme.lightTheme
+                    , dark = Theme.darkTheme
+                    , strategy = Theme.classStrategy "elm-book-dark-mode"
+                    }
                 , W.Styles.globalStyles
                 ]
             ]
@@ -91,6 +92,7 @@ main =
                 , wip "Table"
                 , wip "Toast"
                 , Chapters.Information.Message.chapter_
+                , Chapters.Information.Notification.chapter_
                 , Chapters.Information.Pagination.chapter_
                 ]
               )

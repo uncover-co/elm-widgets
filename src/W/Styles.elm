@@ -855,6 +855,10 @@ globalStyles =
   border-color: rgb(var(--theme-base-aux-ch) / 0.3);
 }
 
+.ew-border-base-aux\\/10 {
+  border-color: rgb(var(--theme-base-aux-ch) / 0.1);
+}
+
 .ew-border-opacity-50 {
   --tw-border-opacity: 0.5;
 }
@@ -952,6 +956,11 @@ globalStyles =
 
 .ew-bg-base-aux\\/\\[0\\.07\\] {
   background-color: rgb(var(--theme-base-aux-ch) / 0.07);
+}
+
+.ew-bg-yellow-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 224 71 / var(--tw-bg-opacity));
 }
 
 .ew-p-2 {
