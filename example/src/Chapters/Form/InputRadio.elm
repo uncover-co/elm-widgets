@@ -42,6 +42,16 @@ chapter_ =
                     , onInput = logActionWith String.fromInt "onInput"
                     }
               )
+            , ( "Starting with hidden value"
+              , W.InputRadio.view []
+                    { id = "r"
+                    , value = -1
+                    , toLabel = String.fromInt
+                    , toValue = String.fromInt
+                    , options = [ 1, 2, 3 ]
+                    , onInput = logActionWith String.fromInt "onInput"
+                    }
+              )
             , ( "Custom Colors"
               , W.InputRadio.view
                     [ W.InputRadio.color "red" ]
