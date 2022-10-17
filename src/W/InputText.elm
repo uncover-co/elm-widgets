@@ -1,8 +1,8 @@
 module W.InputText exposing
     ( view
     , email, password, search, telephone, url, InputType
-    , id, class, unstyled, placeholder, disabled, required, readOnly, pattern
-    , viewValidation, errorToString, Error
+    , id, class, unstyled, placeholder, disabled, required, readOnly, pattern, validation
+    , viewWithValidation, errorToString, Error(..)
     , onEnter, onFocus, onBlur
     , htmlAttrs, Attribute
     )
@@ -11,8 +11,8 @@ module W.InputText exposing
 
 @docs view
 @docs email, password, search, telephone, url, InputType
-@docs id, class, unstyled, placeholder, disabled, required, readOnly, pattern
-@docs viewValidation, errorToString, Error
+@docs id, class, unstyled, placeholder, disabled, required, readOnly, pattern, validation
+@docs viewWithValidation, errorToString, Error
 @docs onEnter, onFocus, onBlur
 @docs htmlAttrs, Attribute
 
@@ -61,28 +61,6 @@ inputInputTypeToString t =
             "url"
 
 
-inputInputTypeToHumanString : InputType -> String
-inputInputTypeToHumanString t =
-    case t of
-        Text ->
-            "text"
-
-        Telephone ->
-            "telephone"
-
-        Password ->
-            "password"
-
-        Search ->
-            "search"
-
-        Email ->
-            "email"
-
-        Url ->
-            "url"
-
-
 type Error customError
     = PatternMismatch String
     | InputTypeMismatch InputType String
@@ -111,7 +89,7 @@ errorToString error =
             message
 
         Custom _ ->
-            "Invalid Input"
+            "Value must follow the expected format."
 
 
 {-| -}
@@ -318,14 +296,14 @@ view attrs_ props =
     H.input (baseAttrs attrs ++ [ HA.value props.value, HE.onInput props.onInput ]) []
 
 
-viewValidation :
+viewWithValidation :
     List (Attribute customError msg)
     ->
         { value : String
         , onInput : String -> Result (Error customError) String -> msg
         }
     -> H.Html msg
-viewValidation attrs_ props =
+viewWithValidation attrs_ props =
     let
         attrs : Attributes customError msg
         attrs =
