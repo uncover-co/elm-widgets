@@ -55,11 +55,13 @@
   display: none;
 }
 
+/*
 .ew-input::-webkit-calendar-picker-indicator, 
 .ew-input::-webkit-time-picker-indicator {
   background-image: none;
   visibility: hidden;
 }
+*/
 
 /* 
  * ======================================================

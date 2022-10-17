@@ -837,6 +837,10 @@ globalStyles =
   border-color: currentColor;
 }
 
+.ew-border-base-aux\\/10 {
+  border-color: rgb(var(--theme-base-aux-ch) / 0.1);
+}
+
 .ew-border-base-aux\\/20 {
   border-color: rgb(var(--theme-base-aux-ch) / 0.2);
 }
@@ -853,10 +857,6 @@ globalStyles =
 
 .ew-border-base-aux\\/30 {
   border-color: rgb(var(--theme-base-aux-ch) / 0.3);
-}
-
-.ew-border-base-aux\\/10 {
-  border-color: rgb(var(--theme-base-aux-ch) / 0.1);
 }
 
 .ew-border-opacity-50 {
@@ -954,13 +954,13 @@ globalStyles =
   background-color: rgb(var(--theme-danger-bg-ch) / var(--tw-bg-opacity));
 }
 
-.ew-bg-base-aux\\/\\[0\\.07\\] {
-  background-color: rgb(var(--theme-base-aux-ch) / 0.07);
-}
-
 .ew-bg-yellow-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(253 224 71 / var(--tw-bg-opacity));
+}
+
+.ew-bg-base-aux\\/\\[0\\.07\\] {
+  background-color: rgb(var(--theme-base-aux-ch) / 0.07);
 }
 
 .ew-p-2 {
@@ -1022,6 +1022,16 @@ globalStyles =
   padding-right: 1rem;
 }
 
+.ew-py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.ew-px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
 .ew-px-0 {
   padding-left: 0px;
   padding-right: 0px;
@@ -1035,16 +1045,6 @@ globalStyles =
 .ew-py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-}
-
-.ew-py-4 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
-.ew-px-6 {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
 }
 
 .ew-pl-0 {
@@ -1429,11 +1429,13 @@ globalStyles =
   display: none;
 }
 
+/*
 .ew-input::-webkit-calendar-picker-indicator, 
 .ew-input::-webkit-time-picker-indicator {
   background-image: none;
   visibility: hidden;
 }
+*/
 
 /* 
  * ======================================================
