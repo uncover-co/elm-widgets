@@ -1,30 +1,40 @@
 module W.Popover exposing
     ( view
     , top, topRight, bottomRight, left, leftBottom, right, rightBottom
-    , over, offset
-    , id, class, full, htmlAttrs, Attribute, Position
+    , over, offset, full
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
 @docs view
+
+
+# Position
+
 @docs top, topRight, bottomRight, left, leftBottom, right, rightBottom
-@docs over, offset
-@docs id, class, full, htmlAttrs, Attribute, Position
+
+
+# Styles
+
+@docs over, offset, full
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
 import Html as H
 import Html.Attributes as HA
-import W.Internal.Helpers as WH
 
 
 
 -- Placement
 
 
-{-| TODO: Unexpose this type.
--}
+{-| -}
 type Position
     = TopLeft
     | TopRight
@@ -46,13 +56,11 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , position : Position
+    { position : Position
     , offset : Float
     , full : Bool
     , over : Bool
     , unstyled : Bool
-    , class : String
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -64,31 +72,17 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , position = BottomLeft
+    { position = BottomLeft
     , offset = 0
     , full = False
     , over = False
     , unstyled = False
-    , class = ""
     , htmlAttributes = []
     }
 
 
 
 -- Attributes : Setters
-
-
-{-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-class : String -> Attribute msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
 
 
 {-| -}
@@ -155,6 +149,12 @@ over =
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
 
 
 
@@ -236,9 +236,10 @@ view attrs_ props =
     in
     H.div
         [ HA.class "ew-inline-block ew-relative ew-group" ]
-        [ H.div [ HA.tabindex 0 ] props.children
+        [ H.div [ HA.class "ew-focusable ew-inline-flex" ] props.children
         , H.div
             (positionAttrs
+                ++ attrs.htmlAttributes
                 ++ [ HA.class "ew-hidden ew-absolute ew-z-[9999] group-focus-within:ew-block hover:ew-block"
                    , HA.classList
                         [ ( "ew-min-w-full", attrs.over )
@@ -246,12 +247,5 @@ view attrs_ props =
                         ]
                    ]
             )
-            [ H.div
-                (attrs.htmlAttributes
-                    ++ [ WH.maybeAttr HA.id attrs.id
-                       , HA.class attrs.class
-                       ]
-                )
-                props.content
-            ]
+            props.content
         ]

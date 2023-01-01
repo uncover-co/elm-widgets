@@ -1,14 +1,28 @@
 module W.InputSlider exposing
     ( view
-    , id, color, disabled, readOnly
-    , Attribute
+    , disabled, readOnly
+    , color
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
 @docs view
-@docs id, color, disabled, readOnly
-@docs Attribute
+
+
+# States
+
+@docs disabled, readOnly
+
+
+# Styles
+
+@docs color
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -17,7 +31,6 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as D
 import Theme
-import W.Internal.Helpers as WH
 
 
 
@@ -26,41 +39,35 @@ import W.Internal.Helpers as WH
 
 {-| -}
 type Attribute msg
-    = Attribute (Attributes -> Attributes)
+    = Attribute (Attributes msg -> Attributes msg)
 
 
-type alias Attributes =
-    { id : Maybe String
-    , disabled : Bool
+type alias Attributes msg =
+    { disabled : Bool
     , readOnly : Bool
     , color : String
     , format : Float -> String
+    , htmlAttributes : List (H.Attribute msg)
     }
 
 
-applyAttrs : List (Attribute msg) -> Attributes
+applyAttrs : List (Attribute msg) -> Attributes msg
 applyAttrs attrs =
     List.foldl (\(Attribute fn) a -> fn a) defaultAttrs attrs
 
 
-defaultAttrs : Attributes
+defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , disabled = False
+    { disabled = False
     , readOnly = False
-    , color = Theme.primaryForeground
+    , color = Theme.primaryBackground
     , format = String.fromFloat
+    , htmlAttributes = []
     }
 
 
 
 -- Attributes : Setters
-
-
-{-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
 
 
 {-| -}
@@ -81,6 +88,19 @@ readOnly v =
     Attribute <| \attrs -> { attrs | readOnly = v }
 
 
+{-| Attributes applied to the `input[type="range"]` element.
+-}
+htmlAttrs : List (H.Attribute msg) -> Attribute msg
+htmlAttrs v =
+    Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
 
 -- Main
 
@@ -98,9 +118,9 @@ view :
     -> H.Html msg
 view attrs_ props =
     let
-        attrs : Attributes
+        attrs : Attributes msg
         attrs =
-            applyAttrs attrs_ |> Debug.log ""
+            applyAttrs attrs_
 
         valueString : String
         valueString =
@@ -145,7 +165,7 @@ view attrs_ props =
                 [ HA.class "ew-absolute ew-z-0 ew-rounded"
                 , HA.class "ew-left-0 ew-top-1/2"
                 , HA.class "ew-bg-current"
-                , HA.class "ew-opacity-[0.55]"
+                , HA.class "ew-opacity-[0.60]"
                 , HA.class "ew-h-[6px] -ew-mt-[3px]"
                 , HA.style "width" valueString
                 ]
@@ -158,44 +178,51 @@ view attrs_ props =
                 , HA.class "ew-opacity-20"
                 , HA.class "ew-h-10 ew-w-10 -ew-ml-5 -ew-mt-5"
                 , HA.class "ew-scale-0 ew-transition-transform"
-                , HA.class "group-focus-within:ew-scale-100"
                 , HA.style "left" valueString
+                , HA.classList
+                    [ ( "group-hover:ew-scale-90"
+                            ++ " group-focus-within:ew-scale-100"
+                            ++ " group-hover:group-focus-within:ew-scale-100"
+                      , not attrs.disabled && not attrs.readOnly
+                      )
+                    ]
                 ]
                 []
             ]
         , -- Thumb
           H.input
-            [ WH.maybeAttr HA.id attrs.id
-            , HA.class "ew-relative"
-            , HA.class "ew-slider ew-appearance-none"
-            , HA.class "ew-bg-transparent"
-            , HA.class "ew-m-0 ew-w-full"
-            , HA.class "focus:ew-outline-0"
-            , HA.type_ "range"
-            , colorAttr
+            (attrs.htmlAttributes
+                ++ [ HA.class "ew-relative"
+                   , HA.class "ew-slider ew-appearance-none"
+                   , HA.class "ew-bg-transparent"
+                   , HA.class "ew-m-0 ew-w-full"
+                   , HA.class "focus-visible:ew-outline-0"
+                   , HA.type_ "range"
+                   , colorAttr
 
-            -- This is a fallback since range elements will not respect read only attributes
-            , HA.disabled (attrs.disabled || attrs.readOnly)
-            , HA.readonly attrs.readOnly
+                   -- This is a fallback since range elements will not respect read only attributes
+                   , HA.disabled (attrs.disabled || attrs.readOnly)
+                   , HA.readonly attrs.readOnly
 
-            --
-            , HA.value <| String.fromFloat props.value
-            , HA.min <| String.fromFloat props.min
-            , HA.max <| String.fromFloat props.max
-            , HA.step <| String.fromFloat props.step
-            , HE.on "input"
-                (D.at [ "target", "value" ] D.string
-                    |> D.andThen
-                        (\v ->
-                            case String.toFloat v of
-                                Just v_ ->
-                                    D.succeed v_
+                   --
+                   , HA.value <| String.fromFloat props.value
+                   , HA.min <| String.fromFloat props.min
+                   , HA.max <| String.fromFloat props.max
+                   , HA.step <| String.fromFloat props.step
+                   , HE.on "input"
+                        (D.at [ "target", "value" ] D.string
+                            |> D.andThen
+                                (\v ->
+                                    case String.toFloat v of
+                                        Just v_ ->
+                                            D.succeed v_
 
-                                Nothing ->
-                                    D.fail "Invalid value."
+                                        Nothing ->
+                                            D.fail "Invalid value."
+                                )
+                            |> D.map props.onInput
                         )
-                    |> D.map props.onInput
-                )
-            ]
+                   ]
+            )
             []
         ]

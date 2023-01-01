@@ -1,18 +1,40 @@
 module W.InputTextArea exposing
     ( view
-    , resizable, rows, autogrow
-    , id, class, disabled, readOnly, required, placeholder, htmlAttrs
+    , placeholder, resizable, rows, autogrow
+    , disabled, readOnly
+    , required
     , onBlur, onEnter, onFocus
-    , Attribute
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
 @docs view
-@docs resizable, rows, autogrow
-@docs id, class, disabled, readOnly, required, placeholder, htmlAttrs
+
+
+# Styles
+
+@docs placeholder, resizable, rows, autogrow
+
+
+# States
+
+@docs disabled, readOnly
+
+
+# Validation Attributes
+
+@docs required
+
+
+# Actions
+
 @docs onBlur, onEnter, onFocus
-@docs Attribute
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -20,7 +42,6 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import W.Internal.Helpers as WH
-import W.Internal.Input
 
 
 {-| -}
@@ -29,10 +50,7 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , class : String
-    , unstyled : Bool
-    , disabled : Bool
+    { disabled : Bool
     , readOnly : Bool
     , required : Bool
     , resizable : Bool
@@ -53,10 +71,7 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , class = ""
-    , unstyled = False
-    , disabled = False
+    { disabled = False
     , readOnly = False
     , required = False
     , placeholder = Nothing
@@ -72,18 +87,6 @@ defaultAttrs =
 
 
 -- Attributes : Setters
-
-
-{-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-class : String -> Attribute msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
 
 
 {-| -}
@@ -157,6 +160,16 @@ htmlAttrs v =
 
 
 {-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
+
+-- View
+
+
+{-| -}
 view :
     List (Attribute msg)
     ->
@@ -182,9 +195,7 @@ view attrs_ props =
         inputAttrs : List (H.Attribute msg)
         inputAttrs =
             attrs.htmlAttributes
-                ++ [ WH.maybeAttr HA.id attrs.id
-                   , HA.class attrs.class
-                   , HA.classList [ ( W.Internal.Input.areaClass, not attrs.unstyled ) ]
+                ++ [ HA.class baseClass
                    , HA.class "ew-pt-[10px]"
                    , HA.required attrs.required
                    , HA.disabled attrs.disabled
@@ -208,10 +219,9 @@ view attrs_ props =
             [ H.div
                 [ HA.attribute "aria-hidden" "true"
                 , HA.style "grid-area" "1 / 1 / 2 / 2"
-                , HA.class attrs.class
                 , HA.class "ew-overflow-hidden ew-whitespace-pre-wrap ew-text-transparent"
                 , HA.class "ew-pt-[10px]"
-                , HA.classList [ ( W.Internal.Input.areaClass, not attrs.unstyled ) ]
+                , HA.class baseClass
                 , HA.style "background" "transparent"
                 ]
                 [ H.text (props.value ++ " ") ]
@@ -223,3 +233,18 @@ view attrs_ props =
                 )
                 []
             ]
+
+baseClass : String
+baseClass =
+    "ew-input ew-appearance-none ew-box-border"
+        ++ " ew-relative"
+        ++ " ew-w-full ew-min-h-[48px] ew-m-0 ew-py-2 ew-px-3"
+        ++ " ew-bg-base-aux/[0.07] ew-border ew-border-solid ew-border-base-aux/30 ew-rounded ew-shadow-none"
+        ++ " ew-font-text ew-text-base ew-text-base-fg ew-placeholder-base-aux"
+        ++ " ew-transition"
+        ++ " ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50"
+        ++ " disabled:ew-bg-base-aux/[0.25] disabled:ew-border-base-aux/[0.25]"
+        ++ " focus:ew-bg-base-bg"
+        ++ " focus-visible:ew-border-primary-fg focus-visible-visible:ew-ring"
+        ++ " read-only:focus:ew-bg-base-aux/10"
+

@@ -1,14 +1,13 @@
 {
   "name": "elm-widgets-alpha",
-  "version": "7.0.2",
-  "description": "A collection of widgets themed through ThemeSpec.",
+  "version": "11.0.1",
+  "description": "A collection of stateless, themable widgets for Elm applications.",
   "scripts": {
-    "test": "elm-test-rs tests/**/*.elm",
+    "postinstall": "elm-tooling install",
+    "test": "elm-test-rs",
     "start": "concurrently \"npm:watch:*\"",
-    "watch:styles": "watch 'node ./styles/build-styles.js' ./styles/output",
-    "watch:tailwind": "tailwindcss -i ./styles/index.css -o ./styles/output/index.css --watch",
-    "min:watch:tailwind": "tailwindcss -i ./styles/index.css -o ./styles/output/index.css --minify --watch",
-    "start:old": "watch 'node ./styles/build-styles.js' ./styles",
+    "watch:styles": "watch 'node ./styles/build-styles.js' ./styles/output ./src/Template/W",
+    "watch:tailwind": "tailwindcss -i ./styles/index.css -o ./styles/output/index.css --minify --watch",
     "docs": "elm-doc-preview"
   },
   "author": "Georges Boris",
@@ -18,11 +17,10 @@
     "concurrently": "^7.1.0",
     "cssnano": "^5.0.14",
     "elm-doc-preview": "^5.0.5",
-    "elm-theme-tailwindcss": "^1.0.2",
+    "elm-review": "^2.8.5",
+    "elm-theme-tailwindcss": "^2.0.1",
     "elm-tooling": "^1.7.0",
     "postcss": "^8.4.5",
-    "postcss-import": "^14.1.0",
-    "postcss-nested": "^5.0.6",
     "tailwindcss": "^3.1.8",
     "watch": "^1.0.2"
   }

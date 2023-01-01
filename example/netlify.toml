@@ -3,8 +3,9 @@
   ELM_HOME = "$NETLIFY_BUILD_BASE/cache/elm"
 
 [build]
-  command = "npm run build"
+  base = "example/"
   publish = "dist/"
+  command = "npm install && npm run build"
 
 [[redirects]]
   from = "/*"

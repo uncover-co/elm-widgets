@@ -1,17 +1,32 @@
 module W.Badge exposing
-    ( background
-    , class
-    , color
-    , htmlAttrs
-    , id
-    , neutral
-    , primary
-    , secondary
-    , success
-    , view
-    , viewInline
-    , warning
+    ( view, viewInline
+    , neutral, primary, secondary, success, warning, color, background
+    , small
+    , htmlAttrs, noAttr, Attribute
     )
+
+{-| Badges are commonly used to display notifications.
+
+@docs view, viewInline
+
+
+# Colors
+
+By default, badges appear in a **danger** color.
+
+@docs neutral, primary, secondary, success, warning, color, background
+
+
+# Styles
+
+@docs small
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
+
+-}
 
 import Html as H
 import Html.Attributes as HA
@@ -28,9 +43,8 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , class : String
-    , htmlAttributes : List (H.Attribute msg)
+    { htmlAttributes : List (H.Attribute msg)
+    , small : Bool
     , color : String
     , background : String
     }
@@ -43,9 +57,8 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , class = ""
-    , htmlAttributes = []
+    { htmlAttributes = []
+    , small = False
     , color = Theme.dangerAux
     , background = Theme.dangerBackground
     }
@@ -56,21 +69,21 @@ defaultAttrs =
 
 
 {-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-class : String -> Attribute msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
-
-
-{-| -}
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -144,23 +157,39 @@ warning =
 -- Main
 
 
+{-|
+
+    W.Badge.view []
+        { -- number of unread messages
+          content = Just [ H.text "9" ]
+        , -- call to action
+          children =
+            [ W.Button.viewLink []
+                { href = "/messages"
+                , label = [ H.text "Messages" ]
+                }
+            ]
+        }
+
+-}
 view :
     List (Attribute msg)
     ->
-        { value : Maybe (List (H.Html msg))
+        { content : Maybe (List (H.Html msg))
         , children : List (H.Html msg)
         }
     -> H.Html msg
 view attrs_ props =
     let
-        attrs : Attributes msg
-        attrs =
-            applyAttrs attrs_
-
         badge : H.Html msg
         badge =
-            case props.value of
-                Just value ->
+            case props.content of
+                Just content ->
+                    let
+                        attrs : Attributes msg
+                        attrs =
+                            applyAttrs attrs_
+                    in
                     H.span
                         (baseAttrs attrs
                             ++ [ HA.class "ew-absolute ew-bottom-full ew-left-full"
@@ -168,7 +197,7 @@ view attrs_ props =
                                , HA.class "ew-animate-fade-slide"
                                ]
                         )
-                        value
+                        content
 
                 Nothing ->
                     H.text ""
@@ -180,6 +209,11 @@ view attrs_ props =
         ]
 
 
+{-|
+
+    W.Badge.viewInline [] [ H.text "9" ]
+
+-}
 viewInline : List (Attribute msg) -> List (H.Html msg) -> H.Html msg
 viewInline attrs_ value =
     let
@@ -192,9 +226,14 @@ viewInline attrs_ value =
 
 baseAttrs : Attributes msg -> List (H.Attribute msg)
 baseAttrs attrs =
-    [ HA.class "ew-px-2.5 ew-py-1 ew-rounded-full"
-    , HA.class "ew-leading-none ew-font-semibold ew-font-text ew-text-sm"
-    , HA.class "ew-border ew-border-solid ew-border-base-bg"
-    , HA.style "color" attrs.color
-    , HA.style "background" attrs.background
-    ]
+    attrs.htmlAttributes
+        ++ [ HA.class "ew-rounded-full"
+           , HA.class "ew-leading-none ew-font-semibold ew-font-text"
+           , HA.class "ew-border ew-border-solid ew-border-base-bg"
+           , HA.style "color" attrs.color
+           , HA.style "background" attrs.background
+           , HA.classList
+                [ ( "ew-px-2.5 ew-py-1 ew-text-sm", not attrs.small )
+                , ( "ew-px-1.5 ew-py-0.5 ew-text-xs", attrs.small )
+                ]
+           ]

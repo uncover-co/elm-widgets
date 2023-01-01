@@ -1,20 +1,52 @@
 module W.InputText exposing
     ( view
-    , email, password, search, telephone, url, InputType
-    , id, class, unstyled, placeholder, disabled, required, readOnly, pattern, validation
-    , viewWithValidation, errorToString, Error(..)
+    , email, password, search, telephone, url, numeric, decimal
+    , placeholder, mask, prefix, suffix
+    , disabled, readOnly
     , onEnter, onFocus, onBlur
-    , htmlAttrs, Attribute
+    , required, minLength, maxLength, exactLength, pattern, validation
+    , viewWithValidation, errorToString, Error(..)
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
 @docs view
-@docs email, password, search, telephone, url, InputType
-@docs id, class, unstyled, placeholder, disabled, required, readOnly, pattern, validation
-@docs viewWithValidation, errorToString, Error
+
+
+# Types
+
+@docs email, password, search, telephone, url, numeric, decimal
+
+
+# Styles
+
+@docs placeholder, mask, prefix, suffix
+
+
+# States
+
+@docs disabled, readOnly
+
+
+# Actions
+
 @docs onEnter, onFocus, onBlur
-@docs htmlAttrs, Attribute
+
+
+# Validation Attributes
+
+@docs required, minLength, maxLength, exactLength, pattern, validation
+
+
+# View With Validation
+
+@docs viewWithValidation, errorToString, Error
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -23,13 +55,14 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as D
 import W.Internal.Helpers as WH
-import W.Internal.Input as WI
+import W.Internal.Input
 
 
 
 -- Attributes
 
 
+{-| -}
 type InputType
     = Text
     | Telephone
@@ -37,6 +70,8 @@ type InputType
     | Search
     | Email
     | Url
+    | Numeric
+    | Decimal
 
 
 inputInputTypeToString : InputType -> String
@@ -60,23 +95,31 @@ inputInputTypeToString t =
         Url ->
             "url"
 
+        Numeric ->
+            "text"
 
-type Error customError
+        Decimal ->
+            "text"
+
+
+{-| -}
+type Error
     = PatternMismatch String
-    | InputTypeMismatch InputType String
+    | TypeMismatch String
     | TooLong Int String
     | TooShort Int String
     | ValueMissing String
-    | Custom customError
+    | Custom String
 
 
-errorToString : Error customError -> String
+{-| -}
+errorToString : Error -> String
 errorToString error =
     case error of
         PatternMismatch message ->
             message
 
-        InputTypeMismatch _ message ->
+        TypeMismatch message ->
             message
 
         TooLong _ message ->
@@ -88,20 +131,18 @@ errorToString error =
         ValueMissing message ->
             message
 
-        Custom _ ->
-            "Value must follow the expected format."
+        Custom message ->
+            message
 
 
 {-| -}
-type Attribute customError msg
-    = Attribute (Attributes customError msg -> Attributes customError msg)
+type Attribute msg
+    = Attribute (Attributes msg -> Attributes msg)
 
 
-type alias Attributes customError msg =
-    { id : Maybe String
-    , type_ : InputType
-    , class : String
-    , unstyled : Bool
+type alias Attributes msg =
+    { type_ : InputType
+    , inputMode : Maybe String
     , disabled : Bool
     , readOnly : Bool
     , required : Bool
@@ -109,7 +150,10 @@ type alias Attributes customError msg =
     , maxLength : Maybe Int
     , pattern : Maybe String
     , placeholder : Maybe String
-    , validation : Maybe (String -> Maybe customError)
+    , validation : Maybe (String -> Maybe String)
+    , mask : Maybe (String -> String)
+    , prefix : Maybe (List (H.Html msg))
+    , suffix : Maybe (List (H.Html msg))
     , onFocus : Maybe msg
     , onBlur : Maybe msg
     , onEnter : Maybe msg
@@ -117,17 +161,15 @@ type alias Attributes customError msg =
     }
 
 
-applyAttrs : List (Attribute customError msg) -> Attributes customError msg
+applyAttrs : List (Attribute msg) -> Attributes msg
 applyAttrs attrs =
     List.foldl (\(Attribute fn) a -> fn a) defaultAttrs attrs
 
 
-defaultAttrs : Attributes customError msg
+defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , type_ = Text
-    , class = ""
-    , unstyled = False
+    { type_ = Text
+    , inputMode = Nothing
     , disabled = False
     , readOnly = False
     , required = False
@@ -136,6 +178,9 @@ defaultAttrs =
     , pattern = Nothing
     , validation = Nothing
     , placeholder = Nothing
+    , prefix = Nothing
+    , suffix = Nothing
+    , mask = Nothing
     , onFocus = Nothing
     , onBlur = Nothing
     , onEnter = Nothing
@@ -148,127 +193,165 @@ defaultAttrs =
 
 
 {-| -}
-id : String -> Attribute customError msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-password : Attribute customError msg
+password : Attribute msg
 password =
     Attribute <| \attrs -> { attrs | type_ = Password }
 
 
 {-| -}
-search : Attribute customError msg
+search : Attribute msg
 search =
     Attribute <| \attrs -> { attrs | type_ = Search }
 
 
 {-| -}
-url : Attribute customError msg
+url : Attribute msg
 url =
     Attribute <| \attrs -> { attrs | type_ = Url }
 
 
 {-| -}
-email : Attribute customError msg
+email : Attribute msg
 email =
     Attribute <| \attrs -> { attrs | type_ = Email }
 
 
 {-| -}
-telephone : Attribute customError msg
+telephone : Attribute msg
 telephone =
     Attribute <| \attrs -> { attrs | type_ = Telephone }
 
 
 {-| -}
-class : String -> Attribute customError msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
+numeric : Attribute msg
+numeric =
+    Attribute <| \attrs -> { attrs | type_ = Numeric, inputMode = Just "numeric" }
 
 
 {-| -}
-unstyled : Bool -> Attribute customError msg
-unstyled v =
-    Attribute <| \attrs -> { attrs | unstyled = v }
+decimal : Attribute msg
+decimal =
+    Attribute <| \attrs -> { attrs | type_ = Decimal, inputMode = Just "decimal" }
 
 
 {-| -}
-placeholder : String -> Attribute customError msg
+placeholder : String -> Attribute msg
 placeholder v =
     Attribute <| \attrs -> { attrs | placeholder = Just v }
 
 
 {-| -}
-disabled : Bool -> Attribute customError msg
+disabled : Bool -> Attribute msg
 disabled v =
     Attribute <| \attrs -> { attrs | disabled = v }
 
 
 {-| -}
-readOnly : Bool -> Attribute customError msg
+readOnly : Bool -> Attribute msg
 readOnly v =
     Attribute <| \attrs -> { attrs | readOnly = v }
 
 
 {-| -}
-required : Bool -> Attribute customError msg
+required : Bool -> Attribute msg
 required v =
     Attribute <| \attrs -> { attrs | required = v }
 
 
 {-| -}
-pattern : String -> Attribute customError msg
+exactLength : Int -> Attribute msg
+exactLength v =
+    Attribute <| \attrs -> { attrs | minLength = Just v, maxLength = Just v }
+
+
+{-| -}
+minLength : Int -> Attribute msg
+minLength v =
+    Attribute <| \attrs -> { attrs | minLength = Just v }
+
+
+{-| -}
+maxLength : Int -> Attribute msg
+maxLength v =
+    Attribute <| \attrs -> { attrs | maxLength = Just v }
+
+
+{-| -}
+pattern : String -> Attribute msg
 pattern v =
     Attribute <| \attrs -> { attrs | pattern = Just v }
 
 
 {-| -}
-validation : (String -> Maybe customError) -> Attribute customError msg
+validation : (String -> Maybe String) -> Attribute msg
 validation v =
     Attribute <| \attrs -> { attrs | validation = Just v }
 
 
 {-| -}
-onBlur : msg -> Attribute customError msg
+prefix : List (H.Html msg) -> Attribute msg
+prefix v =
+    Attribute <| \attrs -> { attrs | prefix = Just v }
+
+
+{-| -}
+suffix : List (H.Html msg) -> Attribute msg
+suffix v =
+    Attribute <| \attrs -> { attrs | suffix = Just v }
+
+
+{-| -}
+mask : (String -> String) -> Attribute msg
+mask v =
+    Attribute <| \attrs -> { attrs | mask = Just v }
+
+
+{-| -}
+onBlur : msg -> Attribute msg
 onBlur v =
     Attribute <| \attrs -> { attrs | onBlur = Just v }
 
 
 {-| -}
-onFocus : msg -> Attribute customError msg
+onFocus : msg -> Attribute msg
 onFocus v =
     Attribute <| \attrs -> { attrs | onFocus = Just v }
 
 
 {-| -}
-onEnter : msg -> Attribute customError msg
+onEnter : msg -> Attribute msg
 onEnter v =
     Attribute <| \attrs -> { attrs | onEnter = Just v }
 
 
 {-| -}
-htmlAttrs : List (H.Attribute msg) -> Attribute customError msg
+htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
 
 
 
 -- Main
 
 
-baseAttrs : Attributes customError msg -> List (H.Attribute msg)
+baseAttrs : Attributes msg -> List (H.Attribute msg)
 baseAttrs attrs =
     attrs.htmlAttributes
-        ++ [ WH.maybeAttr HA.id attrs.id
-           , HA.type_ (inputInputTypeToString attrs.type_)
-           , HA.class attrs.class
-           , HA.classList [ ( WI.baseClass, not attrs.unstyled ) ]
+        ++ [ HA.type_ (inputInputTypeToString attrs.type_)
+           , WH.maybeAttr (HA.attribute "inputmode") attrs.inputMode
+           , HA.class W.Internal.Input.baseClass
+           , WH.attrIf attrs.readOnly HA.tabindex -1
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
+           , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
+           , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
            , WH.maybeAttr HA.placeholder attrs.placeholder
            , WH.maybeAttr HA.minlength attrs.minLength
            , WH.maybeAttr HA.maxlength attrs.maxLength
@@ -281,7 +364,7 @@ baseAttrs attrs =
 
 {-| -}
 view :
-    List (Attribute customError msg)
+    List (Attribute msg)
     ->
         { onInput : String -> msg
         , value : String
@@ -289,89 +372,143 @@ view :
     -> H.Html msg
 view attrs_ props =
     let
-        attrs : Attributes customError msg
+        attrs : Attributes msg
         attrs =
             applyAttrs attrs_
+
+        value : String
+        value =
+            WH.limitString attrs.maxLength props.value
     in
-    H.input (baseAttrs attrs ++ [ HA.value props.value, HE.onInput props.onInput ]) []
+    W.Internal.Input.view
+        { disabled = attrs.disabled
+        , readOnly = attrs.readOnly
+        , prefix = attrs.prefix
+        , suffix = attrs.suffix
+        , mask = attrs.mask
+        , maskInput = value
+        }
+        (H.input
+            (baseAttrs attrs
+                ++ [ HA.value value
+                   , HE.onInput (props.onInput << WH.limitString attrs.maxLength)
+                   ]
+            )
+            []
+        )
 
 
+{-| -}
 viewWithValidation :
-    List (Attribute customError msg)
+    List (Attribute msg)
     ->
         { value : String
-        , onInput : String -> Result (Error customError) String -> msg
+        , onInput : Result (List Error) String -> String -> msg
         }
     -> H.Html msg
 viewWithValidation attrs_ props =
     let
-        attrs : Attributes customError msg
+        attrs : Attributes msg
         attrs =
             applyAttrs attrs_
+
+        value : String
+        value =
+            WH.limitString attrs.maxLength props.value
     in
-    H.input
-        (baseAttrs attrs
-            ++ [ HA.value props.value
-               , HE.on "keyup"
-                    (D.map8
-                        (\value_ valid patternMismatch typeMismatch tooLong tooShort valueMissing validationMessage ->
-                            let
-                                customError : Maybe customError
-                                customError =
-                                    attrs.validation
-                                        |> Maybe.map (\fn -> fn value_)
-                                        |> Maybe.withDefault Nothing
-                            in
-                            if valid && customError == Nothing then
-                                props.onInput value_ (Ok value_)
+    W.Internal.Input.view
+        { disabled = attrs.disabled
+        , readOnly = attrs.readOnly
+        , prefix = attrs.prefix
+        , suffix = attrs.suffix
+        , mask = attrs.mask
+        , maskInput = value
+        }
+        (H.input
+            (baseAttrs attrs
+                ++ [ HA.value value
+                   , HE.on "input"
+                        (D.map7
+                            (\value__ valid patternMismatch typeMismatch tooLong tooShort valueMissing ->
+                                let
+                                    value_ : String
+                                    value_ =
+                                        WH.limitString attrs.maxLength value__
 
-                            else if valueMissing then
-                                props.onInput value_ (Err (ValueMissing validationMessage))
+                                    customError : Maybe Error
+                                    customError =
+                                        attrs.validation
+                                            |> Maybe.andThen (\fn -> fn value_)
+                                            |> Maybe.map Custom
 
-                            else if tooShort then
-                                props.onInput value_ (Err (TooShort (Maybe.withDefault 0 attrs.minLength) validationMessage))
+                                    result : Result (List Error) String
+                                    result =
+                                        if valid && customError == Nothing then
+                                            Ok value_
 
-                            else if typeMismatch then
-                                props.onInput value_ (Err (InputTypeMismatch attrs.type_ validationMessage))
+                                        else
+                                            [ Just (ValueMissing "Please fill out this field.")
+                                                |> WH.keepIf valueMissing
+                                            , attrs.minLength
+                                                |> WH.keepIf tooShort
+                                                |> Maybe.map
+                                                    (\minLength_ ->
+                                                        TooShort minLength_
+                                                            ("Use at least " ++ String.fromInt minLength_ ++ " characters")
+                                                    )
+                                            , attrs.maxLength
+                                                |> WH.keepIf tooLong
+                                                |> Maybe.map
+                                                    (\maxLength_ ->
+                                                        TooShort maxLength_ ("Please shorten this text to " ++ String.fromInt maxLength_ ++ " characters or less")
+                                                    )
+                                            , Just attrs.type_
+                                                |> WH.keepIf typeMismatch
+                                                |> Maybe.map
+                                                    (\type_ ->
+                                                        case type_ of
+                                                            Text ->
+                                                                TypeMismatch "Input not recognized as text"
 
-                            else if tooLong then
-                                props.onInput value_ (Err (TooLong (Maybe.withDefault 0 attrs.maxLength) validationMessage))
+                                                            Numeric ->
+                                                                TypeMismatch "Input not recognized as text"
 
-                            else if patternMismatch then
-                                props.onInput value_ (Err (PatternMismatch validationMessage))
+                                                            Decimal ->
+                                                                TypeMismatch "Input not recognized as text"
 
-                            else
-                                props.onInput
-                                    value_
-                                    (customError
-                                        |> Maybe.map (Err << Custom)
-                                        |> Maybe.withDefault (Ok value_)
-                                    )
+                                                            Telephone ->
+                                                                TypeMismatch "Type a telephone"
+
+                                                            Search ->
+                                                                TypeMismatch "Input not recognized as a search input"
+
+                                                            Email ->
+                                                                TypeMismatch "Type an email"
+
+                                                            Url ->
+                                                                TypeMismatch "Type a URL"
+
+                                                            Password ->
+                                                                TypeMismatch "Input not recognized as a valid password"
+                                                    )
+                                            , Just (PatternMismatch "Match the requested format")
+                                                |> WH.keepIf patternMismatch
+                                            , customError
+                                            ]
+                                                |> List.filterMap identity
+                                                |> Err
+                                in
+                                props.onInput result value_
+                            )
+                            (D.at [ "target", "value" ] D.string)
+                            (D.at [ "target", "validity", "valid" ] D.bool)
+                            (D.at [ "target", "validity", "patternMismatch" ] D.bool)
+                            (D.at [ "target", "validity", "typeMismatch" ] D.bool)
+                            (D.at [ "target", "validity", "tooLong" ] D.bool)
+                            (D.at [ "target", "validity", "tooShort" ] D.bool)
+                            (D.at [ "target", "validity", "valueMissing" ] D.bool)
                         )
-                        (D.at [ "target", "value" ] D.string)
-                        (D.at [ "target", "validity", "valid" ] D.bool)
-                        (D.at [ "target", "validity", "patternMismatch" ] D.bool)
-                        (D.at [ "target", "validity", "typeMismatch" ] D.bool)
-                        (D.at [ "target", "validity", "tooLong" ] D.bool)
-                        (D.at [ "target", "validity", "tooShort" ] D.bool)
-                        (D.at [ "target", "validity", "valueMissing" ] D.bool)
-                        (D.at [ "target", "validitationMessage" ] D.string)
-                    )
-               ]
+                   ]
+            )
+            []
         )
-        []
-
-
-
--- validationMessage
--- validity.badInput
--- validity.customError
--- validity.patternMismatch
--- validity.rangeOverflow
--- validity.rangeUnderflow
--- validity.stepMismatch
--- validity.tooLong
--- validity.tooShort
--- validity.typeMismatch
--- validity.valid
--- validity.valueMissing

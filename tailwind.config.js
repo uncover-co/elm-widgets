@@ -2,13 +2,23 @@ module.exports = {
     content: ["./src/**/*.elm"],
     prefix: "ew-",
     theme: {
+        borderRadius: {
+            none: "0",
+            sm: "2px",
+            DEFAULT: "4px",
+            md: "6px",
+            lg: "8px",
+            xl: "12px",
+            full: "9999px"
+        },
         extend: {
             colors: {
+                inherit: "inherit",
                 transparent: "transparent",
                 current: "currentColor"
             },
             keyframes: {
-                "fade-slide": {
+                "ew-animation-fade-slide": {
                   from: {
                     opacity: 0,
                     transform: "translateY(10px) scale(0.9)",
@@ -20,7 +30,7 @@ module.exports = {
                 }
             },
             animation: {
-                "fade-slide": "fade-slide 0.4s ease-out",
+                "fade-slide": "ew-animation-fade-slide 0.4s ease-out",
             }
         }
     },

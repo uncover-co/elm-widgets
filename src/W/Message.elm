@@ -1,20 +1,36 @@
 module W.Message exposing
-    ( Attribute
-    , class
-    , color
-    , danger
-    , footer
-    , href
-    , htmlAttrs
-    , icon
-    , id
-    , onClick
-    , primary
-    , secondary
-    , success
-    , view
-    , warning
+    ( view
+    , icon, footer
+    , primary, secondary, success, warning, danger, color
+    , href, onClick
+    , htmlAttrs, noAttr, Attribute
     )
+
+{-|
+
+@docs view
+
+
+# Content
+
+@docs icon, footer
+
+
+# Styles
+
+@docs primary, secondary, success, warning, danger, color
+
+
+# Actions
+
+@docs href, onClick
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
+
+-}
 
 import Html as H
 import Html.Attributes as HA
@@ -33,11 +49,9 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , class : String
-    , htmlAttributes : List (H.Attribute msg)
-    , icon : Maybe (H.Html msg)
-    , footer : Maybe (H.Html msg)
+    { htmlAttributes : List (H.Attribute msg)
+    , icon : Maybe (List (H.Html msg))
+    , footer : Maybe (List (H.Html msg))
     , color : String
     , href : Maybe String
     , onClick : Maybe msg
@@ -51,9 +65,7 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , class = ""
-    , htmlAttributes = []
+    { htmlAttributes = []
     , icon = Nothing
     , footer = Nothing
     , color = Theme.neutralForeground
@@ -67,21 +79,15 @@ defaultAttrs =
 
 
 {-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-class : String -> Attribute msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
-
-
-{-| -}
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
 
 
 {-| -}
@@ -97,13 +103,13 @@ href v =
 
 
 {-| -}
-icon : H.Html msg -> Attribute msg
+icon : List (H.Html msg) -> Attribute msg
 icon v =
     Attribute <| \attrs -> { attrs | icon = Just v }
 
 
 {-| -}
-footer : H.Html msg -> Attribute msg
+footer : List (H.Html msg) -> Attribute msg
 footer v =
     Attribute <| \attrs -> { attrs | footer = Just v }
 
@@ -158,6 +164,7 @@ danger =
 -- Main
 
 
+{-| -}
 view :
     List (Attribute msg)
     -> List (H.Html msg)
@@ -171,10 +178,8 @@ view attrs_ children_ =
         baseAttrs : List (H.Attribute msg)
         baseAttrs =
             attrs.htmlAttributes
-                ++ [ WH.maybeAttr HA.id attrs.id
-                   , HA.class attrs.class
-                   , HA.class "ew-m-0 ew-box-border ew-relative"
-                   , HA.class "ew-flex ew-gap-4"
+                ++ [ HA.class "ew-m-0 ew-box-border ew-relative"
+                   , HA.class "ew-flex ew-gap-4 ew-w-full"
                    , HA.class "ew-font-text ew-text-base ew-font-medium"
                    , HA.class "ew-py-2 ew-px-4 ew-pr-6"
                    , HA.class "ew-bg-base-bg ew-rounded"
@@ -182,15 +187,15 @@ view attrs_ children_ =
                    , HA.style "color" attrs.color
                    , HA.class "before:ew-block before:ew-content-['']"
                    , HA.class "before:ew-absolute before:ew-inset-0 ew-z-0"
-                   , HA.class "before:ew-rounded-r before:ew-bg-current before:ew-opacity-10"
+                   , HA.class "before:ew-rounded-r before:ew-bg-current before:ew-opacity-[0.07]"
                    ]
 
         children : List (H.Html msg)
         children =
-            [ WH.maybeHtml identity attrs.icon
+            [ WH.maybeHtml (\i -> H.div [] i) attrs.icon
             , H.div [ HA.class "ew-flex ew-flex-col" ]
                 [ H.div [] children_
-                , WH.maybeHtml (\h -> H.div [ HA.class "ew-text-sm ew-font-normal" ] [ h ]) attrs.footer
+                , WH.maybeHtml (H.div [ HA.class "ew-text-sm ew-font-normal" ]) attrs.footer
                 ]
             ]
     in
@@ -212,4 +217,4 @@ view attrs_ children_ =
 interactiveClass : H.Attribute msg
 interactiveClass =
     HA.class
-        "ew-appearance-none ew-bg-transparent ew-no-underline ew-focusable-outline hover:before:ew-opacity-[0.05]"
+        "ew-appearance-none ew-bg-transparent ew-no-underline ew-focusable-outline hover:before:ew-opacity-[0.05] active:before:ew-opacity-[0.03]"

@@ -5,14 +5,20 @@
     "license": "MPL-2.0",
     "version": "1.0.0",
     "exposed-modules": [
+        "W.Badge",
         "W.Button",
         "W.ButtonGroup",
+        "W.Container",
+        "W.Divider",
         "W.DataRow",
-        "W.Field",
+        "W.Heading",
+        "W.InputField",
         "W.InputAutocomplete",
         "W.InputCheckbox",
+        "W.InputColor",
         "W.InputDate",
-        "W.InputNumber",
+        "W.InputInt",
+        "W.InputFloat",
         "W.InputRadio",
         "W.InputSelect",
         "W.InputSlider",
@@ -22,11 +28,19 @@
         "W.Loading",
         "W.Modal",
         "W.Menu",
+        "W.Message",
+        "W.Notification",
+        "W.Pagination",
         "W.Popover",
-        "W.Styles"
+        "W.Styles",
+        "W.Tag",
+        "W.Table",
+        "W.Text",
+        "W.Tooltip"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
+        "avh4/elm-color": "1.0.0 <= v < 2.0.0",
         "elm/core": "1.0.0 <= v < 2.0.0",
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/json": "1.0.0 <= v < 2.0.0",
@@ -34,7 +48,8 @@
         "elm/time": "1.0.0 <= v < 2.0.0",
         "justinmimbs/date": "4.0.0 <= v < 5.0.0",
         "justinmimbs/time-extra": "1.1.0 <= v < 2.0.0",
-        "uncover-co/elm-theme-spec": "8.0.1 <= v < 9.0.0"
+        "tesk9/palette": "3.0.1 <= v < 4.0.0",
+        "uncover-co/elm-theme": "2.0.0 <= v < 3.0.0"
     },
     "test-dependencies": {
         "elm-explorations/test": "1.2.2 <= v < 2.0.0"

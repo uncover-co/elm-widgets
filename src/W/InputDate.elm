@@ -1,20 +1,46 @@
 module W.InputDate exposing
     ( view
-    , min, max, step, timeZone
-    , id, class, disabled, required, readOnly
+    , disabled, readOnly
+    , prefix, suffix
+    , min, max, required
     , viewWithValidation, errorToString, Error(..)
     , onEnter, onFocus, onBlur
-    , htmlAttrs, Attribute
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
 @docs view
-@docs min, max, step, timeZone
-@docs id, class, disabled, required, readOnly
+
+
+# States
+
+@docs disabled, readOnly
+
+
+# Styles
+
+@docs prefix, suffix
+
+
+# Validation Attributes
+
+@docs min, max, required
+
+
+# View & Validation
+
 @docs viewWithValidation, errorToString, Error
+
+
+# Actions
+
 @docs onEnter, onFocus, onBlur
-@docs htmlAttrs, Attribute
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -26,21 +52,26 @@ import Json.Decode as D
 import Time
 import Time.Extra
 import W.Internal.Helpers as WH
+import W.Internal.Icons
 import W.Internal.Input
 
 
 
 -- Error
+-- Why is 'StepMismatch' missing? The actual browser behavior seems a bit odd.
+-- It behaves differently based on the `min` property
+-- and if `min` is not specified it steps from the the unix 0 timestamp?
 
 
+{-| -}
 type Error
     = TooLow Time.Posix String
     | TooHigh Time.Posix String
-    | StepMismatch Int String
     | ValueMissing String
-    | BadInput
+    | BadInput String
 
 
+{-| -}
 errorToString : Error -> String
 errorToString error =
     case error of
@@ -50,14 +81,11 @@ errorToString error =
         TooHigh _ message ->
             message
 
-        StepMismatch _ message ->
-            message
-
         ValueMissing message ->
             message
 
-        BadInput ->
-            "Value must be a valid time."
+        BadInput message ->
+            message
 
 
 
@@ -70,15 +98,14 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , class : String
+    { class : String
     , disabled : Bool
     , readOnly : Bool
     , required : Bool
-    , timeZone : Time.Zone
     , min : Maybe Time.Posix
     , max : Maybe Time.Posix
-    , step : Maybe Int
+    , prefix : Maybe (List (H.Html msg))
+    , suffix : Maybe (List (H.Html msg))
     , onFocus : Maybe msg
     , onBlur : Maybe msg
     , onEnter : Maybe msg
@@ -93,15 +120,14 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , class = ""
+    { class = ""
     , disabled = False
     , readOnly = False
     , required = False
-    , timeZone = Time.utc
     , min = Nothing
     , max = Nothing
-    , step = Nothing
+    , prefix = Nothing
+    , suffix = Nothing
     , onFocus = Nothing
     , onBlur = Nothing
     , onEnter = Nothing
@@ -111,18 +137,6 @@ defaultAttrs =
 
 
 -- Attributes : Setters
-
-
-{-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-class : String -> Attribute msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
 
 
 {-| -}
@@ -144,12 +158,6 @@ required v =
 
 
 {-| -}
-timeZone : Time.Zone -> Attribute msg
-timeZone v =
-    Attribute <| \attrs -> { attrs | timeZone = v }
-
-
-{-| -}
 min : Time.Posix -> Attribute msg
 min v =
     Attribute <| \attrs -> { attrs | min = Just v }
@@ -162,9 +170,15 @@ max v =
 
 
 {-| -}
-step : Int -> Attribute msg
-step v =
-    Attribute <| \attrs -> { attrs | step = Just v }
+prefix : List (H.Html msg) -> Attribute msg
+prefix v =
+    Attribute <| \attrs -> { attrs | prefix = Just v }
+
+
+{-| -}
+suffix : List (H.Html msg) -> Attribute msg
+suffix v =
+    Attribute <| \attrs -> { attrs | suffix = Just v }
 
 
 {-| -}
@@ -191,30 +205,32 @@ htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
 
 
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
 
 -- Main
 
 
-baseAttrs : Attributes msg -> Maybe Time.Posix -> List (H.Attribute msg)
-baseAttrs attrs value =
+baseAttrs : Attributes msg -> Time.Zone -> String -> List (H.Attribute msg)
+baseAttrs attrs timeZone value =
     attrs.htmlAttributes
-        ++ [ WH.maybeAttr HA.id attrs.id
-           , HA.type_ "date"
+        ++ [ HA.type_ "date"
            , HA.class W.Internal.Input.baseClass
-           , HA.class attrs.class
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
-           , WH.maybeAttr HA.min (Maybe.map (valueFromDate attrs) attrs.min)
-           , WH.maybeAttr HA.max (Maybe.map (valueFromDate attrs) attrs.max)
-           , WH.maybeAttr HA.step (Maybe.map String.fromInt attrs.step)
+           , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
+           , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
+           , WH.maybeAttr HA.min (Maybe.map (valueFromDate timeZone) attrs.min)
+           , WH.maybeAttr HA.max (Maybe.map (valueFromDate timeZone) attrs.max)
            , WH.maybeAttr HE.onFocus attrs.onFocus
            , WH.maybeAttr HE.onBlur attrs.onBlur
            , WH.maybeAttr WH.onEnter attrs.onEnter
-           , value
-                |> Maybe.map (valueFromDate attrs)
-                |> Maybe.withDefault ""
-                |> HA.value
+           , HA.value value
            ]
 
 
@@ -222,8 +238,9 @@ baseAttrs attrs value =
 view :
     List (Attribute msg)
     ->
-        { onInput : Maybe Time.Posix -> msg
+        { timeZone : Time.Zone
         , value : Maybe Time.Posix
+        , onInput : Maybe Time.Posix -> msg
         }
     -> H.Html msg
 view attrs_ props =
@@ -231,28 +248,44 @@ view attrs_ props =
         attrs : Attributes msg
         attrs =
             applyAttrs attrs_
+
+        value : String
+        value =
+            props.value
+                |> Maybe.map (valueFromDate props.timeZone)
+                |> Maybe.withDefault ""
     in
     H.input
         (HE.on "input"
             (D.at [ "target", "valueAsNumber" ] D.float
                 |> D.andThen
                     (\v ->
-                        dateFromValue attrs props.value v
+                        dateFromValue props.timeZone props.value v
                             |> props.onInput
                             |> D.succeed
                     )
             )
-            :: baseAttrs attrs props.value
+            :: baseAttrs attrs props.timeZone value
         )
         []
+        |> W.Internal.Input.viewWithIcon
+            { prefix = attrs.prefix
+            , suffix = attrs.suffix
+            , disabled = attrs.disabled
+            , readOnly = attrs.readOnly
+            , mask = Nothing
+            , maskInput = value
+            }
+            (W.Internal.Icons.calendar { size = 24 })
 
 
 {-| -}
 viewWithValidation :
     List (Attribute msg)
     ->
-        { onInput : Maybe Time.Posix -> Result Error Time.Posix -> msg
+        { timeZone : Time.Zone
         , value : Maybe Time.Posix
+        , onInput : Result (List Error) Time.Posix -> Maybe Time.Posix -> msg
         }
     -> H.Html msg
 viewWithValidation attrs_ props =
@@ -260,77 +293,94 @@ viewWithValidation attrs_ props =
         attrs : Attributes msg
         attrs =
             applyAttrs attrs_
+
+        value : String
+        value =
+            props.value
+                |> Maybe.map (valueFromDate props.timeZone)
+                |> Maybe.withDefault ""
     in
     H.input
         (HE.on "input"
-            (D.map7
-                (\value_ valid rangeOverflow rangeUnderflow stepMismatch valueMissing validationMessage ->
-                    case dateFromValue attrs props.value value_ of
+            (D.map5
+                (\value_ valid rangeOverflow rangeUnderflow valueMissing ->
+                    case dateFromValue props.timeZone props.value value_ of
                         Nothing ->
-                            props.onInput Nothing (Err BadInput)
+                            props.onInput
+                                (Err <| List.singleton <| BadInput "Please enter a valid value.")
+                                Nothing
 
                         Just time ->
-                            if valid then
-                                props.onInput (Just time) (Ok time)
+                            let
+                                result : Result (List Error) Time.Posix
+                                result =
+                                    if valid then
+                                        Ok time
 
-                            else if valueMissing then
-                                props.onInput
-                                    (Just time)
-                                    (Err (ValueMissing validationMessage))
-
-                            else if rangeUnderflow then
-                                props.onInput (Just time)
-                                    (Err
-                                        (TooLow
-                                            (Maybe.withDefault (Time.millisToPosix 0) attrs.min)
-                                            validationMessage
-                                        )
-                                    )
-
-                            else if rangeOverflow then
-                                props.onInput (Just time)
-                                    (Err
-                                        (TooHigh
-                                            (Maybe.withDefault (Time.millisToPosix 0) attrs.max)
-                                            validationMessage
-                                        )
-                                    )
-
-                            else if stepMismatch then
-                                props.onInput
-                                    (Just time)
-                                    (Err
-                                        (StepMismatch
-                                            (Maybe.withDefault 0 attrs.step)
-                                            validationMessage
-                                        )
-                                    )
-
-                            else
-                                props.onInput (Just time) (Ok time)
+                                    else
+                                        [ Just (ValueMissing "Please fill out this field.")
+                                            |> WH.keepIf valueMissing
+                                        , attrs.min
+                                            |> WH.keepIf rangeUnderflow
+                                            |> Maybe.map
+                                                (\min_ ->
+                                                    let
+                                                        timeString : String
+                                                        timeString =
+                                                            valueFromDate props.timeZone min_
+                                                    in
+                                                    TooLow min_ ("Value must be " ++ timeString ++ " or later.")
+                                                )
+                                        , attrs.max
+                                            |> WH.keepIf rangeOverflow
+                                            |> Maybe.map
+                                                (\max_ ->
+                                                    let
+                                                        timeString : String
+                                                        timeString =
+                                                            valueFromDate props.timeZone max_
+                                                    in
+                                                    TooHigh max_ ("Value must be " ++ timeString ++ " or earlier.")
+                                                )
+                                        ]
+                                            |> List.filterMap identity
+                                            |> Err
+                            in
+                            props.onInput result (Just time)
                 )
                 (D.at [ "target", "valueAsNumber" ] D.float)
                 (D.at [ "target", "validity", "valid" ] D.bool)
                 (D.at [ "target", "validity", "rangeOverflow" ] D.bool)
                 (D.at [ "target", "validity", "rangeUnderflow" ] D.bool)
-                (D.at [ "target", "validity", "stepMismatch" ] D.bool)
                 (D.at [ "target", "validity", "valueMissing" ] D.bool)
-                (D.at [ "target", "validitationMessage" ] D.string)
             )
-            :: baseAttrs attrs props.value
+            :: baseAttrs attrs props.timeZone value
         )
         []
+        |> W.Internal.Input.viewWithIcon
+            { prefix = attrs.prefix
+            , suffix = attrs.suffix
+            , disabled = attrs.disabled
+            , readOnly = attrs.readOnly
+            , mask = Nothing
+            , maskInput = value
+            }
+            (W.Internal.Icons.calendar { size = 24 })
 
 
-valueFromDate : Attributes msg -> Time.Posix -> String
-valueFromDate attrs timestamp =
+
+-- Helpers
+
+
+valueFromDate : Time.Zone -> Time.Posix -> String
+valueFromDate timeZone timestamp =
     timestamp
-        |> Date.fromPosix attrs.timeZone
+        |> Date.fromPosix timeZone
         |> Date.format "yyyy-MM-dd"
 
 
-dateFromValue : Attributes msg -> Maybe Time.Posix -> Float -> Maybe Time.Posix
-dateFromValue attrs currentValue value =
+dateFromValue : Time.Zone -> Maybe Time.Posix -> Float -> Maybe Time.Posix
+dateFromValue timeZone currentValue value =
     if isNaN value then
         Nothing
 
@@ -342,7 +392,7 @@ dateFromValue attrs currentValue value =
 
             timezoneAdjusted : Int
             timezoneAdjusted =
-                floor value - (Time.Extra.toOffset attrs.timeZone notAdjusted * 60 * 1000)
+                floor value - (Time.Extra.toOffset timeZone notAdjusted * 60 * 1000)
 
             timeOfDayOffset : Int
             timeOfDayOffset =
@@ -350,8 +400,8 @@ dateFromValue attrs currentValue value =
                     |> Maybe.map
                         (\userValue ->
                             Time.Extra.diff Time.Extra.Millisecond
-                                attrs.timeZone
-                                (Time.Extra.floor Time.Extra.Day attrs.timeZone userValue)
+                                timeZone
+                                (Time.Extra.floor Time.Extra.Day timeZone userValue)
                                 userValue
                         )
                     |> Maybe.withDefault 0

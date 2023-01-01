@@ -1,21 +1,34 @@
 module W.InputRadio exposing
     ( view
-    , color, disabled, readOnly, vertical
-    , Attribute
+    , color
+    , disabled, readOnly, vertical
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
 @docs view
-@docs color, disabled, readOnly, vertical
-@docs Attribute
+
+
+# Styles
+
+@docs color
+
+
+# States
+
+@docs disabled, readOnly, vertical
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-import W.Internal.Helpers as WH
 
 
 
@@ -24,28 +37,30 @@ import W.Internal.Helpers as WH
 
 {-| -}
 type Attribute msg
-    = Attribute (Attributes -> Attributes)
+    = Attribute (Attributes msg -> Attributes msg)
 
 
-type alias Attributes =
+type alias Attributes msg =
     { color : String
     , disabled : Bool
     , readOnly : Bool
     , vertical : Bool
+    , htmlAttributes : List (H.Attribute msg)
     }
 
 
-applyAttrs : List (Attribute msg) -> Attributes
+applyAttrs : List (Attribute msg) -> Attributes msg
 applyAttrs attrs =
     List.foldl (\(Attribute fn) a -> fn a) defaultAttrs attrs
 
 
-defaultAttrs : Attributes
+defaultAttrs : Attributes msg
 defaultAttrs =
     { color = "var(--theme-primary-bg)"
     , disabled = False
     , readOnly = False
     , vertical = False
+    , htmlAttributes = []
     }
 
 
@@ -77,6 +92,19 @@ vertical v =
     Attribute <| \attrs -> { attrs | vertical = v }
 
 
+{-| **Important**: These attributes are applied to all `input[type="radio"]` elements.
+-}
+htmlAttrs : List (H.Attribute msg) -> Attribute msg
+htmlAttrs v =
+    Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
 
 -- Main
 
@@ -95,7 +123,7 @@ view :
     -> H.Html msg
 view attrs_ props =
     let
-        attrs : Attributes
+        attrs : Attributes msg
         attrs =
             applyAttrs attrs_
     in
@@ -115,20 +143,22 @@ view attrs_ props =
                         , HA.class "ew-inline-flex ew-items-center ew-p-0"
                         ]
                         [ H.input
-                            [ HA.class "ew-check-radio ew-rounded-full before:ew-rounded-full"
-                            , HA.style "color" attrs.color
-                            , HA.type_ "radio"
-                            , HA.name props.id
-                            , HA.value (props.toValue a)
-                            , HA.checked (a == props.value)
+                            (attrs.htmlAttributes
+                                ++ [ HA.class "ew-check-radio ew-rounded-full before:ew-rounded-full"
+                                   , HA.style "color" attrs.color
+                                   , HA.type_ "radio"
+                                   , HA.name props.id
+                                   , HA.value (props.toValue a)
+                                   , HA.checked (a == props.value)
 
-                            -- Fallback since read only is not respected for radio inputs
-                            , HA.disabled (attrs.disabled || attrs.readOnly)
-                            , HA.readonly attrs.readOnly
+                                   -- Fallback since read only is not respected for radio inputs
+                                   , HA.disabled (attrs.disabled || attrs.readOnly)
+                                   , HA.readonly attrs.readOnly
 
-                            --
-                            , HE.onCheck (\_ -> props.onInput a)
-                            ]
+                                   --
+                                   , HE.onCheck (\_ -> props.onInput a)
+                                   ]
+                            )
                             []
                         , H.span
                             [ HA.class "ew-font-text ew-text-base-fg ew-pl-3"

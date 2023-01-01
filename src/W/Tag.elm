@@ -1,25 +1,29 @@
 module W.Tag exposing
-    ( Attribute
-    , class
-    , color
-    , danger
-    , href
-    , htmlAttrs
-    , id
-    , onClick
-    , primary
-    , secondary
-    , small
-    , success
-    , view
-    , warning
+    ( view, viewButton, viewLink
+    , small, primary, secondary, success, warning, danger, color
+    , htmlAttrs, noAttr, Attribute
     )
+
+{-|
+
+@docs view, viewButton, viewLink
+
+
+# Styles
+
+@docs small, primary, secondary, success, warning, danger, color
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
+
+-}
 
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Theme
-import W.Internal.Helpers as WH
 
 
 
@@ -32,9 +36,7 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , class : String
-    , htmlAttributes : List (H.Attribute msg)
+    { htmlAttributes : List (H.Attribute msg)
     , color : String
     , small : Bool
     , href : Maybe String
@@ -49,9 +51,7 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , class = ""
-    , htmlAttributes = []
+    { htmlAttributes = []
     , color = Theme.neutralForeground
     , small = False
     , href = Nothing
@@ -64,21 +64,15 @@ defaultAttrs =
 
 
 {-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-class : String -> Attribute msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
-
-
-{-| -}
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
 
 
 {-| -}
@@ -159,6 +153,19 @@ danger =
 -- Main
 
 
+{-| -}
+viewButton : List (Attribute msg) -> { onClick : msg, label : List (H.Html msg) } -> H.Html msg
+viewButton attrs_ props =
+    view (onClick props.onClick :: attrs_) props.label
+
+
+{-| -}
+viewLink : List (Attribute msg) -> { href : String, label : List (H.Html msg) } -> H.Html msg
+viewLink attrs_ props =
+    view (href props.href :: attrs_) props.label
+
+
+{-| -}
 view :
     List (Attribute msg)
     -> List (H.Html msg)
@@ -172,14 +179,12 @@ view attrs_ children =
         baseAttrs : List (H.Attribute msg)
         baseAttrs =
             attrs.htmlAttributes
-                ++ [ WH.maybeAttr HA.id attrs.id
-                   , HA.class attrs.class
-                   , HA.class "ew-m-0 ew-box-border ew-relative ew-inline-flex ew-items-center ew-leading-none ew-font-text ew-font-medium ew-tracking-wider"
-                   , HA.class "ew-rounded-full ew-border-solid ew-border ew-border-current"
+                ++ [ HA.class "ew-m-0 ew-box-border ew-relative ew-inline-flex ew-items-center ew-leading-none ew-font-text ew-font-medium ew-tracking-wider"
+                   , HA.class "ew-rounded-full ew-border-solid ew-border-2 ew-border-current"
                    , HA.class "before:ew-content-[''] before:ew-absolute before:ew-inset-0 before:ew-rounded-full before:ew-bg-current before:ew-opacity-10"
                    , HA.style "color" attrs.color
                    , HA.classList
-                        [ ( "ew-h-9 ew-px-4 ew-text-base", not attrs.small )
+                        [ ( "ew-h-8 ew-px-3 ew-text-base", not attrs.small )
                         , ( "ew-h-7 ew-px-3 ew-text-sm", attrs.small )
                         ]
                    ]
@@ -202,8 +207,8 @@ view attrs_ children =
 interactiveClass : H.Attribute msg
 interactiveClass =
     HA.class
-        ("ew-appearance-none ew-bg-transparent ew-no-underline hover:before:ew-opacity-[0.05]"
+        ("ew-appearance-none ew-bg-transparent ew-no-underline hover:before:ew-opacity-[0.05] active:before:ew-opacity-[0.03]"
             ++ " ew-transition"
             ++ " ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50"
-            ++ " focus:ew-bg-base-bg focus:ew-ring focus:ew-border-primary-fg"
+            ++ " focus-visible:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg"
         )

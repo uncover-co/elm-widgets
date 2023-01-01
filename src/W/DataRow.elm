@@ -1,14 +1,22 @@
 module W.DataRow exposing
-    ( view
-    , header, footer, left, right, href, onClick
-    , Attribute
+    ( view, header, footer, left, right
+    , href, onClick
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
-@docs view
-@docs header, footer, left, right, href, onClick
-@docs Attribute
+@docs view, header, footer, left, right
+
+
+# Actions
+
+@docs href, onClick
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -28,12 +36,13 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { footer : Maybe (H.Html msg)
-    , header : Maybe (H.Html msg)
-    , left : Maybe (H.Html msg)
+    { footer : Maybe (List (H.Html msg))
+    , header : Maybe (List (H.Html msg))
+    , left : Maybe (List (H.Html msg))
     , right : Maybe (List (H.Html msg))
     , onClick : Maybe msg
     , href : Maybe String
+    , htmlAttributes : List (H.Attribute msg)
     }
 
 
@@ -50,6 +59,7 @@ defaultAttrs =
     , right = Nothing
     , onClick = Nothing
     , href = Nothing
+    , htmlAttributes = []
     }
 
 
@@ -58,19 +68,19 @@ defaultAttrs =
 
 
 {-| -}
-footer : H.Html msg -> Attribute msg
+footer : List (H.Html msg) -> Attribute msg
 footer v =
     Attribute <| \attrs -> { attrs | footer = Just v }
 
 
 {-| -}
-header : H.Html msg -> Attribute msg
+header : List (H.Html msg) -> Attribute msg
 header v =
     Attribute <| \attrs -> { attrs | header = Just v }
 
 
 {-| -}
-left : H.Html msg -> Attribute msg
+left : List (H.Html msg) -> Attribute msg
 left v =
     Attribute <| \attrs -> { attrs | left = Just v }
 
@@ -93,6 +103,19 @@ href v =
     Attribute <| \attrs -> { attrs | href = Just v }
 
 
+{-| Attributes applied to the parent element.
+-}
+htmlAttrs : List (H.Attribute msg) -> Attribute msg
+htmlAttrs v =
+    Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
 {-| -}
 view :
     List (Attribute msg)
@@ -113,7 +136,7 @@ view attrs_ children =
 
         mainClickableClass : H.Attribute msg
         mainClickableClass =
-            HA.class "hover:ew-bg-base-aux/[0.07] active:ew-bg-base-aux/10"
+            HA.class "ew-focusable hover:ew-bg-base-aux/[0.07] active:ew-bg-base-aux/10"
 
         main_ : List (H.Html msg) -> H.Html msg
         main_ =
@@ -137,13 +160,16 @@ view attrs_ children =
                 _ ->
                     H.div mainAttrs
     in
-    H.div [ HA.class "ew-flex ew-items-center ew-p-2 ew-box-border ew-bg-base-bg" ]
+    H.div
+        (HA.class "ew-flex ew-items-center ew-p-2 ew-box-border ew-bg-base-bg"
+            :: attrs.htmlAttributes
+        )
         [ main_
-            [ WH.maybeHtml (\left_ -> H.div [ HA.class "ew-shrink-0 ew-px-3 ew-py-2 ew-pl-0" ] [ left_ ]) attrs.left
+            [ WH.maybeHtml (\left_ -> H.div [ HA.class "ew-shrink-0 ew-px-3 ew-py-2 ew-pl-0" ] left_) attrs.left
             , H.div [ HA.class "ew-grow" ]
-                [ WH.maybeHtml (\header_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pb-1" ] [ header_ ]) attrs.header
+                [ WH.maybeHtml (\header_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pb-1" ] header_) attrs.header
                 , H.div [ HA.class "ew ew-data-row-label" ] children
-                , WH.maybeHtml (\footer_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pt-0.5" ] [ footer_ ]) attrs.footer
+                , WH.maybeHtml (\footer_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pt-0.5" ] footer_) attrs.footer
                 ]
             ]
         , attrs.right

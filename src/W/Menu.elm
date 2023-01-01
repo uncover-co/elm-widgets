@@ -1,12 +1,22 @@
 module W.Menu exposing
     ( view, viewButton, viewLink, viewTitle
-    , id, disabled, selected, left, right, htmlAttrs, Attribute
+    , disabled, selected, left, right
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
 @docs view, viewButton, viewLink, viewTitle
-@docs id, disabled, selected, left, right, htmlAttrs, Attribute
+
+
+# Styles
+
+@docs disabled, selected, left, right
+
+
+# Html
+
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -26,30 +36,22 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , disabled : Bool
+    { disabled : Bool
     , selected : Bool
-    , left : Maybe (H.Html msg)
-    , right : Maybe (H.Html msg)
+    , left : Maybe (List (H.Html msg))
+    , right : Maybe (List (H.Html msg))
     , htmlAttributes : List (H.Attribute msg)
     }
 
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , disabled = False
+    { disabled = False
     , selected = False
     , left = Nothing
     , right = Nothing
     , htmlAttributes = []
     }
-
-
-{-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
 
 
 {-| -}
@@ -65,13 +67,13 @@ selected v =
 
 
 {-| -}
-left : H.Html msg -> Attribute msg
+left : List (H.Html msg) -> Attribute msg
 left v =
     Attribute <| \attrs -> { attrs | left = Just v }
 
 
 {-| -}
-right : H.Html msg -> Attribute msg
+right : List (H.Html msg) -> Attribute msg
 right v =
     Attribute <| \attrs -> { attrs | right = Just v }
 
@@ -80,6 +82,16 @@ right v =
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
+
+-- View
 
 
 {-| -}
@@ -99,13 +111,13 @@ applyAttrs attrs =
 baseAttrs : Attributes msg -> List (H.Attribute msg)
 baseAttrs attrs =
     attrs.htmlAttributes
-        ++ [ WH.maybeAttr HA.id attrs.id
-           , HA.disabled attrs.disabled
+        ++ [ HA.disabled attrs.disabled
            , HA.class "ew-m-0 ew-w-full ew-box-border ew-flex ew-items-center ew-content-start"
            , HA.class "ew-px-3 ew-py-2"
            , HA.class "ew-text-left ew-text-base ew-text-fg"
            , HA.class "hover:ew-bg-base-aux/[0.07]"
            , HA.class "active:ew-bg-base-aux/10"
+           , HA.class "ew-focusable ew-relative focus:ew-z-10"
            , HA.classList
                 [ ( "ew-text-primary-fg ew-bg-primary-fg/10 hover:ew-bg-primary-fg/[0.15] active:ew-bg-primary-fg/20", attrs.selected )
                 , ( "ew-text-base-fg ew-bg-base-bg", not attrs.selected )
@@ -118,7 +130,7 @@ baseAttrs attrs =
 viewTitle :
     List (Attribute msg)
     ->
-        { label : H.Html msg
+        { label : List (H.Html msg)
         }
     -> H.Html msg
 viewTitle attrs_ props =
@@ -139,7 +151,7 @@ viewTitle attrs_ props =
 viewButton :
     List (Attribute msg)
     ->
-        { label : H.Html msg
+        { label : List (H.Html msg)
         , onClick : msg
         }
     -> H.Html msg
@@ -162,7 +174,7 @@ viewButton attrs_ props =
 viewLink :
     List (Attribute msg)
     ->
-        { label : H.Html msg
+        { label : List (H.Html msg)
         , href : String
         }
     -> H.Html msg
@@ -181,9 +193,9 @@ viewLink attrs_ props =
         (baseContent attrs props.label)
 
 
-baseContent : Attributes msg -> H.Html msg -> List (H.Html msg)
+baseContent : Attributes msg -> List (H.Html msg) -> List (H.Html msg)
 baseContent attrs label =
-    [ WH.maybeHtml (\a -> H.span [ HA.class "ew-shrink-0 ew-pr-3" ] [ a ]) attrs.left
-    , H.span [ HA.class "ew-grow" ] [ label ]
-    , WH.maybeHtml (\a -> H.span [ HA.class "ew-shrink-0 ew-pr-3" ] [ a ]) attrs.right
+    [ WH.maybeHtml (H.span [ HA.class "ew-shrink-0 ew-pr-3" ]) attrs.left
+    , H.span [ HA.class "ew-grow" ] label
+    , WH.maybeHtml (H.span [ HA.class "ew-shrink-0 ew-pr-3" ]) attrs.right
     ]

@@ -1,40 +1,36 @@
 module W.Button exposing
-    ( view, viewLink
-    , disabled, outlined, invisible
+    ( view, viewLink, viewDummy
     , primary, secondary, success, warning, danger, theme, ButtonTheme
-    , rounded, small, fill
-    , left, right
-    , id, class, htmlAttrs, Attribute
+    , outlined, invisible, rounded, large, small, icon, full
+    , disabled
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
 
-@docs view, viewLink
-
-
-# State
-
-@docs disabled, outlined, invisible
+@docs view, viewLink, viewDummy
 
 
 # Colors
+
+By default, `neutral` color is used.
 
 @docs primary, secondary, success, warning, danger, theme, ButtonTheme
 
 
 # Styles
 
-@docs rounded, small, fill
+@docs outlined, invisible, rounded, large, small, icon, full
 
 
-# Elements
+# State
 
-@docs left, right
+@docs disabled
 
 
 # Html
 
-@docs id, class, htmlAttrs, Attribute
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -42,7 +38,6 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Theme exposing (ThemeColorSetValues)
-import W.Internal.Helpers as WH
 
 
 
@@ -55,15 +50,11 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , style : ButtonStyle
-    , class : String
+    { style : ButtonStyle
     , disabled : Bool
-    , small : Bool
+    , size : ButtonSize
     , rounded : Bool
-    , fill : Bool
-    , left : Maybe (H.Html msg)
-    , right : Maybe (H.Html msg)
+    , width : ButtonWidth
     , theme : ButtonTheme
     , htmlAttributes : List (H.Attribute msg)
     }
@@ -75,6 +66,19 @@ type ButtonStyle
     | Invisible
 
 
+type ButtonSize
+    = Small
+    | Medium
+    | Large
+
+
+type ButtonWidth
+    = Full
+    | Icon
+    | Base
+
+
+{-| -}
 type alias ButtonTheme =
     { foreground : String
     , background : String
@@ -92,15 +96,11 @@ toButtonTheme color =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , style = Basic
-    , class = ""
+    { style = Basic
     , disabled = False
-    , small = False
+    , size = Medium
     , rounded = False
-    , fill = False
-    , left = Nothing
-    , right = Nothing
+    , width = Base
     , theme = toButtonTheme Theme.neutral
     , htmlAttributes = []
     }
@@ -118,6 +118,9 @@ styleAttrs attrs =
             [ HA.style "color" attrs.theme.aux
             , HA.style "background" attrs.theme.background
             , HA.class "ew-border-0"
+            , HA.class "before:ew-block before:ew-content-[''] before:ew-absolute before:ew-inset-0 before:ew-pointer-events-none"
+            , HA.class "before:ew-z-0 before:ew-transition before:ew-duration-200 before:ew-bg-current before:ew-opacity-0"
+            , HA.class "hover:before:ew-opacity-[0.07] active:before:ew-opacity-[0.15]"
             ]
 
         Outlined ->
@@ -125,26 +128,48 @@ styleAttrs attrs =
             , HA.style "border-color" attrs.theme.foreground
             , HA.style "background" Theme.baseBackground
             , HA.class "ew-border-solid ew-border-[3px]"
+            , HA.class "before:ew-content-[''] before:ew-block before:ew-absolute before:ew-inset-0 before:ew-bg-current before:ew-opacity-0"
+            , HA.class "hover:before:ew-opacity-10 active:before:ew-opacity-20 before:ew-transition before:ew-duration-200"
             ]
 
         Invisible ->
             [ HA.class "ew-relative ew-bg-transparent ew-border-0"
-            , HA.class "before:ew-content-[''] before:ew-block before:ew-absolute before:ew-inset-0 before:ew-bg-current before:ew-opacity-0 hover:before:ew-opacity-[0.15] before:ew-transition-opacity"
+            , HA.class "before:ew-content-[''] before:ew-block before:ew-absolute before:ew-inset-0 before:ew-bg-current before:ew-opacity-0"
+            , HA.class "hover:before:ew-opacity-10 active:before:ew-opacity-20 before:ew-transition before:ew-duration-200"
             , HA.style "color" attrs.theme.foreground
             ]
 
 
 roundedAttrs : Attributes msg -> H.Attribute msg
 roundedAttrs attrs =
-    case ( attrs.rounded, attrs.small ) of
+    case ( attrs.rounded, attrs.size ) of
         ( False, _ ) ->
-            HA.class "ew-rounded-lg before:ew-rounded-lg"
+            HA.classList
+                [ ( "ew-rounded-lg", True )
+                , ( "before:ew-rounded-lg", attrs.style /= Outlined )
+                , ( "before:ew-rounded", attrs.style == Outlined )
+                ]
 
-        ( True, False ) ->
-            HA.class "ew-rounded-[20px] before:ew-rounded-[20px]"
+        ( True, Large ) ->
+            HA.classList
+                [ ( "ew-rounded-[20px]", True )
+                , ( "before:ew-rounded-[20px]", attrs.style /= Outlined )
+                , ( "before:ew-rounded-[18px]", attrs.style == Outlined )
+                ]
 
-        ( True, True ) ->
-            HA.class "ew-rounded-[16px] before:ew-rounded-[16px]"
+        ( True, Medium ) ->
+            HA.classList
+                [ ( "ew-rounded-[20px]", True )
+                , ( "before:ew-rounded-[20px]", attrs.style /= Outlined )
+                , ( "before:ew-rounded-[18px]", attrs.style == Outlined )
+                ]
+
+        ( True, Small ) ->
+            HA.classList
+                [ ( "ew-rounded-[16px]", True )
+                , ( "before:ew-rounded-[16px]", attrs.style /= Outlined )
+                , ( "before:ew-rounded-[14px]", attrs.style == Outlined )
+                ]
 
 
 
@@ -160,61 +185,79 @@ attributes attrs_ =
     in
     attrs.htmlAttributes
         ++ styleAttrs attrs
-        ++ [ WH.maybeAttr HA.id attrs.id
-           , HA.disabled attrs.disabled
+        ++ [ HA.disabled attrs.disabled
            , roundedAttrs attrs
-           , HA.class attrs.class
-           , HA.class "ew-btn"
+           , HA.class "ew-focusable ew-box-border"
+           , HA.class "ew-relative ew-inline-flex ew-items-center ew-justify-center ew-m-0 ew-py-0"
+           , HA.class "ew-font-text ew-font-semibold ew-leading-none ew-tracking-wider ew-no-underline"
+           , HA.class "disabled:ew-pointer-events-none disabled:ew-opacity-60"
            , HA.classList
-                [ ( "ew-h-[40px] ew-text-base ew-px-5", not attrs.small )
-                , ( "ew-h-[32px] ew-text-sm ew-px-3", attrs.small )
-                , ( "ew-w-full", attrs.fill )
+                [ ( "ew-h-[32px] ew-text-sm", attrs.size == Small )
+                , ( "ew-h-[40px] ew-text-base", attrs.size == Medium )
+                , ( "ew-h-[48px] ew-text-base", attrs.size == Large )
+                , ( "ew-px-3", attrs.size == Small && attrs.width == Base )
+                , ( "ew-px-5", attrs.size == Medium && attrs.width == Base )
+                , ( "ew-px-6", attrs.size == Large && attrs.width == Base )
+                , ( "ew-min-w-[32px] ew-px-1", attrs.size == Small && attrs.width == Icon )
+                , ( "ew-min-w-[40px] ew-px-1", attrs.size == Medium && attrs.width == Icon )
+                , ( "ew-min-w-[48px] ew-px-1", attrs.size == Large && attrs.width == Icon )
+                , ( "ew-w-full", attrs.width == Full )
                 ]
            ]
+
+
+viewInner : List (H.Html msg) -> H.Html msg
+viewInner =
+    H.span
+        [ HA.class "ew-relative ew-z-10 ew-flex-inline ew-items-center ew-justify-center ew-gap-2" ]
 
 
 {-| -}
 view :
     List (Attribute msg)
     ->
-        { label : String
+        { label : List (H.Html msg)
         , onClick : msg
         }
     -> H.Html msg
 view attrs props =
     H.button
         (HE.onClick props.onClick :: attributes attrs)
-        [ H.text props.label ]
+        [ viewInner props.label ]
 
 
 {-| -}
 viewLink :
     List (Attribute msg)
     ->
-        { label : String
+        { label : List (H.Html msg)
         , href : String
         }
     -> H.Html msg
 viewLink attrs props =
     H.a
         (HA.href props.href :: attributes attrs)
-        [ H.text props.label ]
+        [ viewInner props.label ]
+
+
+{-| Useful for HTML/CSS-based triggers.
+
+    W.Modal.viewToggle "toggle-on-click"
+        [ W.Button.viewDummy []
+            [ H.text "Open or close modal" ]
+        ]
+
+-}
+viewDummy :
+    List (Attribute msg)
+    -> List (H.Html msg)
+    -> H.Html msg
+viewDummy attrs children =
+    H.div (HA.tabindex 0 :: HA.class "ew-cursor-default" :: attributes attrs) [ viewInner children ]
 
 
 
 -- Attributes
-
-
-{-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
-
-
-{-| -}
-class : String -> Attribute msg
-class v =
-    Attribute <| \attrs -> { attrs | class = v }
 
 
 {-| -}
@@ -266,9 +309,15 @@ invisible =
 
 
 {-| -}
-fill : Attribute msg
-fill =
-    Attribute <| \attrs -> { attrs | fill = True }
+full : Attribute msg
+full =
+    Attribute <| \attrs -> { attrs | width = Full }
+
+
+{-| -}
+icon : Attribute msg
+icon =
+    Attribute <| \attrs -> { attrs | width = Icon }
 
 
 {-| -}
@@ -280,19 +329,13 @@ rounded =
 {-| -}
 small : Attribute msg
 small =
-    Attribute <| \attrs -> { attrs | small = True }
+    Attribute <| \attrs -> { attrs | size = Small }
 
 
 {-| -}
-left : H.Html msg -> Attribute msg
-left v =
-    Attribute <| \attrs -> { attrs | left = Just v }
-
-
-{-| -}
-right : H.Html msg -> Attribute msg
-right v =
-    Attribute <| \attrs -> { attrs | right = Just v }
+large : Attribute msg
+large =
+    Attribute <| \attrs -> { attrs | size = Large }
 
 
 {-| -}
@@ -305,3 +348,9 @@ theme v =
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity

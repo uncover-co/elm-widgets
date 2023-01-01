@@ -15,16 +15,13 @@ children :
         }
 children label =
     { content =
-        [ H.p [] 
+        [ H.p []
             [ H.text "Content with considerable size"
             , H.input [] []
             ]
         ]
     , children =
-        [ W.Button.viewLink []
-            { href = "/logAction/"
-            , label = label
-            }
+        [ W.Button.viewDummy [] [ H.text label ]
         ]
     }
 

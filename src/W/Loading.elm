@@ -1,7 +1,7 @@
 module W.Loading exposing
     ( circles, dots, ripples
     , color, size
-    , id, htmlAttrs
+    , htmlAttrs, noAttr, Attribute
     )
 
 {-|
@@ -16,7 +16,7 @@ module W.Loading exposing
 
 # Html
 
-@docs id, htmlAttrs
+@docs htmlAttrs, noAttr, Attribute
 
 -}
 
@@ -38,8 +38,7 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { id : Maybe String
-    , size : Float
+    { size : Float
     , color : String
     , htmlAttributes : List (H.Attribute msg)
     }
@@ -52,17 +51,10 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { id = Nothing
-    , size = 25
+    { size = 25
     , color = Theme.baseAux
     , htmlAttributes = []
     }
-
-
-{-| -}
-id : String -> Attribute msg
-id v =
-    Attribute <| \attrs -> { attrs | id = Just v }
 
 
 {-| -}
@@ -83,6 +75,12 @@ htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
 
 
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
 
 -- Main
 
@@ -97,8 +95,7 @@ circles attrs_ =
     in
     S.svg
         (attrs.htmlAttributes
-            ++ [ WH.maybeSvgAttr SA.id attrs.id
-               , SA.style ("--color: " ++ attrs.color)
+            ++ [ SA.style ("--color: " ++ attrs.color)
                , SA.class "ew-loading-circle"
                , SA.viewBox "0 0 40 40"
                , SA.height (String.fromFloat attrs.size ++ "px")
@@ -140,8 +137,7 @@ dots attrs_ =
     in
     H.div
         (attrs.htmlAttributes
-            ++ [ WH.maybeAttr HA.id attrs.id
-               , HA.class "ew-loading-dots"
+            ++ [ HA.class "ew-loading-dots"
                , WH.styles
                     [ ( "--color", attrs.color )
                     , ( "--size", String.fromFloat attrs.size ++ "px" )
@@ -165,8 +161,7 @@ ripples attrs_ =
     in
     H.div
         (attrs.htmlAttributes
-            ++ [ WH.maybeAttr HA.id attrs.id
-               , HA.class "ew-loading-ripples"
+            ++ [ HA.class "ew-loading-ripples"
                , WH.styles
                     [ ( "--size", String.fromFloat attrs.size ++ "px" )
                     , ( "--color", attrs.color )

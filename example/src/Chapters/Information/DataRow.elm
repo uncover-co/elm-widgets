@@ -35,7 +35,7 @@ chapter_ =
                     [ W.DataRow.href "/logAction/#"
                     , W.DataRow.right
                         [ W.Button.view [ W.Button.primary ]
-                            { label = "Click me"
+                            { label = [ H.text "Click me" ]
                             , onClick = logAction "onClick Action"
                             }
                         ]
@@ -46,10 +46,10 @@ chapter_ =
             , ( "With Actions + Footer"
               , W.DataRow.view
                     [ W.DataRow.href "/logAction/#"
-                    , W.DataRow.footer (H.text "user@email.com")
+                    , W.DataRow.footer [ H.text "user@email.com" ]
                     , W.DataRow.right
                         [ W.Button.view [ W.Button.primary ]
-                            { label = "Click me"
+                            { label = [ H.text "Click me" ]
                             , onClick = logAction "onClick Action"
                             }
                         ]
@@ -59,11 +59,11 @@ chapter_ =
             , ( "With Actions + Header + Footer"
               , W.DataRow.view
                     [ W.DataRow.href "/logAction/#"
-                    , W.DataRow.header (H.text "Admin")
-                    , W.DataRow.footer (H.text "user@email.com")
+                    , W.DataRow.header [ H.text "Admin" ]
+                    , W.DataRow.footer [ H.text "user@email.com" ]
                     , W.DataRow.right
                         [ W.Button.view [ W.Button.primary ]
-                            { label = "Click me"
+                            { label = [ H.text "Click me" ]
                             , onClick = logAction "onClick Action"
                             }
                         ]
@@ -73,12 +73,12 @@ chapter_ =
             , ( "With Actions + Header + Footer + Left"
               , W.DataRow.view
                     [ W.DataRow.href "/logAction/#"
-                    , W.DataRow.header (H.text "Admin")
-                    , W.DataRow.footer (H.text "user@email.com")
-                    , W.DataRow.left (W.Loading.ripples [])
+                    , W.DataRow.header [ H.text "Admin" ]
+                    , W.DataRow.footer [ H.text "user@email.com" ]
+                    , W.DataRow.left [ W.Loading.ripples [] ]
                     , W.DataRow.right
                         [ W.Button.view [ W.Button.primary ]
-                            { label = "Click me"
+                            { label = [ H.text "Click me" ]
                             , onClick = logAction "onClick Action"
                             }
                         ]
@@ -88,10 +88,10 @@ chapter_ =
             , ( "With Actions + Header + Footer + Left (Other)"
               , W.DataRow.view
                     [ W.DataRow.href "/logAction/#"
-                    , W.DataRow.header (H.text "Admin")
-                    , W.DataRow.footer (H.text "user@email.com")
+                    , W.DataRow.header [ H.text "Admin" ]
+                    , W.DataRow.footer [ H.text "user@email.com" ]
                     , W.DataRow.left
-                        (H.div
+                        [ H.div
                             [ HA.style "background" "#f5f5f5"
                             , HA.style "border-radius" "50%"
                             , HA.style "border" "3px solid #dadada"
@@ -99,10 +99,10 @@ chapter_ =
                             , HA.style "height" "20px"
                             ]
                             []
-                        )
+                        ]
                     , W.DataRow.right
                         [ W.Button.view [ W.Button.primary ]
-                            { label = "Click me"
+                            { label = [ H.text "Click me" ]
                             , onClick = logAction "onClick Action"
                             }
                         ]
