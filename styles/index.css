@@ -101,6 +101,11 @@ input[type="color"].ew-input-color::-webkit-color-swatch {
   opacity: 0;
 }
 
+.ew-input select option {
+  color: var(--theme-base-fg);
+  background-color: var(--theme-base-bg);
+}
+
 .ew-input input + .ew-input-icon::before,
 .ew-input select + .ew-input-icon::before {
   background: rgb(var(--theme-base-aux-ch) / 0.07);

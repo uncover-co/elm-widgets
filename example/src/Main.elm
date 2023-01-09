@@ -89,7 +89,7 @@ main =
               , [ Chapters.Overview.chapter_
                 , ElmBook.Chapter.chapterLink
                     { title = "Package Docs"
-                    , url = "https://"
+                    , url = "https://package.elm-lang.org/packages/uncover-co/elm-widgets/latest/"
                     }
                 ]
               )
