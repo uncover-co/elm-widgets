@@ -65,6 +65,7 @@ import W.Internal.Input
 -- Value
 
 
+{-| -}
 type Value
     = Value String Time.Zone (Maybe Time.Posix)
 
