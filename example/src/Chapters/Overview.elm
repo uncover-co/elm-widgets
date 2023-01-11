@@ -29,7 +29,7 @@ type alias Model =
     { inputMask : String
     , inputMaskResult : Maybe (Result (List W.InputText.Error) String)
     , select : Role
-    , time : Maybe Time.Posix
+    , time : W.InputTime.Value
     }
 
 
@@ -57,14 +57,14 @@ init =
     { inputMask = ""
     , inputMaskResult = Nothing
     , select = Viewer
-    , time = Nothing
+    , time = W.InputTime.init Time.utc Nothing
     }
 
 
 type Msg
     = OnInputMask (Result (List W.InputText.Error) String) String
     | OnSelect Role
-    | OnSelectTime (Maybe Time.Posix)
+    | OnSelectTime (W.InputTime.Value)
 
 
 update : Msg -> Model -> Model
@@ -183,7 +183,6 @@ chapter_ =
                             }
                         , W.InputTime.view []
                             { value = state.overview.time
-                            , timeZone = Time.utc
                             , onInput = OnSelectTime
                             }
                         ]

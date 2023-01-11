@@ -1,5 +1,6 @@
 module W.Internal.Input exposing
     ( baseClass
+    , baseClassNoColor
     , view
     , viewWithIcon
     )
@@ -124,11 +125,16 @@ prefixSuffixClass =
 
 baseClass : String
 baseClass =
+    baseClassNoColor ++ " ew-text-inherit"
+
+
+baseClassNoColor : String
+baseClassNoColor =
     "ew-appearance-none"
         ++ " ew-w-full"
         ++ " ew-py-2 ew-px-3 ew-box-border"
         ++ " ew-border-0 ew-outline-0"
-        ++ " ew-font-text ew-text-base ew-text-inherit ew-leading-none"
+        ++ " ew-font-text ew-text-base ew-leading-none"
         ++ " ew-placeholder-base-aux/80"
         ++ " ew-bg-transparent"
         ++ " focus:ew-outline-none focus:ew-shadow-none"

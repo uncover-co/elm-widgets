@@ -64,22 +64,22 @@ import W.Internal.Input
 
 {-| -}
 type Value
-    = Value String Float
+    = Value String (Maybe Float)
 
 
 {-| -}
 init : Maybe Float -> Value
 init value =
-    case value of
-        Just v ->
-            Value (String.fromFloat v) v
-
-        Nothing ->
-            Value "" 0
+    Value
+        (value
+            |> Maybe.map String.fromFloat
+            |> Maybe.withDefault ""
+        )
+        value
 
 
 {-| -}
-toFloat : Value -> Float
+toFloat : Value -> Maybe Float
 toFloat (Value _ v) =
     v
 
@@ -146,7 +146,7 @@ type alias Attributes msg =
     , required : Bool
     , min : Maybe Float
     , max : Maybe Float
-    , validation : Maybe (Float -> String -> Maybe String)
+    , validation : Maybe (Maybe Float -> String -> Maybe String)
     , step : Float
     , placeholder : Maybe String
     , mask : Maybe (String -> String)
@@ -231,7 +231,7 @@ max v =
 
 
 {-| -}
-validation : (Float -> String -> Maybe String) -> Attribute msg
+validation : (Maybe Float -> String -> Maybe String) -> Attribute msg
 validation v =
     Attribute <| \attrs -> { attrs | validation = Just v }
 
@@ -353,7 +353,7 @@ viewWithValidation :
     List (Attribute msg)
     ->
         { value : Value
-        , onInput : Result (List Error) Float -> Value -> msg
+        , onInput : Result (List Error) (Maybe Float) -> Value -> msg
         }
     -> H.Html msg
 viewWithValidation attrs_ props =
@@ -391,7 +391,7 @@ viewWithValidation attrs_ props =
                                             |> Maybe.andThen (\fn -> fn (toFloat value__) value_)
                                             |> Maybe.map Custom
 
-                                    result : Result (List Error) Float
+                                    result : Result (List Error) (Maybe Float)
                                     result =
                                         if valid && customError == Nothing then
                                             Ok (toFloat value__)
@@ -413,16 +413,17 @@ viewWithValidation attrs_ props =
                                                     )
                                             , Just attrs.step
                                                 |> WH.keepIf stepMismatch
-                                                |> Maybe.map
-                                                    (\step_ ->
+                                                |> Maybe.map2
+                                                    (\value___ step_ ->
                                                         let
                                                             ( f, c ) =
-                                                                WH.nearestFloats (toFloat value__) attrs.step
+                                                                WH.nearestFloats value___ attrs.step
                                                                     |> Tuple.mapBoth (WH.formatFloat attrs.step) (WH.formatFloat attrs.step)
                                                         in
                                                         StepMismatch step_
                                                             ("Please enter a valid value. The two nearest valid values are " ++ f ++ " and " ++ c)
                                                     )
+                                                    (toFloat value__)
                                             , customError
                                             ]
                                                 |> List.filterMap identity
@@ -449,16 +450,18 @@ toValue : Value -> String -> Value
 toValue previous value =
     case String.toFloat value of
         Just v ->
-            Value value v
+            Value value (Just v)
 
         Nothing ->
             if value == "" then
-                Value value 0
+                Value value Nothing
 
             else
+                -- This is a fallback so the user doesn't get a wrong value while the user is typing.
+                -- For instance, if the user wants to write "2.3" we will still mark 2 as the value when the user typed "2.".
                 case String.toFloat (toString previous) of
                     Just v_ ->
-                        Value value v_
+                        Value value (Just v_)
 
                     Nothing ->
-                        Value value 0
+                        Value value Nothing

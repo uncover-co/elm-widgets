@@ -9,7 +9,7 @@ import W.InputFloat
 type alias Model =
     { value : W.InputFloat.Value
     , value2 : W.InputFloat.Value
-    , validation : Maybe (Result (List W.InputFloat.Error) Float)
+    , validation : Maybe (Result (List W.InputFloat.Error) (Maybe Float))
     }
 
 
@@ -76,7 +76,10 @@ chapter_ =
                                 (\validation ->
                                     case validation of
                                         Ok f ->
-                                            H.text (String.fromFloat f)
+                                            f
+                                            |> Maybe.map (String.fromFloat)
+                                            |> Maybe.withDefault "Nothing"
+                                            |> H.text
 
                                         Err errors ->
                                             H.div

@@ -1,10 +1,21 @@
-module Chapters.Form.InputTime exposing (..)
+module Chapters.Form.InputTime exposing (chapter_)
 
+
+import ElmBook
 import ElmBook.Actions exposing (logAction)
 import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, withComponentList)
 import Time
 import W.InputTime
 
+
+logValue : W.InputTime.Value -> ElmBook.Msg x
+logValue value =
+    case (W.InputTime.toTime value) of
+        Just v_ ->
+            logAction ("Just " ++ String.fromInt (Time.toHour (W.InputTime.toTimeZone value) v_) ++ ":" ++ String.fromInt (Time.toMinute (W.InputTime.toTimeZone value) v_) ++ ":" ++ String.fromInt (Time.toSecond (W.InputTime.toTimeZone value) v_))
+
+        Nothing ->
+            logAction "Nothing"
 
 chapter_ : Chapter x
 chapter_ =
@@ -13,57 +24,29 @@ chapter_ =
             [ ( "Default"
               , W.InputTime.view
                     []
-                    { value = Nothing
-                    , timeZone = Time.utc
-                    , onInput =
-                        \v ->
-                            case v of
-                                Just v_ ->
-                                    logAction ("Just " ++ String.fromInt (Time.toHour Time.utc v_) ++ ":" ++ String.fromInt (Time.toMinute Time.utc v_) ++ ":" ++ String.fromInt (Time.posixToMillis v_))
-
-                                Nothing ->
-                                    logAction "Nothing"
+                    { value = W.InputTime.init Time.utc Nothing
+                    , onInput = logValue
                     }
               )
             , ( "Custom Timezone (GMT-3)"
               , let
+                    timeZone : Time.Zone
                     timeZone =
                         Time.customZone (-3 * 60) []
                 in
                 W.InputTime.view []
-                    { value = Just (Time.millisToPosix 1651693959717)
-                    , timeZone = timeZone
-                    , onInput =
-                        \v ->
-                            case v of
-                                Just v_ ->
-                                    logAction ("Just " ++ String.fromInt (Time.toHour timeZone v_) ++ ":" ++ String.fromInt (Time.toMinute timeZone v_))
-
-                                Nothing ->
-                                    logAction "Nothing"
+                    { value = W.InputTime.init Time.utc (Just (Time.millisToPosix 1651693959717))
+                    , onInput = logValue
                     }
               )
             , ( "Validation"
-              , let
-                    timeZone : Time.Zone
-                    timeZone =
-                        Time.utc
-                in
-                W.InputTime.viewWithValidation
+              , W.InputTime.viewWithValidation
                     [ W.InputTime.step 15
                     , W.InputTime.min (Time.millisToPosix 1651693959717)
                     , W.InputTime.max (Time.millisToPosix 1671484833575)
                     ]
-                    { value = Just (Time.millisToPosix 1651693959717)
-                    , timeZone = timeZone
-                    , onInput =
-                        \_ v ->
-                            case v of
-                                Just v_ ->
-                                    logAction ("Just " ++ String.fromInt (Time.toHour timeZone v_) ++ ":" ++ String.fromInt (Time.toMinute timeZone v_))
-
-                                Nothing ->
-                                    logAction "Nothing"
+                    { value = W.InputTime.init Time.utc (Just (Time.millisToPosix 1651693959717))
+                    , onInput = \_ -> logValue
                     }
               )
             ]

@@ -64,22 +64,22 @@ import W.Internal.Input
 
 {-| -}
 type Value
-    = Value String Int
+    = Value String (Maybe Int)
 
 
 {-| -}
 init : Maybe Int -> Value
 init value =
-    case value of
-        Just v ->
-            Value (String.fromInt v) v
-
-        Nothing ->
-            Value "" 0
+    Value
+        (value
+            |> Maybe.map String.fromInt
+            |> Maybe.withDefault ""
+        )
+        value
 
 
 {-| -}
-toInt : Value -> Int
+toInt : Value -> Maybe Int
 toInt (Value _ v) =
     v
 
@@ -139,7 +139,7 @@ type alias Attributes msg =
     , min : Maybe Int
     , max : Maybe Int
     , step : Maybe Int
-    , validation : Maybe (Int -> String -> Maybe String)
+    , validation : Maybe (Maybe Int -> String -> Maybe String)
     , placeholder : Maybe String
     , mask : Maybe (String -> String)
     , prefix : Maybe (List (H.Html msg))
@@ -229,7 +229,7 @@ step v =
 
 
 {-| -}
-validation : (Int -> String -> Maybe String) -> Attribute msg
+validation : (Maybe Int -> String -> Maybe String) -> Attribute msg
 validation v =
     Attribute <| \attrs -> { attrs | validation = Just v }
 
@@ -346,7 +346,7 @@ viewWithValidation :
     List (Attribute msg)
     ->
         { value : Value
-        , onInput : Result (List Error) Int -> Value -> msg
+        , onInput : Result (List Error) (Maybe Int) -> Value -> msg
         }
     -> H.Html msg
 viewWithValidation attrs_ props =
@@ -384,7 +384,7 @@ viewWithValidation attrs_ props =
                                             |> Maybe.andThen (\fn -> fn (toInt value__) value_)
                                             |> Maybe.map Custom
 
-                                    result : Result (List Error) Int
+                                    result : Result (List Error) (Maybe Int)
                                     result =
                                         if valid && customError == Nothing then
                                             Ok (toInt value__)
@@ -406,16 +406,17 @@ viewWithValidation attrs_ props =
                                                     )
                                             , attrs.step
                                                 |> WH.keepIf stepMismatch
-                                                |> Maybe.map
-                                                    (\step_ ->
+                                                |> Maybe.map2
+                                                    (\value___ step_ ->
                                                         let
                                                             ( f, c ) =
-                                                                WH.nearestInts (toInt value__) step_
+                                                                WH.nearestInts value___ step_
                                                                     |> Tuple.mapBoth String.fromInt String.fromInt
                                                         in
                                                         StepMismatch step_
                                                             ("Please enter a valid value. The two nearest valid values are " ++ f ++ " and " ++ c)
                                                     )
+                                                    (toInt value__)
                                             , customError
                                             ]
                                                 |> List.filterMap identity
@@ -437,21 +438,19 @@ viewWithValidation attrs_ props =
 
 
 toValue : String -> Value
-toValue value_ =
-    case String.toInt value_ of
+toValue value =
+    case String.toInt value of
         Just v ->
-            Value value_ v
+            Value value (Just v)
 
         Nothing ->
             let
                 parsedString : String
                 parsedString =
-                    value_
-                        |> String.filter Char.isDigit
+                    String.filter Char.isDigit value
 
-                parsedValue : Int
+                parsedValue : Maybe Int
                 parsedValue =
                     String.toInt parsedString
-                        |> Maybe.withDefault 0
             in
             Value parsedString parsedValue

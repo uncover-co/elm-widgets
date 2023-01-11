@@ -1,5 +1,6 @@
 module W.InputTime exposing
     ( view
+    , init, toTime, toTimeZone, toString, Value
     , prefix, suffix
     , disabled, readOnly
     , required, min, max, step
@@ -11,6 +12,11 @@ module W.InputTime exposing
 {-|
 
 @docs view
+
+
+# Value
+
+@docs init, toTime, toTimeZone, toString, Value
 
 
 # Styles
@@ -53,6 +59,43 @@ import Time.Extra
 import W.Internal.Helpers as WH
 import W.Internal.Icons
 import W.Internal.Input
+
+
+
+-- Value
+
+
+type Value
+    = Value String Time.Zone (Maybe Time.Posix)
+
+
+{-| -}
+init : Time.Zone -> Maybe Time.Posix -> Value
+init timeZone value =
+    case value of
+        Just v ->
+            Value (valueFromTime timeZone v) timeZone (Just v)
+
+        Nothing ->
+            Value "00:00:00" timeZone Nothing
+
+
+{-| -}
+toTimeZone : Value -> Time.Zone
+toTimeZone (Value _ v _) =
+    v
+
+
+{-| -}
+toTime : Value -> Maybe Time.Posix
+toTime (Value _ _ v) =
+    v
+
+
+{-| -}
+toString : Value -> String
+toString (Value v _ _) =
+    v
 
 
 
@@ -245,9 +288,8 @@ baseAttrs attrs timeZone value =
 view :
     List (Attribute msg)
     ->
-        { timeZone : Time.Zone
-        , value : Maybe Time.Posix
-        , onInput : Maybe Time.Posix -> msg
+        { value : Value
+        , onInput : Value -> msg
         }
     -> H.Html msg
 view attrs_ props =
@@ -255,16 +297,10 @@ view attrs_ props =
         attrs : Attributes msg
         attrs =
             applyAttrs attrs_
-
-        value : String
-        value =
-            props.value
-                |> Maybe.map (valueFromTime props.timeZone)
-                |> Maybe.withDefault ""
     in
     H.input
-        (HE.onInput (props.onInput << timeFromValue props.timeZone props.value)
-            :: baseAttrs attrs props.timeZone value
+        (HE.onInput (props.onInput << timeFromValue props.value)
+            :: baseAttrs attrs (toTimeZone props.value) (toString props.value)
         )
         []
         |> W.Internal.Input.viewWithIcon
@@ -273,7 +309,7 @@ view attrs_ props =
             , readOnly = attrs.readOnly
             , disabled = attrs.disabled
             , mask = Nothing
-            , maskInput = value
+            , maskInput = toString props.value
             }
             (W.Internal.Icons.clock { size = 24 })
 
@@ -282,9 +318,8 @@ view attrs_ props =
 viewWithValidation :
     List (Attribute msg)
     ->
-        { timeZone : Time.Zone
-        , value : Maybe Time.Posix
-        , onInput : Result (List Error) Time.Posix -> Maybe Time.Posix -> msg
+        { value : Value
+        , onInput : Result (List Error) (Maybe Time.Posix) -> Value -> msg
         }
     -> H.Html msg
 viewWithValidation attrs_ props =
@@ -292,72 +327,60 @@ viewWithValidation attrs_ props =
         attrs : Attributes msg
         attrs =
             applyAttrs attrs_
-
-        value : String
-        value =
-            props.value
-                |> Maybe.map (valueFromTime props.timeZone)
-                |> Maybe.withDefault ""
     in
     H.input
         (HE.on "input"
             (D.map6
-                (\value_ valid rangeOverflow rangeUnderflow stepMismatch valueMissing ->
-                    case timeFromValue props.timeZone props.value value_ of
-                        Nothing ->
-                            props.onInput
-                                (Err <| List.singleton <| BadInput "Please enter a valid value.")
-                                Nothing
+                (\value valid rangeOverflow rangeUnderflow stepMismatch valueMissing ->
+                    let
+                        newValue : Value
+                        newValue =
+                            timeFromValue props.value value
+                    in
+                    if valid then
+                        props.onInput (Ok (toTime newValue)) newValue
 
-                        Just time ->
-                            if valid then
-                                props.onInput (Ok time) (Just time)
-
-                            else
-                                let
-                                    result : Result (List Error) Time.Posix
-                                    result =
-                                        [ Just (ValueMissing "Please fill out this field.")
-                                            |> WH.keepIf valueMissing
-                                        , attrs.min
-                                            |> WH.keepIf rangeUnderflow
-                                            |> Maybe.map
-                                                (\min_ ->
-                                                    let
-                                                        timeString : String
-                                                        timeString =
-                                                            valueFromTime props.timeZone min_
-                                                    in
-                                                    TooLow time ("Value must be " ++ timeString ++ " or later.")
-                                                )
-                                        , attrs.max
-                                            |> WH.keepIf rangeOverflow
-                                            |> Maybe.map
-                                                (\max_ ->
-                                                    let
-                                                        timeString : String
-                                                        timeString =
-                                                            valueFromTime props.timeZone max_
-                                                    in
-                                                    TooLow time ("Value must be " ++ timeString ++ " or later.")
-                                                )
-                                        , attrs.step
-                                            |> WH.keepIf stepMismatch
-                                            |> Maybe.map
-                                                (\step_ ->
-                                                    let
-                                                        ( f, c ) =
-                                                            nearestTimes props.timeZone time step_
-                                                    in
-                                                    StepMismatch
-                                                        step_
-                                                        ("Please enter a valid value. The two nearest valid values are " ++ f ++ " and " ++ c ++ ".")
-                                                )
-                                        ]
-                                            |> List.filterMap identity
-                                            |> Err
-                                in
-                                props.onInput result (Just time)
+                    else
+                        [ Just (ValueMissing "Please fill out this field.")
+                            |> WH.keepIf valueMissing
+                        , attrs.min
+                            |> WH.keepIf rangeUnderflow
+                            |> Maybe.map
+                                (\min_ ->
+                                    let
+                                        timeString : String
+                                        timeString =
+                                            valueFromTime (toTimeZone props.value) min_
+                                    in
+                                    TooLow min_ ("Value must be " ++ timeString ++ " or later.")
+                                )
+                        , attrs.max
+                            |> WH.keepIf rangeOverflow
+                            |> Maybe.map
+                                (\max_ ->
+                                    let
+                                        timeString : String
+                                        timeString =
+                                            valueFromTime (toTimeZone props.value) max_
+                                    in
+                                    TooHigh max_ ("Value must be " ++ timeString ++ " or later.")
+                                )
+                        , attrs.step
+                            |> WH.keepIf stepMismatch
+                            |> Maybe.map2
+                                (\time step_ ->
+                                    let
+                                        ( f, c ) =
+                                            nearestTimes (toTimeZone props.value) time step_
+                                    in
+                                    StepMismatch
+                                        step_
+                                        ("Please enter a valid value. The two nearest valid values are " ++ f ++ " and " ++ c ++ ".")
+                                )
+                                (toTime props.value)
+                        ]
+                            |> List.filterMap identity
+                            |> (\xs -> props.onInput (Err xs) newValue)
                 )
                 (D.at [ "target", "value" ] D.string)
                 (D.at [ "target", "validity", "valid" ] D.bool)
@@ -366,7 +389,7 @@ viewWithValidation attrs_ props =
                 (D.at [ "target", "validity", "stepMismatch" ] D.bool)
                 (D.at [ "target", "validity", "valueMissing" ] D.bool)
             )
-            :: baseAttrs attrs props.timeZone value
+            :: baseAttrs attrs (toTimeZone props.value) (toString props.value)
         )
         []
         |> W.Internal.Input.viewWithIcon
@@ -375,7 +398,7 @@ viewWithValidation attrs_ props =
             , readOnly = attrs.readOnly
             , disabled = attrs.disabled
             , mask = Nothing
-            , maskInput = value
+            , maskInput = toString props.value
             }
             (W.Internal.Icons.clock { size = 24 })
 
@@ -408,8 +431,8 @@ valueFromTime timeZone value =
     hour ++ ":" ++ minute ++ ":" ++ seconds
 
 
-timeFromValue : Time.Zone -> Maybe Time.Posix -> String -> Maybe Time.Posix
-timeFromValue timeZone currentValue value =
+timeFromValue : Value -> String -> Value
+timeFromValue (Value _ timeZone currentValue) valueString =
     let
         currentStartOfDay : Int
         currentStartOfDay =
@@ -435,25 +458,29 @@ timeFromValue timeZone currentValue value =
             String.toInt (s1 ++ s2)
                 |> Maybe.map ((*) 1000)
                 |> Maybe.withDefault 0
+
+        newTime : Maybe Time.Posix
+        newTime =
+            case String.split "" valueString of
+                h1 :: h2 :: ":" :: m1 :: m2 :: [] ->
+                    hours h1 h2
+                        + minutes m1 m2
+                        + currentStartOfDay
+                        |> Time.millisToPosix
+                        |> Just
+
+                h1 :: h2 :: ":" :: m1 :: m2 :: ":" :: s1 :: s2 :: [] ->
+                    hours h1 h2
+                        + minutes m1 m2
+                        + seconds s1 s2
+                        + currentStartOfDay
+                        |> Time.millisToPosix
+                        |> Just
+
+                _ ->
+                    Nothing
     in
-    case String.split "" value of
-        h1 :: h2 :: ":" :: m1 :: m2 :: [] ->
-            hours h1 h2
-                + minutes m1 m2
-                + currentStartOfDay
-                |> Time.millisToPosix
-                |> Just
-
-        h1 :: h2 :: ":" :: m1 :: m2 :: ":" :: s1 :: s2 :: [] ->
-            hours h1 h2
-                + minutes m1 m2
-                + seconds s1 s2
-                + currentStartOfDay
-                |> Time.millisToPosix
-                |> Just
-
-        _ ->
-            Nothing
+    Value valueString timeZone newTime
 
 
 nearestTimes : Time.Zone -> Time.Posix -> Int -> ( String, String )
