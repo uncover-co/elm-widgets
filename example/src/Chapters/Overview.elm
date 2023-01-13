@@ -415,8 +415,8 @@ Dark mode? Yeah! That too. Press that small moon up at the top! ☝️
 
 Our goal with elm-widgets is to build a large collection of stateless, themable, accessible and type-safe widgets. The platform is constantly evolving and so the list of things we can do with plain HTML, CSS (and Elm pure functions and event decoders).
 
-If you know of a particular CSS/HTML/Elm feature we could use to build something interesting or improve our current widgets, open an issue and let's discuss! 
+If you know of a particular CSS/HTML/Elm feature we could use to build something interesting or improve our current widgets, [open an issue](https://github.com/uncover-co/elm-widgets/issues) and let's discuss! 
 
-We care a lot about backwards compatibility, so we try to make things as stable as possible. With that in mind, we also maintain a second package called [uncover-co/elm-widgets-alpha](todo) where we may experiment with new widgets before their API is stable enough for release.
+We care a lot about backwards compatibility, so we try to make things as stable as possible. With that in mind, we also maintain a second package called [uncover-co/elm-widgets-alpha](https://github.com/uncover-co/elm-widgets-alpha) where we may experiment with new widgets before their API is stable enough for release.
 
 """
