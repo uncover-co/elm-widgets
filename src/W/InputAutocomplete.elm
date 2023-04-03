@@ -44,6 +44,7 @@ module W.InputAutocomplete exposing
 
 -}
 
+import Array
 import Dict
 import Html as H
 import Html.Attributes as HA
@@ -67,6 +68,7 @@ type Value a
 type alias ValueData a =
     { input : String
     , value : Maybe a
+    , highlighted : Int
     , toString : a -> String
     }
 
@@ -77,13 +79,19 @@ init props =
     Value
         { input = Maybe.map props.toString props.value |> Maybe.withDefault ""
         , value = props.value
+        , highlighted = 0
         , toString = props.toString
         }
 
 
 update : Value a -> String -> Maybe a -> Value a
 update (Value data) input value =
-    Value { data | input = input, value = value }
+    Value { data | input = input, value = value, highlighted = 0 }
+
+
+updateHighlighted : (Int -> Int) -> Value a -> Value a
+updateHighlighted fn (Value data) =
+    Value { data | highlighted = fn data.highlighted }
 
 
 {-| -}
@@ -259,11 +267,47 @@ view attrs_ props =
                , HA.id props.id
                , HA.class W.Internal.Input.baseClass
                , HA.class "ew-pr-10"
-               , HA.list (props.id ++ "-list")
                , HA.value valueData.input
                , WH.maybeAttr HE.onFocus attrs.onFocus
                , WH.maybeAttr HE.onBlur attrs.onBlur
-               , WH.maybeAttr WH.onEnter attrs.onEnter
+               , HE.on "keydown"
+                    (D.field "key" D.string
+                        |> D.andThen
+                            (\key ->
+                                case key of
+                                    "Enter" ->
+                                        options
+                                            |> List.filter (String.contains valueData.input << Tuple.first)
+                                            |> Array.fromList
+                                            |> Array.get (modBy (List.length options) valueData.highlighted)
+                                            |> Maybe.map
+                                                (\( valueString, value ) ->
+                                                    update props.value valueString (Just value)
+                                                        |> props.onInput
+                                                        |> D.succeed
+                                                )
+                                            |> Maybe.withDefault
+                                                (attrs.onEnter
+                                                    |> Maybe.map D.succeed
+                                                    |> Maybe.withDefault (D.fail "ignored action")
+                                                )
+
+                                    "ArrowDown" ->
+                                        props.value
+                                            |> updateHighlighted ((+) 1)
+                                            |> props.onInput
+                                            |> D.succeed
+
+                                    "ArrowUp" ->
+                                        props.value
+                                            |> updateHighlighted ((+) -1)
+                                            |> props.onInput
+                                            |> D.succeed
+
+                                    _ ->
+                                        D.fail "ignored key"
+                            )
+                    )
                , HE.on "input"
                     (D.at [ "target", "value" ] D.string
                         |> D.andThen
@@ -292,14 +336,22 @@ view attrs_ props =
                 W.Internal.Icons.chevronDown
             )
         |> (\x ->
-                H.div []
+                H.div [ HA.class "ew-relative ew-group" ]
                     [ x
-                    , H.datalist
-                        [ HA.id (props.id ++ "-list") ]
+                    , H.ul
+                        [ HA.class "group-focus-within:ew-block ew-hidden ew-absolute ew-left-0 ew-right-0 ew-shadow ew-z-10 ew-bg-base-bg" ]
                         (options
-                            |> List.map
-                                (\( label, _ ) ->
-                                    H.option [ HA.value label ] []
+                            |> List.filter (String.contains valueData.input << Tuple.first)
+                            |> List.indexedMap
+                                (\index ( _, item ) ->
+                                    H.li
+                                        [ HA.classList
+                                            [ ( "ew-bg-base-aux"
+                                              , modBy (List.length options) valueData.highlighted == index
+                                              )
+                                            ]
+                                        ]
+                                        [ H.text (valueData.toString item) ]
                                 )
                         )
                     ]

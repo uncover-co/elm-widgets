@@ -36,7 +36,10 @@ chapter_ =
                         { id = "autocomplete-default"
                         , value = model.autocomplete
                         , options = Just (List.range 0 10)
-                        , onInput = logAction_ "onInput"
+                        , onInput =
+                            \value ->
+                                ElmBook.Actions.updateState
+                                    (\model_ -> { model_ | autocomplete = value })
                         }
               )
             , ( "Loading"
