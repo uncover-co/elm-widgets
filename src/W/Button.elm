@@ -1,7 +1,7 @@
 module W.Button exposing
     ( view, viewLink, viewDummy
     , primary, secondary, success, warning, danger, theme, ButtonTheme
-    , outlined, invisible, rounded, large, small, icon, full
+    , outlined, invisible, rounded, large, small, icon, full, alignLeft, alignRight
     , disabled
     , htmlAttrs, noAttr, Attribute
     )
@@ -20,7 +20,7 @@ By default, `neutral` color is used.
 
 # Styles
 
-@docs outlined, invisible, rounded, large, small, icon, full
+@docs outlined, invisible, rounded, large, small, icon, full, alignLeft, alignRight
 
 
 # State
@@ -56,6 +56,7 @@ type alias Attributes msg =
     , rounded : Bool
     , width : ButtonWidth
     , theme : ButtonTheme
+    , alignClass : String
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -101,6 +102,7 @@ defaultAttrs =
     , size = Medium
     , rounded = False
     , width = Base
+    , alignClass = "ew-justify-center"
     , theme = toButtonTheme Theme.neutral
     , htmlAttributes = []
     }
@@ -176,40 +178,31 @@ roundedAttrs attrs =
 -- Main
 
 
-attributes : List (Attribute msg) -> List (H.Attribute msg)
-attributes attrs_ =
-    let
-        attrs : Attributes msg
-        attrs =
-            applyAttrs attrs_
-    in
+attributes : Attributes msg -> List (H.Attribute msg)
+attributes attrs =
     attrs.htmlAttributes
         ++ styleAttrs attrs
         ++ [ HA.disabled attrs.disabled
            , roundedAttrs attrs
+           , HA.class attrs.alignClass
            , HA.class "ew-focusable ew-box-border"
-           , HA.class "ew-relative ew-inline-flex ew-items-center ew-justify-center ew-m-0 ew-py-0"
+           , HA.class "ew-relative ew-inline-flex ew-items-center ew-m-0 ew-py-0"
            , HA.class "ew-font-text ew-font-semibold ew-leading-none ew-tracking-wider ew-no-underline"
            , HA.class "disabled:ew-pointer-events-none disabled:ew-opacity-60"
            , HA.classList
                 [ ( "ew-h-[32px] ew-text-sm", attrs.size == Small )
                 , ( "ew-h-[40px] ew-text-base", attrs.size == Medium )
                 , ( "ew-h-[48px] ew-text-base", attrs.size == Large )
-                , ( "ew-px-3", attrs.size == Small && attrs.width == Base )
-                , ( "ew-px-5", attrs.size == Medium && attrs.width == Base )
-                , ( "ew-px-6", attrs.size == Large && attrs.width == Base )
-                , ( "ew-min-w-[32px] ew-px-1", attrs.size == Small && attrs.width == Icon )
-                , ( "ew-min-w-[40px] ew-px-1", attrs.size == Medium && attrs.width == Icon )
-                , ( "ew-min-w-[48px] ew-px-1", attrs.size == Large && attrs.width == Icon )
+                , ( "ew-min-w-[32px]", attrs.size == Small && attrs.width == Icon )
+                , ( "ew-min-w-[40px]", attrs.size == Medium && attrs.width == Icon )
+                , ( "ew-min-w-[48px]", attrs.size == Large && attrs.width == Icon )
+                , ( "ew-px-1", attrs.width == Icon )
+                , ( "ew-px-3 ew-gap-2", attrs.size == Small && attrs.width /= Icon )
+                , ( "ew-px-5 ew-gap-3", attrs.size == Medium && attrs.width /= Icon )
+                , ( "ew-px-6 ew-gap-4", attrs.size == Large && attrs.width /= Icon )
                 , ( "ew-w-full", attrs.width == Full )
                 ]
            ]
-
-
-viewInner : List (H.Html msg) -> H.Html msg
-viewInner =
-    H.span
-        [ HA.class "ew-relative ew-z-10 ew-flex-inline ew-items-center ew-justify-center ew-gap-2" ]
 
 
 {-| -}
@@ -220,10 +213,15 @@ view :
         , onClick : msg
         }
     -> H.Html msg
-view attrs props =
+view attrs_ props =
+    let
+        attrs : Attributes msg
+        attrs =
+            applyAttrs attrs_
+    in
     H.button
         (HE.onClick props.onClick :: attributes attrs)
-        [ viewInner props.label ]
+        props.label
 
 
 {-| -}
@@ -234,10 +232,15 @@ viewLink :
         , href : String
         }
     -> H.Html msg
-viewLink attrs props =
+viewLink attrs_ props =
+    let
+        attrs : Attributes msg
+        attrs =
+            applyAttrs attrs_
+    in
     H.a
         (HA.href props.href :: attributes attrs)
-        [ viewInner props.label ]
+        props.label
 
 
 {-| Useful for HTML/CSS-based triggers.
@@ -252,8 +255,15 @@ viewDummy :
     List (Attribute msg)
     -> List (H.Html msg)
     -> H.Html msg
-viewDummy attrs children =
-    H.div (HA.tabindex 0 :: HA.class "ew-cursor-default" :: attributes attrs) [ viewInner children ]
+viewDummy attrs_ children =
+    let
+        attrs : Attributes msg
+        attrs =
+            applyAttrs attrs_
+    in
+    H.div
+        (HA.tabindex 0 :: HA.class "ew-cursor-default" :: attributes attrs)
+        children
 
 
 
@@ -342,6 +352,18 @@ large =
 theme : ButtonTheme -> Attribute msg
 theme v =
     Attribute <| \attrs -> { attrs | theme = v }
+
+
+{-| -}
+alignLeft : Attribute msg
+alignLeft =
+    Attribute <| \attrs -> { attrs | alignClass = "ew-justify-start" }
+
+
+{-| -}
+alignRight : Attribute msg
+alignRight =
+    Attribute <| \attrs -> { attrs | alignClass = "ew-justify-end" }
 
 
 {-| -}
