@@ -3,6 +3,8 @@ module Chapters.Form.InputAutocomplete exposing (Model, chapter_, init)
 import ElmBook
 import ElmBook.Actions exposing (logActionWithString)
 import ElmBook.Chapter exposing (Chapter, chapter, renderStatefulComponentList)
+import Html as H
+import Html.Attributes as HA
 import W.InputAutocomplete
 
 
@@ -61,6 +63,35 @@ chapter_ =
                         , value = model.autocomplete
                         , options = Just (List.range 0 10)
                         , onInput = logAction_ "onInput"
+                        }
+              )
+            , ( "Custom Renders"
+              , \model ->
+                    W.InputAutocomplete.view
+                        [ W.InputAutocomplete.placeholder "Search for a number…"
+                        , W.InputAutocomplete.renderOptionsHeader
+                            (\_ -> H.p [] [ H.text "Custom Header" ])
+                        , W.InputAutocomplete.renderOption
+                            (\{ active, resource } ->
+                                H.div
+                                    [ HA.style "cursor" "pointer"
+                                    , if active then
+                                        HA.style "color" "red"
+
+                                      else
+                                        HA.classList []
+                                    ]
+                                    [ H.p [ HA.class "ew-text-xl" ] [ H.text (String.fromInt resource) ]
+                                    ]
+                            )
+                        ]
+                        { id = "autocomplete-read-only"
+                        , value = model.autocomplete
+                        , options = Just (List.range 0 10)
+                        , onInput =
+                            \value ->
+                                ElmBook.Actions.updateState
+                                    (\model_ -> { model_ | autocomplete = value })
                         }
               )
             ]
