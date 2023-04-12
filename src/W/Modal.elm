@@ -179,7 +179,7 @@ view_ attrs_ props =
             [ HA.attribute "role" "dialog"
             , HA.style "z-index" (String.fromInt attrs.zIndex)
             , HA.class "ew-modal ew-inset-0 ew-flex ew-flex-col ew-items-center ew-justify-center ew-box-border ew-p-6"
-            , HA.class "invisible ew-pointer-events-none"
+            , HA.class "ew-pointer-events-none"
             , HA.classList
                 [ ( "ew-modal--is-open"
                   , case props of
