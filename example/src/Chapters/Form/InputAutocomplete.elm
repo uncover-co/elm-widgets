@@ -1,11 +1,12 @@
 module Chapters.Form.InputAutocomplete exposing (Model, chapter_, init)
 
 import ElmBook
-import ElmBook.Actions exposing (logActionWithString)
+import ElmBook.Actions exposing (logAction, logActionWithString)
 import ElmBook.Chapter exposing (Chapter, chapter, renderStatefulComponentList)
 import Html as H
 import Html.Attributes as HA
 import W.InputAutocomplete
+import W.Text
 
 
 type alias Model =
@@ -34,14 +35,18 @@ chapter_ =
         |> renderStatefulComponentList
             [ ( "Default"
               , \model ->
-                    W.InputAutocomplete.view [ W.InputAutocomplete.placeholder "Search for a number…" ]
+                    W.InputAutocomplete.view
+                        [ W.InputAutocomplete.placeholder "Search for a number…"
+                        , W.InputAutocomplete.onFocus (logAction "onFocus")
+                        , W.InputAutocomplete.onBlur (logAction "onBlur")
+                        , W.InputAutocomplete.onEnter (logAction "onEnter")
+                        ]
                         { id = "autocomplete-default"
                         , value = model.autocomplete
                         , options = Just (List.range 0 10)
                         , onInput =
                             \value ->
-                                ElmBook.Actions.updateState
-                                    (\model_ -> { model_ | autocomplete = value })
+                                ElmBook.Actions.updateState (\model_ -> { model_ | autocomplete = value })
                         }
               )
             , ( "Loading"
@@ -67,22 +72,19 @@ chapter_ =
               )
             , ( "Custom Renders"
               , \model ->
-                    W.InputAutocomplete.view
+                    W.InputAutocomplete.viewCustom
                         [ W.InputAutocomplete.placeholder "Search for a number…"
-                        , W.InputAutocomplete.renderOptionsHeader
-                            (\_ -> H.p [] [ H.text "Custom Header" ])
-                        , W.InputAutocomplete.renderOption
-                            (\{ active, resource } ->
-                                H.div
-                                    [ HA.style "cursor" "pointer"
-                                    , if active then
-                                        HA.style "color" "red"
+                        , W.InputAutocomplete.renderHeader
+                            (\input ->
+                                if input == "" then
+                                    W.Text.view
+                                        [ W.Text.small ]
+                                        [ H.text <| "Please search a number between 0 and 10." ]
 
-                                      else
-                                        HA.classList []
-                                    ]
-                                    [ H.p [ HA.class "ew-text-xl" ] [ H.text (String.fromInt resource) ]
-                                    ]
+                                else
+                                    W.Text.view
+                                        [ W.Text.small ]
+                                        [ H.text <| "Searching for \"" ++ input ++ "\"..." ]
                             )
                         ]
                         { id = "autocomplete-read-only"
@@ -92,6 +94,15 @@ chapter_ =
                             \value ->
                                 ElmBook.Actions.updateState
                                     (\model_ -> { model_ | autocomplete = value })
+                        , toHtml =
+                            \option ->
+                                H.div []
+                                    [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text <| String.fromInt option ]
+                                    , if Just option == W.InputAutocomplete.toValue model.autocomplete then
+                                        H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text "Active" ]
+                                      else
+                                        H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text "Not active" ]
+                                    ]
                         }
               )
             ]

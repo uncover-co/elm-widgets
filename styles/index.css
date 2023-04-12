@@ -21,7 +21,7 @@
     @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
     @apply ew-bg-base-bg ew-shadow-none;
     @apply ew-inline-flex ew-items-center ew-justify-center;
-    @apply ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50;
+    @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
     @apply ew-transition;
     @apply before:ew-block before:ew-content-[""];
     @apply before:ew-w-4 before:ew-h-4 before:ew-bg-current;
@@ -38,17 +38,17 @@
 @layer utilities {
   .ew-focusable {
     @apply ew-transition;
-    @apply ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50;
+    @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
     @apply focus-visible:ew-ring focus-visible:ew-border-primary-fg;
   }
   .ew-focusable-inset {
     @apply ew-transition;
-    @apply ew-outline-0 ew-ring-inset ew-ring-primary-fg/50;
+    @apply ew-outline-none ew-ring-inset ew-ring-primary-fg/50;
     @apply focus-visible:ew-ring focus-visible:ew-border-primary-fg;
   }
   .ew-focusable-outline {
     @apply ew-transition;
-    @apply ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50;
+    @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
     @apply focus-visible:ew-ring;
   }
 }
