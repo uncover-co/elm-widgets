@@ -406,10 +406,6 @@ valueFromDate timeZone timestamp =
 
 dateFromValue : Value -> String -> Float -> Value
 dateFromValue (Value _ timeZone currentValue) valueString valueAsNumber =
-    let
-        _ =
-            Debug.log "" valueString
-    in
     if isNaN valueAsNumber then
         Value valueString timeZone Nothing
 
