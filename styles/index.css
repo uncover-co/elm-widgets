@@ -140,42 +140,42 @@ input[type="search"].ew-input::-webkit-search-results-decoration {
 /* 
  * ======================================================
  * Slider
+ * We need to reset global styles here to deal with
+ * libraries that change global styles (looking at you elm-ui)
  * ======================================================
  */
 
-/* Reseting global styles to deal with libraries that change global styles (looking at you elm-ui). */
-
-input[type=range].ew-slider {
-  all: initial;
+input[type="range"].ew-slider {
+  -webkit-appearance: none;
+  position: relative;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin: 0;
+  height: initial;
+  opacity: initial;
+  outline: initial;
+  background: transparent;
 }
-input[type=range].ew-slider::-webkit-slider-thumb {
-  all: initial;
-}
-input[type=range].ew-slider::-moz-range-track {
-  all: initial;
-}
-input[type=range].ew-slider::-ms-track {
-  all: initial;
-}
-input[type=range].ew-slider::-webkit-slider-runnable-track {
-  all: initial;
-}
-input[type=range].ew-slider::-webkit-slider-thumb {
-  all: initial;
-}
-input[type=range].ew-slider::-moz-range-.ew-sliderthumb {
-  all: initial;
-}
-input[type=range].ew-slider::-ms-thumb {
-  all: initial;
+input[type="range"].ew-slider:disabled {
+  pointer-events: none;
 }
 
-/*
- * Styles are duplicated since selectors won't work if
- * used together (who knows why)
- */
+input[type="range"].ew-slider::-webkit-slider-runnable-track {
+  background: initial;
+  cursor: initial;
+}
+input[type="range"].ew-slider::-moz-range-track {
+  background: initial;
+  cursor: initial;
+}
+input[type="range"].ew-slider::-ms-track {
+  background: initial;
+  cursor: initial;
+}
 
-.ew-slider::-webkit-slider-thumb {
+input[type="range"].ew-slider::-webkit-slider-thumb {
   appearance: none;
   height: 24px;
   width: 24px;
@@ -183,9 +183,20 @@ input[type=range].ew-slider::-ms-thumb {
   background: currentColor;
   border: 2px solid rgba(255, 255, 255, 1);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  transition: 0.12s ease-in;
+}
+input[type="range"].ew-slider:hover::-webkit-slider-thumb  {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 0 4px currentColor;
+}
+input[type="range"].ew-slider:active::-webkit-slider-thumb  {
+  transition: none;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 0 2px currentColor;
+}
+input[type="range"].ew-slider:focus-visible::-webkit-slider-thumb  {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 0 4px currentColor;
 }
 
-.ew-slider::-moz-range-thumb  {
+input[type="range"].ew-slider::-moz-range-thumb  {
   appearance: none;
   height: 24px;
   width: 24px;
@@ -193,6 +204,17 @@ input[type=range].ew-slider::-ms-thumb {
   background: currentColor;
   border: 2px solid rgba(255, 255, 255, 1);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  transition: 0.12s ease-in;
+}
+input[type="range"].ew-slider:hover::-moz-range-thumb  {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 0 4px currentColor;
+}
+input[type="range"].ew-slider:active::-moz-range-thumb  {
+  transition: none;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 0 2px currentColor;
+}
+input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 0 4px currentColor;
 }
 
 /* 

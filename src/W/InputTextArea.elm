@@ -234,6 +234,7 @@ view attrs_ props =
                 []
             ]
 
+
 baseClass : String
 baseClass =
     "ew-input ew-appearance-none ew-box-border"
@@ -242,9 +243,8 @@ baseClass =
         ++ " ew-bg-base-aux/[0.07] ew-border ew-border-solid ew-border-base-aux/30 ew-rounded ew-shadow-none"
         ++ " ew-font-text ew-text-base ew-text-base-fg ew-placeholder-base-aux"
         ++ " ew-transition"
-        ++ " ew-outline-0 ew-ring-offset-0 ew-ring-primary-fg/50"
+        ++ " ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50"
         ++ " disabled:ew-bg-base-aux/[0.25] disabled:ew-border-base-aux/[0.25]"
         ++ " focus:ew-bg-base-bg"
         ++ " focus-visible:ew-border-primary-fg focus-visible-visible:ew-ring"
         ++ " read-only:focus:ew-bg-base-aux/10"
-
