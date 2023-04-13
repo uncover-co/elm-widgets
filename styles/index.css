@@ -127,12 +127,52 @@ input[type="color"].ew-input-color::-webkit-color-swatch {
   background: rgb(var(--theme-base-aux-ch) / 0.1);
 }
 
+/* Search */
+
+input[type="search"].ew-input,
+input[type="search"].ew-input::-webkit-search-decoration,
+input[type="search"].ew-input::-webkit-search-cancel-button,
+input[type="search"].ew-input::-webkit-search-results-button,
+input[type="search"].ew-input::-webkit-search-results-decoration {
+  -webkit-appearance:none;
+}
+
 /* 
  * ======================================================
  * Slider
+ * ======================================================
+ */
+
+/* Reseting global styles to deal with libraries that change global styles (looking at you elm-ui). */
+
+input[type=range].ew-slider {
+  all: initial;
+}
+input[type=range].ew-slider::-webkit-slider-thumb {
+  all: initial;
+}
+input[type=range].ew-slider::-moz-range-track {
+  all: initial;
+}
+input[type=range].ew-slider::-ms-track {
+  all: initial;
+}
+input[type=range].ew-slider::-webkit-slider-runnable-track {
+  all: initial;
+}
+input[type=range].ew-slider::-webkit-slider-thumb {
+  all: initial;
+}
+input[type=range].ew-slider::-moz-range-.ew-sliderthumb {
+  all: initial;
+}
+input[type=range].ew-slider::-ms-thumb {
+  all: initial;
+}
+
+/*
  * Styles are duplicated since selectors won't work if
  * used together (who knows why)
- * ======================================================
  */
 
 .ew-slider::-webkit-slider-thumb {
