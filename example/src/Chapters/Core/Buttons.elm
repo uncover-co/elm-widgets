@@ -3,6 +3,7 @@ module Chapters.Core.Buttons exposing (chapter_)
 import ElmBook.Actions exposing (logAction)
 import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, withComponentList)
 import Html as H
+import Html.Attributes as HA
 import UI
 import W.Button
 
@@ -85,7 +86,10 @@ chapter_ =
                         |> List.map
                             (\attrs ->
                                 W.Button.view attrs
-                                    { label = [ UI.viewIcon, H.text "Button" ]
+                                    { label =
+                                        [ H.span [ HA.class "ew-opacity-50" ] [ UI.viewIcon ]
+                                        , H.text "Button"
+                                        ]
                                     , onClick = logAction "onClick"
                                     }
                             )
