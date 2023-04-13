@@ -1,7 +1,7 @@
 module W.InputAutocomplete exposing
     ( view
     , init, toString, toValue, Value
-    , viewCustom, renderHeader
+    , viewCustom, optionsHeader
     , disabled, readOnly
     , placeholder, prefix, suffix
     , required
@@ -21,7 +21,7 @@ module W.InputAutocomplete exposing
 
 # Custom Rendering
 
-@docs viewCustom, renderHeader
+@docs viewCustom, optionsHeader
 
 
 # States
@@ -183,7 +183,7 @@ type alias Attributes msg =
     , onBlur : Maybe msg
     , onEnter : Maybe msg
     , htmlAttributes : List (H.Attribute msg)
-    , renderHeader : Maybe (String -> H.Html msg)
+    , optionsHeader : Maybe (String -> H.Html msg)
     }
 
 
@@ -204,7 +204,7 @@ defaultAttrs =
     , onBlur = Nothing
     , onEnter = Nothing
     , htmlAttributes = []
-    , renderHeader = Nothing
+    , optionsHeader = Nothing
     }
 
 
@@ -249,6 +249,12 @@ suffix v =
 
 
 {-| -}
+optionsHeader : (String -> H.Html msg) -> Attribute msg
+optionsHeader v =
+    Attribute <| \attrs -> { attrs | optionsHeader = Just v }
+
+
+{-| -}
 onBlur : msg -> Attribute msg
 onBlur v =
     Attribute <| \attrs -> { attrs | onBlur = Just v }
@@ -270,11 +276,6 @@ onEnter v =
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
-
-
-renderHeader : (String -> H.Html msg) -> Attribute msg
-renderHeader v =
-    Attribute <| \attrs -> { attrs | renderHeader = Just v }
 
 
 {-| -}
@@ -441,10 +442,10 @@ viewCustom attrs_ props =
                             , HA.class "ew-shadow ew-z-10 ew-bg-base-bg"
                             ]
                             [ W.Menu.view
-                                ((case attrs.renderHeader of
-                                    Just renderHeader_ ->
+                                ((case attrs.optionsHeader of
+                                    Just optionsHeader_ ->
                                         H.div []
-                                            [ H.div [ HA.class "ew-p-3" ] [ renderHeader_ valueData.input ]
+                                            [ H.div [ HA.class "ew-p-3" ] [ optionsHeader_ valueData.input ]
                                             , W.Divider.view [] []
                                             ]
 
@@ -471,12 +472,3 @@ viewCustom attrs_ props =
                         H.text ""
                     ]
            )
-
-
-
--- viewDefaultRow : ValueData resource -> { active : Bool, index : Int, resource : resource } -> H.Html msg
--- viewDefaultRow valueData { active, resource } =
---     H.li
---         [ HA.classList [ ( "ew-bg-base-aux", active ) ]
---         , HA.style "cursor" "pointer"
---         ]

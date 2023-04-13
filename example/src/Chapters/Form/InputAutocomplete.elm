@@ -74,7 +74,7 @@ chapter_ =
               , \model ->
                     W.InputAutocomplete.viewCustom
                         [ W.InputAutocomplete.placeholder "Search for a number…"
-                        , W.InputAutocomplete.renderHeader
+                        , W.InputAutocomplete.optionsHeader
                             (\input ->
                                 if input == "" then
                                     W.Text.view

@@ -92,25 +92,11 @@ noAttr =
 
 
 -- View
--- TODO: Replace `view` with `view_` function on the next major release.
-
-
-{-| Deprecated. Please use `view_` which will be the only option on the next major release.
-
-    `view [ ... ]` is equivalent to `view_ [] [ ... ]`
-
--}
-view : List (H.Html msg) -> H.Html msg
-view children =
-    H.ul [ HA.class "ew-m-0 ew-p-0 ew-list-none ew-bg-base-bg ew-font-text" ]
-        (children
-            |> List.map (\i -> H.li [ HA.class "ew-m-0" ] [ i ])
-        )
 
 
 {-| -}
-view_ : List (H.Html msg) -> H.Html msg
-view_ children =
+view : List (H.Html msg) -> H.Html msg
+view children =
     H.ul [ HA.class "ew-m-0 ew-p-0 ew-list-none ew-bg-base-bg ew-font-text" ]
         (children
             |> List.map (\i -> H.li [ HA.class "ew-m-0" ] [ i ])
