@@ -15,12 +15,20 @@ square =
         ]
         []
 
-
 chapter_ : Chapter x
 chapter_ =
     chapter "Containers"
         |> withComponentList
-            [ ( "Horizontal + Space between elements"
+            [ ( "Horizontal + Default flow"
+              , W.Container.view
+                    [ W.Container.pad_8
+                    , W.Container.gap_2
+                    , W.Container.horizontal
+                    , W.Container.background (Theme.baseAuxWithAlpha 0.1)
+                    ]
+                    (List.repeat 3 square)
+                )
+            , ( "Horizontal + Space between elements"
               , W.Container.view
                     [ W.Container.pad_8
                     , W.Container.gap_2

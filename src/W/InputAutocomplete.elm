@@ -1,6 +1,7 @@
 module W.InputAutocomplete exposing
     ( view
     , init, toString, toValue, Value
+    , viewCustom, renderHeader
     , disabled, readOnly
     , placeholder, prefix, suffix
     , required
@@ -16,6 +17,11 @@ module W.InputAutocomplete exposing
 # Value
 
 @docs init, toString, toValue, Value
+
+
+# Custom Rendering
+
+@docs viewCustom, renderHeader
 
 
 # States
@@ -44,15 +50,17 @@ module W.InputAutocomplete exposing
 
 -}
 
-import Dict
+import Array
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as D
+import W.Divider
 import W.Internal.Helpers as WH
 import W.Internal.Icons
 import W.Internal.Input
 import W.Loading
+import W.Menu
 
 
 
@@ -67,23 +75,10 @@ type Value a
 type alias ValueData a =
     { input : String
     , value : Maybe a
+    , highlighted : Int
+    , focused : Bool
     , toString : a -> String
     }
-
-
-{-| -}
-init : { value : Maybe a, toString : a -> String } -> Value a
-init props =
-    Value
-        { input = Maybe.map props.toString props.value |> Maybe.withDefault ""
-        , value = props.value
-        , toString = props.toString
-        }
-
-
-update : Value a -> String -> Maybe a -> Value a
-update (Value data) input value =
-    Value { data | input = input, value = value }
 
 
 {-| -}
@@ -92,10 +87,80 @@ toString (Value { input }) =
     input
 
 
+toStringFn : Value a -> (a -> String)
+toStringFn (Value data) =
+    data.toString
+
+
 {-| -}
 toValue : Value a -> Maybe a
-toValue (Value { value }) =
-    value
+toValue (Value data) =
+    data.value
+
+
+{-| -}
+init : { value : Maybe a, toString : a -> String } -> Value a
+init props =
+    Value
+        { input = ""
+        , value = props.value
+        , highlighted = 0
+        , focused = False
+        , toString = props.toString
+        }
+        |> initInput
+
+
+initInput : Value a -> Value a
+initInput (Value data) =
+    Value
+        { data
+            | input =
+                data.value
+                    |> Maybe.map data.toString
+                    |> Maybe.withDefault ""
+        }
+
+
+updateInput : ValueData a -> String -> Value a
+updateInput data input =
+    Value
+        { data
+            | input = input
+            , highlighted = 0
+            , focused = True
+        }
+
+
+onSelect_ : Int -> a -> ValueData a -> Value a
+onSelect_ index value data =
+    Value
+        { data
+            | value = Just value
+            , highlighted = index
+            , focused = False
+        }
+        |> initInput
+
+
+onFocus_ : Value a -> Value a
+onFocus_ (Value data) =
+    Value { data | focused = True }
+
+
+onBlur_ : Value a -> Value a
+onBlur_ (Value data) =
+    Value data
+        |> initInput
+
+
+updateHighlighted : (Int -> Int) -> ValueData a -> Value a
+updateHighlighted fn data =
+    if data.focused then
+        Value { data | highlighted = fn data.highlighted }
+
+    else
+        Value { data | focused = True }
 
 
 
@@ -118,6 +183,7 @@ type alias Attributes msg =
     , onBlur : Maybe msg
     , onEnter : Maybe msg
     , htmlAttributes : List (H.Attribute msg)
+    , renderHeader : Maybe (String -> H.Html msg)
     }
 
 
@@ -138,6 +204,7 @@ defaultAttrs =
     , onBlur = Nothing
     , onEnter = Nothing
     , htmlAttributes = []
+    , renderHeader = Nothing
     }
 
 
@@ -205,6 +272,11 @@ htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
 
 
+renderHeader : (String -> H.Html msg) -> Attribute msg
+renderHeader v =
+    Attribute <| \attrs -> { attrs | renderHeader = Just v }
+
+
 {-| -}
 noAttr : Attribute msg
 noAttr =
@@ -226,6 +298,27 @@ view :
         }
     -> H.Html msg
 view attrs_ props =
+    viewCustom attrs_
+        { id = props.id
+        , value = props.value
+        , options = props.options
+        , onInput = props.onInput
+        , toHtml = H.text << toStringFn props.value
+        }
+
+
+{-| -}
+viewCustom :
+    List (Attribute msg)
+    ->
+        { id : String
+        , value : Value a
+        , options : Maybe (List a)
+        , onInput : Value a -> msg
+        , toHtml : a -> H.Html msg
+        }
+    -> H.Html msg
+viewCustom attrs_ props =
     let
         valueData : ValueData a
         valueData =
@@ -237,15 +330,26 @@ view attrs_ props =
         attrs =
             applyAttrs attrs_
 
-        options : List ( String, a )
-        options =
-            props.options
-                |> Maybe.withDefault []
-                |> List.map (\o -> ( valueData.toString o, o ))
+        selectedAndUnchanged : Bool
+        selectedAndUnchanged =
+            valueData.value
+                |> Maybe.map (\v -> valueData.toString v == valueData.input)
+                |> Maybe.withDefault False
 
-        optionsDict : Dict.Dict String a
-        optionsDict =
-            Dict.fromList options
+        options : List a
+        options =
+            if selectedAndUnchanged then
+                props.options
+                    |> Maybe.withDefault []
+
+            else
+                props.options
+                    |> Maybe.withDefault []
+                    |> List.filter (\o -> String.contains valueData.input (valueData.toString o))
+
+        highlighted : Int
+        highlighted =
+            modBy (max (List.length options) 1) valueData.highlighted
     in
     H.input
         (attrs.htmlAttributes
@@ -259,17 +363,53 @@ view attrs_ props =
                , HA.id props.id
                , HA.class W.Internal.Input.baseClass
                , HA.class "ew-pr-10"
-               , HA.list (props.id ++ "-list")
                , HA.value valueData.input
-               , WH.maybeAttr HE.onFocus attrs.onFocus
-               , WH.maybeAttr HE.onBlur attrs.onBlur
-               , WH.maybeAttr WH.onEnter attrs.onEnter
+               , WH.maybeAttr (HE.on "focusin") (attrs.onFocus |> Maybe.map D.succeed)
+               , WH.maybeAttr (HE.on "focusout") (attrs.onBlur |> Maybe.map D.succeed)
+               , HE.onFocus (props.onInput (onFocus_ props.value))
+               , HE.onBlur (props.onInput (onBlur_ props.value))
+               , HE.on "keydown"
+                    (D.field "key" D.string
+                        |> D.andThen
+                            (\key ->
+                                case key of
+                                    "Enter" ->
+                                        options
+                                            |> Array.fromList
+                                            |> Array.get highlighted
+                                            |> Maybe.map
+                                                (\value ->
+                                                    onSelect_ highlighted value valueData
+                                                        |> props.onInput
+                                                        |> D.succeed
+                                                )
+                                            |> Maybe.withDefault
+                                                (attrs.onEnter
+                                                    |> Maybe.map (\msg -> D.succeed msg)
+                                                    |> Maybe.withDefault (D.fail "ignored action")
+                                                )
+
+                                    "ArrowDown" ->
+                                        valueData
+                                            |> updateHighlighted ((+) 1)
+                                            |> props.onInput
+                                            |> D.succeed
+
+                                    "ArrowUp" ->
+                                        valueData
+                                            |> updateHighlighted ((+) -1)
+                                            |> props.onInput
+                                            |> D.succeed
+
+                                    _ ->
+                                        D.fail "ignored key"
+                            )
+                    )
                , HE.on "input"
                     (D.at [ "target", "value" ] D.string
                         |> D.andThen
                             (\value ->
-                                Dict.get value optionsDict
-                                    |> update props.value value
+                                updateInput valueData value
                                     |> props.onInput
                                     |> D.succeed
                             )
@@ -286,21 +426,57 @@ view attrs_ props =
             , maskInput = ""
             }
             (if props.options == Nothing then
-                W.Loading.circles [ W.Loading.size 28 ]
+                W.Loading.dots [ W.Loading.size 20 ]
 
              else
                 W.Internal.Icons.chevronDown
             )
         |> (\x ->
-                H.div []
+                H.div [ HA.class "ew-relative ew-group" ]
                     [ x
-                    , H.datalist
-                        [ HA.id (props.id ++ "-list") ]
-                        (options
-                            |> List.map
-                                (\( label, _ ) ->
-                                    H.option [ HA.value label ] []
+                    , if valueData.focused then
+                        H.div
+                            [ HA.class "ew-hidden group-focus-within:ew-block"
+                            , HA.class "ew-absolute ew-top-full ew-left-0 ew-right-0"
+                            , HA.class "ew-shadow ew-z-10 ew-bg-base-bg"
+                            ]
+                            [ W.Menu.view
+                                ((case attrs.renderHeader of
+                                    Just renderHeader_ ->
+                                        H.div []
+                                            [ H.div [ HA.class "ew-p-3" ] [ renderHeader_ valueData.input ]
+                                            , W.Divider.view [] []
+                                            ]
+
+                                    Nothing ->
+                                        H.text ""
+                                 )
+                                    :: (options
+                                            |> List.indexedMap
+                                                (\index value ->
+                                                    W.Menu.viewButton
+                                                        [ W.Menu.selected (valueData.highlighted == index)
+                                                        ]
+                                                        { label = [ props.toHtml value ]
+                                                        , onClick =
+                                                            onSelect_ index value valueData
+                                                                |> props.onInput
+                                                        }
+                                                )
+                                       )
                                 )
-                        )
+                            ]
+
+                      else
+                        H.text ""
                     ]
            )
+
+
+
+-- viewDefaultRow : ValueData resource -> { active : Bool, index : Int, resource : resource } -> H.Html msg
+-- viewDefaultRow valueData { active, resource } =
+--     H.li
+--         [ HA.classList [ ( "ew-bg-base-aux", active ) ]
+--         , HA.style "cursor" "pointer"
+--         ]

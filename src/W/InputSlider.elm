@@ -129,6 +129,7 @@ view attrs_ props =
                 |> (*) 100
                 |> String.fromFloat
                 |> (\s -> s ++ "%")
+                |> Debug.log "valueString"
 
         colorAttr : H.Attribute msg
         colorAttr =
@@ -170,24 +171,6 @@ view attrs_ props =
                 , HA.style "width" valueString
                 ]
                 []
-            , -- Value Ring
-              H.div
-                [ HA.class "ew-absolute ew-rounded-full"
-                , HA.class "ew-top-1/2"
-                , HA.class "ew-bg-current"
-                , HA.class "ew-opacity-20"
-                , HA.class "ew-h-10 ew-w-10 -ew-ml-5 -ew-mt-5"
-                , HA.class "ew-scale-0 ew-transition-transform"
-                , HA.style "left" valueString
-                , HA.classList
-                    [ ( "group-hover:ew-scale-90"
-                            ++ " group-focus-within:ew-scale-100"
-                            ++ " group-hover:group-focus-within:ew-scale-100"
-                      , not attrs.disabled && not attrs.readOnly
-                      )
-                    ]
-                ]
-                []
             ]
         , -- Thumb
           H.input
@@ -195,7 +178,7 @@ view attrs_ props =
                 ++ [ HA.class "ew-relative"
                    , HA.class "ew-slider ew-appearance-none"
                    , HA.class "ew-bg-transparent"
-                   , HA.class "ew-m-0 ew-w-full"
+                   , HA.class "ew-m-0"
                    , HA.class "focus-visible:ew-outline-0"
                    , HA.type_ "range"
                    , colorAttr

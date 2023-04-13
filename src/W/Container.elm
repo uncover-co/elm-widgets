@@ -127,8 +127,8 @@ type alias Attributes msg =
     , inline : Bool
     , background : Maybe String
     , orientation : Orientation
-    , verticalAlignment : VerticalAlignment
-    , horizontalAlignment : HorizontalAlignment
+    , verticalAlignment : Maybe VerticalAlignment
+    , horizontalAlignment : Maybe HorizontalAlignment
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -141,8 +141,8 @@ defaultAttrs =
     , inline = False
     , background = Nothing
     , orientation = Vertical
-    , horizontalAlignment = FillSpace
-    , verticalAlignment = VerticalCenter
+    , horizontalAlignment = Nothing
+    , verticalAlignment = Nothing
     , htmlAttributes = []
     }
 
@@ -316,34 +316,40 @@ layoutClass attrs =
                 yAxis : String
                 yAxis =
                     case attrs.verticalAlignment of
-                        Top ->
+                        Just Top ->
                             "ew-justify-start"
 
-                        VerticalCenter ->
+                        Just VerticalCenter ->
                             "ew-justify-center"
 
-                        Bottom ->
+                        Just Bottom ->
                             "ew-justify-end"
+
+                        Nothing ->
+                            "ew-justify-start"
 
                 xAxis : String
                 xAxis =
                     case attrs.horizontalAlignment of
-                        Left ->
+                        Just Left ->
                             "ew-items-start"
 
-                        HorizontalCenter ->
+                        Just HorizontalCenter ->
                             "ew-items-center"
 
-                        Right ->
+                        Just Right ->
                             "ew-items-end"
 
-                        SpaceBetween ->
+                        Just SpaceBetween ->
                             ""
 
-                        SpaceAround ->
+                        Just SpaceAround ->
                             ""
 
-                        FillSpace ->
+                        Just FillSpace ->
+                            ""
+
+                        Nothing ->
                             ""
             in
             "ew-flex-col " ++ yAxis ++ " " ++ xAxis
@@ -353,35 +359,41 @@ layoutClass attrs =
                 yAxis : String
                 yAxis =
                     case attrs.verticalAlignment of
-                        Top ->
+                        Just Top ->
                             "ew-items-start"
 
-                        VerticalCenter ->
+                        Just VerticalCenter ->
                             "ew-items-center"
 
-                        Bottom ->
+                        Just Bottom ->
                             "ew-items-end"
+
+                        Nothing ->
+                            "ew-items-start"
 
                 xAxis : String
                 xAxis =
                     case attrs.horizontalAlignment of
-                        Left ->
+                        Just Left ->
                             "ew-justify-start"
 
-                        HorizontalCenter ->
+                        Just HorizontalCenter ->
                             "ew-justify-center"
 
-                        Right ->
+                        Just Right ->
                             "ew-justify-end"
 
-                        SpaceBetween ->
+                        Just SpaceBetween ->
                             "ew-justify-between"
 
-                        SpaceAround ->
+                        Just SpaceAround ->
                             "ew-justify-around"
 
-                        FillSpace ->
+                        Just FillSpace ->
                             "ew-justify-stretch"
+
+                        Nothing ->
+                            "ew-justify-start"
             in
             "ew-flex-row " ++ yAxis ++ " " ++ xAxis
 
@@ -401,55 +413,55 @@ horizontal =
 {-| -}
 alignTop : Attribute msg
 alignTop =
-    Attribute (\attr -> { attr | verticalAlignment = Top })
+    Attribute (\attr -> { attr | verticalAlignment = Just Top })
 
 
 {-| -}
 alignBottom : Attribute msg
 alignBottom =
-    Attribute (\attr -> { attr | verticalAlignment = Bottom })
+    Attribute (\attr -> { attr | verticalAlignment = Just Bottom })
 
 
 {-| -}
 alignCenterY : Attribute msg
 alignCenterY =
-    Attribute (\attr -> { attr | verticalAlignment = VerticalCenter })
+    Attribute (\attr -> { attr | verticalAlignment = Just VerticalCenter })
 
 
 {-| -}
 alignLeft : Attribute msg
 alignLeft =
-    Attribute (\attr -> { attr | horizontalAlignment = Left })
+    Attribute (\attr -> { attr | horizontalAlignment = Just Left })
 
 
 {-| -}
 alignRight : Attribute msg
 alignRight =
-    Attribute (\attr -> { attr | horizontalAlignment = Right })
+    Attribute (\attr -> { attr | horizontalAlignment = Just Right })
 
 
 {-| -}
 alignCenterX : Attribute msg
 alignCenterX =
-    Attribute (\attr -> { attr | horizontalAlignment = HorizontalCenter })
+    Attribute (\attr -> { attr | horizontalAlignment = Just HorizontalCenter })
 
 
 {-| -}
 spaceBetween : Attribute msg
 spaceBetween =
-    Attribute (\attr -> { attr | horizontalAlignment = SpaceBetween })
+    Attribute (\attr -> { attr | horizontalAlignment = Just SpaceBetween })
 
 
 {-| -}
 spaceAround : Attribute msg
 spaceAround =
-    Attribute (\attr -> { attr | horizontalAlignment = SpaceAround })
+    Attribute (\attr -> { attr | horizontalAlignment = Just SpaceAround })
 
 
 {-| -}
 fillSpace : Attribute msg
 fillSpace =
-    Attribute (\attr -> { attr | horizontalAlignment = FillSpace })
+    Attribute (\attr -> { attr | horizontalAlignment = Just FillSpace })
 
 
 

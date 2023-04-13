@@ -185,7 +185,7 @@ attributes attrs =
         ++ [ HA.disabled attrs.disabled
            , roundedAttrs attrs
            , HA.class attrs.alignClass
-           , HA.class "ew-focusable ew-box-border"
+           , HA.class "ew-focusable ew-box-border ew-group/button"
            , HA.class "ew-relative ew-inline-flex ew-items-center ew-m-0 ew-py-0"
            , HA.class "ew-font-text ew-font-semibold ew-leading-none ew-tracking-wider ew-no-underline"
            , HA.class "disabled:ew-pointer-events-none disabled:ew-opacity-60"
