@@ -1,6 +1,6 @@
 module W.InputCheckbox exposing
     ( view, viewReadOnly
-    , color
+    , color, toggle
     , disabled, readOnly
     , htmlAttrs, noAttr, Attribute
     )
@@ -12,7 +12,7 @@ module W.InputCheckbox exposing
 
 # Styles
 
-@docs color
+@docs color, toggle
 
 
 # States
@@ -45,8 +45,14 @@ type alias Attributes msg =
     { color : String
     , disabled : Bool
     , readOnly : Bool
+    , style : Style
     , htmlAttributes : List (H.Attribute msg)
     }
+
+
+type Style
+    = Checkbox
+    | Toggle
 
 
 applyAttrs : List (Attribute msg) -> Attributes msg
@@ -59,6 +65,7 @@ defaultAttrs =
     { color = Theme.primaryBackground
     , disabled = False
     , readOnly = False
+    , style = Checkbox
     , htmlAttributes = []
     }
 
@@ -86,6 +93,12 @@ readOnly v =
 
 
 {-| -}
+toggle : Attribute msg
+toggle =
+    Attribute <| \attrs -> { attrs | style = Toggle }
+
+
+{-| -}
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
@@ -109,7 +122,10 @@ baseAttrs attrs_ value =
             applyAttrs attrs_
     in
     attrs.htmlAttributes
-        ++ [ HA.class "ew-check-radio ew-rounded before:ew-rounded-sm"
+        ++ [ HA.classList
+                [ ( "ew-toggle", attrs.style == Toggle )
+                , ( "ew-check-radio ew-rounded before:ew-rounded-sm", attrs.style == Checkbox )
+                ]
            , HA.style "color" attrs.color
            , HA.type_ "checkbox"
            , HA.checked value

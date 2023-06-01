@@ -2,6 +2,7 @@ module Chapters.Form.InputCheckbox exposing (..)
 
 import ElmBook.Actions exposing (logActionWithBool)
 import ElmBook.Chapter exposing (Chapter, chapter, renderComponentList)
+import W.Container
 import W.InputCheckbox
 
 
@@ -36,5 +37,15 @@ chapter_ =
                     { value = True
                     , onInput = logActionWithBool "onInput"
                     }
+              )
+            , ( "Toggle"
+              , W.Container.view
+                    [ W.Container.card, W.Container.pad_3 ]
+                    [ W.InputCheckbox.view
+                        [ W.InputCheckbox.toggle ]
+                        { value = True
+                        , onInput = logActionWithBool "onInput"
+                        }
+                    ]
               )
             ]

@@ -33,6 +33,31 @@
     @apply checked:before:ew-scale-100;
     @apply disabled:ew-bg-base-aux/[0.25];
   }
+  .ew-toggle {
+    @apply ew-m-0;
+    @apply ew-appearance-none ew-w-11 ew-p-0.5 ew-rounded-full ew-box-content;
+    @apply ew-border-2 ew-border-solid;
+    @apply ew-shadow-none;
+    @apply ew-inline-flex ew-items-center ew-justify-start;
+    @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
+    @apply ew-transition;
+
+    @apply before:ew-block before:ew-content-[""];
+    @apply before:ew-w-5 before:ew-h-5  before:ew-rounded-full before:ew-shadow;
+    @apply before:ew-bg-base-bg before:ew-border-solid before:ew-border before:ew-border-base-aux/30;
+    @apply before:ew-transition before:ew-ease-out before:ew-duration-150;
+
+    @apply hover:ew-opacity-90 active:ew-opacity-75;
+
+    @apply ew-bg-base-aux/20 ew-border-base-aux/30;
+    @apply checked:ew-bg-current checked:ew-border-base-bg/30;
+
+    @apply before:ew-translate-x-0;
+    @apply checked:before:ew-translate-x-full;
+
+    @apply focus-visible:ew-ring focus-visible:ew-border-primary-fg;
+    @apply disabled:ew-bg-base-aux/[0.25];
+  }
 }
 
 @layer utilities {
