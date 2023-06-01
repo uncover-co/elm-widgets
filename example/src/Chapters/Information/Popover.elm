@@ -38,7 +38,7 @@ chapter_ =
              , ( "Left Bottom", [ W.Popover.leftBottom ] )
              , ( "Right", [ W.Popover.right ] )
              , ( "Right Bottom", [ W.Popover.rightBottom ] )
-             , ( "Dismiss on Click", [ W.Popover.dismissOnClick True ] )
+             , ( "Dismiss on Click", [ W.Popover.dismissOnClick ] )
              ]
                 |> List.map
                     (\( label, attrs ) ->

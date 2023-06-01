@@ -154,9 +154,9 @@ over =
 
 
 {-| -}
-dismissOnClick : Bool -> Attribute msg
-dismissOnClick v =
-    Attribute <| \attrs -> { attrs | dismissOnClick = v }
+dismissOnClick : Attribute msg
+dismissOnClick =
+    Attribute <| \attrs -> { attrs | dismissOnClick = True }
 
 
 {-| -}
