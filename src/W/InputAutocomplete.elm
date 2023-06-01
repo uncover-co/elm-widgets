@@ -2,7 +2,7 @@ module W.InputAutocomplete exposing
     ( view
     , init, toString, toValue, Value
     , viewCustom, optionsHeader
-    , disabled, readOnly
+    , disabled, readOnly, noFilter
     , placeholder, prefix, suffix
     , required
     , onEnter, onBlur, onFocus
@@ -26,7 +26,7 @@ module W.InputAutocomplete exposing
 
 # States
 
-@docs disabled, readOnly
+@docs disabled, readOnly, noFilter
 
 
 # Styles
@@ -150,7 +150,7 @@ onFocus_ (Value data) =
 
 onBlur_ : Value a -> Value a
 onBlur_ (Value data) =
-    Value data
+    Value { data | focused = False }
         |> initInput
 
 
@@ -184,6 +184,7 @@ type alias Attributes msg =
     , onEnter : Maybe msg
     , htmlAttributes : List (H.Attribute msg)
     , optionsHeader : Maybe (String -> H.Html msg)
+    , noFilter : Bool
     }
 
 
@@ -205,6 +206,7 @@ defaultAttrs =
     , onEnter = Nothing
     , htmlAttributes = []
     , optionsHeader = Nothing
+    , noFilter = False
     }
 
 
@@ -252,6 +254,12 @@ suffix v =
 optionsHeader : (String -> H.Html msg) -> Attribute msg
 optionsHeader v =
     Attribute <| \attrs -> { attrs | optionsHeader = Just v }
+
+
+{-| -}
+noFilter : Attribute msg
+noFilter =
+    Attribute <| \attrs -> { attrs | noFilter = True }
 
 
 {-| -}
@@ -339,14 +347,19 @@ viewCustom attrs_ props =
 
         options : List a
         options =
-            if selectedAndUnchanged then
+            if attrs.noFilter || selectedAndUnchanged then
                 props.options
                     |> Maybe.withDefault []
 
             else
+                let
+                    lowerCaseInput : String
+                    lowerCaseInput =
+                        valueData.input
+                in
                 props.options
                     |> Maybe.withDefault []
-                    |> List.filter (\o -> String.contains valueData.input (valueData.toString o))
+                    |> List.filter (\o -> String.contains lowerCaseInput (String.toLower (valueData.toString o)))
 
         highlighted : Int
         highlighted =

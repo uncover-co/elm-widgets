@@ -100,6 +100,7 @@ chapter_ =
                                     [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text <| String.fromInt option ]
                                     , if Just option == W.InputAutocomplete.toValue model.autocomplete then
                                         H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text "Active" ]
+
                                       else
                                         H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text "Not active" ]
                                     ]
