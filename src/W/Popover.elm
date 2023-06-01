@@ -2,6 +2,7 @@ module W.Popover exposing
     ( view
     , top, topRight, bottomRight, left, leftBottom, right, rightBottom
     , over, offset, full
+    , dismissOnClick
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -18,6 +19,11 @@ module W.Popover exposing
 # Styles
 
 @docs over, offset, full
+
+
+# Behaviour
+
+@docs dismissOnClick
 
 
 # Html
@@ -61,6 +67,7 @@ type alias Attributes msg =
     , full : Bool
     , over : Bool
     , unstyled : Bool
+    , dismissOnClick : Bool
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -77,6 +84,7 @@ defaultAttrs =
     , full = False
     , over = False
     , unstyled = False
+    , dismissOnClick = False
     , htmlAttributes = []
     }
 
@@ -143,6 +151,12 @@ rightBottom =
 over : Attribute msg
 over =
     Attribute <| \attrs -> { attrs | over = True }
+
+
+{-| -}
+dismissOnClick : Bool -> Attribute msg
+dismissOnClick v =
+    Attribute <| \attrs -> { attrs | dismissOnClick = v }
 
 
 {-| -}
@@ -244,6 +258,7 @@ view attrs_ props =
                    , HA.classList
                         [ ( "ew-min-w-full", attrs.over )
                         , ( "ew-overflow-auto ew-bg-base-bg ew-border-lg ew-border-0.5 ew-border-base-aux/20 ew-shadow", not attrs.unstyled )
+                        , ( "ew-pointer-events-none", attrs.dismissOnClick )
                         ]
                    ]
             )
