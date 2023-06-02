@@ -2,6 +2,7 @@ module W.DataRow exposing
     ( view, header, footer, left, right
     , href, onClick
     , htmlAttrs, noAttr, Attribute
+    , padding
     )
 
 {-|
@@ -41,6 +42,7 @@ type alias Attributes msg =
     , left : Maybe (List (H.Html msg))
     , right : Maybe (List (H.Html msg))
     , onClick : Maybe msg
+    , padding : Int
     , href : Maybe String
     , htmlAttributes : List (H.Attribute msg)
     }
@@ -58,6 +60,7 @@ defaultAttrs =
     , left = Nothing
     , right = Nothing
     , onClick = Nothing
+    , padding = 8
     , href = Nothing
     , htmlAttributes = []
     }
@@ -95,6 +98,12 @@ right v =
 onClick : msg -> Attribute msg
 onClick v =
     Attribute <| \attrs -> { attrs | onClick = Just v }
+
+
+{-| -}
+padding : Int -> Attribute msg
+padding v =
+    Attribute <| \attrs -> { attrs | padding = v }
 
 
 {-| -}
@@ -161,7 +170,8 @@ view attrs_ children =
                     H.div mainAttrs
     in
     H.div
-        (HA.class "ew-flex ew-items-center ew-p-2 ew-box-border ew-bg-base-bg"
+        (HA.class "ew-flex ew-items-center ew-box-border ew-bg-base-bg"
+            :: HA.style "padding" (String.fromInt attrs.padding)
             :: attrs.htmlAttributes
         )
         [ main_
