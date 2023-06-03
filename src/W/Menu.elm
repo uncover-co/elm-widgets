@@ -1,6 +1,6 @@
 module W.Menu exposing
     ( view, viewButton, viewLink, viewTitle
-    , disabled, selected, left, right
+    , disabled, selected, left, right, paddingX, paddingY
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -11,7 +11,7 @@ module W.Menu exposing
 
 # Styles
 
-@docs disabled, selected, left, right
+@docs disabled, selected, left, right, paddingX, paddingY
 
 
 # Html
@@ -40,6 +40,8 @@ type alias Attributes msg =
     , selected : Bool
     , left : Maybe (List (H.Html msg))
     , right : Maybe (List (H.Html msg))
+    , paddingX : Int
+    , paddingY : Int
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -50,6 +52,8 @@ defaultAttrs =
     , selected = False
     , left = Nothing
     , right = Nothing
+    , paddingX = 12
+    , paddingY = 8
     , htmlAttributes = []
     }
 
@@ -76,6 +80,18 @@ left v =
 right : List (H.Html msg) -> Attribute msg
 right v =
     Attribute <| \attrs -> { attrs | right = Just v }
+
+
+{-| -}
+paddingX : Int -> Attribute msg
+paddingX v =
+    Attribute <| \attrs -> { attrs | paddingX = v }
+
+
+{-| -}
+paddingY : Int -> Attribute msg
+paddingY v =
+    Attribute <| \attrs -> { attrs | paddingY = v }
 
 
 {-| -}
@@ -113,7 +129,6 @@ baseAttrs attrs =
     attrs.htmlAttributes
         ++ [ HA.disabled attrs.disabled
            , HA.class "ew-m-0 ew-w-full ew-box-border ew-flex ew-items-center ew-content-start"
-           , HA.class "ew-px-3 ew-py-2"
            , HA.class "ew-text-left ew-text-base ew-text-fg"
            , HA.class "hover:ew-bg-base-aux/[0.07]"
            , HA.class "active:ew-bg-base-aux/10"
@@ -123,6 +138,10 @@ baseAttrs attrs =
                 , ( "ew-text-base-fg ew-bg-base-bg", not attrs.selected )
                 , ( "ew-m-disabled", attrs.disabled )
                 ]
+           , HA.style "padding-left" (String.fromInt attrs.paddingX)
+           , HA.style "padding-right" (String.fromInt attrs.paddingX)
+           , HA.style "padding-top" (String.fromInt attrs.paddingY)
+           , HA.style "padding-bottom" (String.fromInt attrs.paddingY)
            ]
 
 
