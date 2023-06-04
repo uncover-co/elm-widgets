@@ -199,7 +199,6 @@ input[type="range"].ew-slider::-ms-track {
   background: initial;
   cursor: initial;
 }
-
 input[type="range"].ew-slider::-webkit-slider-thumb {
   appearance: none;
   height: 24px;
@@ -240,6 +239,30 @@ input[type="range"].ew-slider:active::-moz-range-thumb  {
 }
 input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 0 4px currentColor;
+}
+
+/* 
+ * ======================================================
+ * Popover
+ * ======================================================
+ */
+
+.ew-popover-content {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.ew-popover-content:hover {
+  pointer-events: auto;
+  opacity: 1;
+}
+.ew-popover:focus-within > .ew-popover-content {
+  pointer-events: auto;
+  opacity: 1;
+}
+.ew-popover.ew-show-on-hover:hover > .ew-popover-content {
+  pointer-events: auto;
+  opacity: 1;
 }
 
 /* 
@@ -307,7 +330,27 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
  * ======================================================
  */
 
+@keyframes ew-animation-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes ew-animation-fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ew-animation-fade-slide-scale {
   from {
     opacity: 0;
     transform: translateY(10px) scale(0.9);

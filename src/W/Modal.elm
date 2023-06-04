@@ -254,6 +254,6 @@ toggleStyle =
 .ew-modal-toggle:checked + .ew-modal .ew-modal-content, .ew-modal.ew-modal--is-open .ew-modal-content {
     opacity: 1;
     pointer-events: auto;
-    animation: 0.2s ease-out forwards ew-animation-fade-slide;
+    animation: 0.2s ease-out forwards ew-animation-fade-slide-scale;
 }
 """

@@ -1,14 +1,13 @@
 module W.Menu exposing
-    ( view, viewButton, viewLink, viewTitle
+    ( view, viewCustom, viewButton, viewLink, viewDummy, viewTitle
     , disabled, selected, left, right, noPadding
     , padding, paddingX, paddingY, titlePadding, titlePaddingX, titlePaddingY
     , htmlAttrs, noAttr, Attribute
-    , viewCustom
     )
 
 {-|
 
-@docs view, viewButton, viewLink, viewTitle
+@docs view, viewCustom, viewButton, viewLink, viewDummy, viewTitle
 
 
 # Styles
@@ -205,14 +204,14 @@ viewCustom attrs_ children =
             applyMenuAttrs attrs_
     in
     H.ul
-        [ HA.class "ew-m-0 ew-p-0 ew-list-none ew-bg-base-bg ew-font-text"
+        [ HA.class "ew-m-0 ew-p-0 ew-w-full ew-list-none ew-bg-base-bg ew-font-text"
         , Theme.styles
             [ ( "--ew-menu-padding", paddingString attrs.padding )
             , ( "--ew-menu-title-padding", paddingString attrs.titlePadding )
             ]
         ]
         (children
-            |> List.map (\i -> H.li [ HA.class "ew-m-0" ] [ i ])
+            |> List.map (\i -> H.li [ HA.class "ew-m-0 ew-flex ew-justify-stretch" ] [ i ])
         )
 
 
@@ -244,6 +243,26 @@ viewTitle attrs_ props =
             HA.class ""
         ]
         (baseContent attrs props.label)
+
+
+{-| -}
+viewDummy :
+    List (Attribute msg)
+    -> List (H.Html msg)
+    -> H.Html msg
+viewDummy attrs_ label =
+    let
+        attrs : Attributes msg
+        attrs =
+            applyAttrs attrs_
+    in
+    H.div
+        (baseAttrs attrs
+            ++ [ HA.class "ew-border-0 ew-focusable"
+               , HA.tabindex 0
+               ]
+        )
+        (baseContent attrs label)
 
 
 {-| -}
