@@ -16,6 +16,10 @@ chapter_ =
                         { label = [ H.text "Click me" ]
                         , onClick = logAction "onClick"
                         }
+                    , W.Menu.viewButton [ W.Menu.paddingX 32 ]
+                        { label = [ H.text "Click me (with padding)" ]
+                        , onClick = logAction "onClick"
+                        }
                     , W.Menu.viewLink
                         [ W.Menu.left [ H.text "L" ]
                         ]
