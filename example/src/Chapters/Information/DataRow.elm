@@ -18,11 +18,6 @@ chapter_ =
                     [ H.text "Label"
                     ]
               )
-            , ( "With Padding"
-              , W.DataRow.view [ W.DataRow.padding 32 ]
-                    [ H.text "Label"
-                    ]
-              )
             , ( "As Button"
               , W.DataRow.view
                     [ W.DataRow.onClick (logAction "onClick") ]
@@ -113,5 +108,10 @@ chapter_ =
                         ]
                     ]
                     [ H.text "Label" ]
+              )
+            , ( "With Custom Padding"
+              , W.DataRow.view [ W.DataRow.paddingX 44, W.DataRow.paddingY 4 ]
+                    [ H.text "Label"
+                    ]
               )
             ]

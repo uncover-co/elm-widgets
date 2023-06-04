@@ -227,13 +227,16 @@ viewInline attrs_ value =
 baseAttrs : Attributes msg -> List (H.Attribute msg)
 baseAttrs attrs =
     attrs.htmlAttributes
-        ++ [ HA.class "ew-rounded-full"
+        ++ [ HA.class "ew-rounded-full ew-flex ew-items-center ew-justify-center"
            , HA.class "ew-leading-none ew-font-semibold ew-font-text"
-           , HA.class "ew-border ew-border-solid ew-border-base-bg"
-           , HA.style "color" attrs.color
-           , HA.style "background" attrs.background
+           , HA.class "ew-shadow"
            , HA.classList
-                [ ( "ew-px-2.5 ew-py-1 ew-text-sm", not attrs.small )
-                , ( "ew-px-1.5 ew-py-0.5 ew-text-xs", attrs.small )
+                [ ( "ew-px-2.5 ew-h-6 ew-text-sm", not attrs.small )
+                , ( "ew-px-1.5 ew-h-4 ew-text-xs", attrs.small )
+                ]
+           , Theme.stylesIf
+                [ ( "color", attrs.color, True )
+                , ( "background", attrs.background, True )
+                , ( "min-width", "5px", attrs.small )
                 ]
            ]

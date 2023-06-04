@@ -1,8 +1,8 @@
 module W.DataRow exposing
     ( view, header, footer, left, right
     , href, onClick
+    , padding, paddingX, paddingY, noPadding
     , htmlAttrs, noAttr, Attribute
-    , padding
     )
 
 {-|
@@ -13,6 +13,11 @@ module W.DataRow exposing
 # Actions
 
 @docs href, onClick
+
+
+# Custom Padding
+
+@docs padding, paddingX, paddingY, noPadding
 
 
 # Html
@@ -42,7 +47,7 @@ type alias Attributes msg =
     , left : Maybe (List (H.Html msg))
     , right : Maybe (List (H.Html msg))
     , onClick : Maybe msg
-    , padding : Int
+    , padding : Maybe { x : Int, y : Int }
     , href : Maybe String
     , htmlAttributes : List (H.Attribute msg)
     }
@@ -60,7 +65,7 @@ defaultAttrs =
     , left = Nothing
     , right = Nothing
     , onClick = Nothing
-    , padding = 8
+    , padding = Just { x = 8, y = 8 }
     , href = Nothing
     , htmlAttributes = []
     }
@@ -101,9 +106,27 @@ onClick v =
 
 
 {-| -}
+noPadding : Attribute msg
+noPadding =
+    Attribute <| \attrs -> { attrs | padding = Nothing }
+
+
+{-| -}
 padding : Int -> Attribute msg
 padding v =
-    Attribute <| \attrs -> { attrs | padding = v }
+    Attribute <| \attrs -> { attrs | padding = Just { x = v, y = v } }
+
+
+{-| -}
+paddingX : Int -> Attribute msg
+paddingX v =
+    Attribute <| \attrs -> { attrs | padding = Maybe.map (\p -> { p | x = v }) attrs.padding }
+
+
+{-| -}
+paddingY : Int -> Attribute msg
+paddingY v =
+    Attribute <| \attrs -> { attrs | padding = Maybe.map (\p -> { p | y = v }) attrs.padding }
 
 
 {-| -}
@@ -171,7 +194,7 @@ view attrs_ children =
     in
     H.div
         (HA.class "ew-flex ew-items-center ew-box-border ew-bg-base-bg"
-            :: HA.style "padding" (String.fromInt attrs.padding)
+            :: WH.maybeAttr (HA.style "padding" << paddingString) attrs.padding
             :: attrs.htmlAttributes
         )
         [ main_
@@ -186,3 +209,8 @@ view attrs_ children =
             |> Maybe.map (\right_ -> H.div [ HA.class "ew-shrink-0 ew-pl-2" ] right_)
             |> Maybe.withDefault (H.text "")
         ]
+
+
+paddingString : { x : Int, y : Int } -> String
+paddingString { x, y } =
+    String.fromInt y ++ "px " ++ String.fromInt x ++ "px"

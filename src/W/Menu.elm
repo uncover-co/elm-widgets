@@ -1,7 +1,9 @@
 module W.Menu exposing
     ( view, viewButton, viewLink, viewTitle
-    , disabled, selected, left, right, paddingX, paddingY
+    , disabled, selected, left, right, noPadding
+    , padding, paddingX, paddingY, titlePadding, titlePaddingX, titlePaddingY
     , htmlAttrs, noAttr, Attribute
+    , viewCustom
     )
 
 {-|
@@ -11,7 +13,12 @@ module W.Menu exposing
 
 # Styles
 
-@docs disabled, selected, left, right, paddingX, paddingY
+@docs disabled, selected, left, right, noPadding
+
+
+# Container Styles
+
+@docs padding, paddingX, paddingY, titlePadding, titlePaddingX, titlePaddingY
 
 
 # Html
@@ -23,7 +30,79 @@ module W.Menu exposing
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Theme
 import W.Internal.Helpers as WH
+
+
+
+-- Menu Attributes
+
+
+type MenuAttribute msg
+    = MenuAttribute (MenuAttributes -> MenuAttributes)
+
+
+type alias MenuAttributes =
+    { titlePadding : { x : Int, y : Int }
+    , padding : { x : Int, y : Int }
+    }
+
+
+defaultMenuAttrs : MenuAttributes
+defaultMenuAttrs =
+    { titlePadding = { x = 12, y = 8 }
+    , padding = { x = 12, y = 8 }
+    }
+
+
+applyMenuAttrs : List (MenuAttribute msg) -> MenuAttributes
+applyMenuAttrs attrs =
+    List.foldl (\(MenuAttribute fn) a -> fn a) defaultMenuAttrs attrs
+
+
+
+-- Menu Attribute functions
+
+
+{-| -}
+padding : Int -> MenuAttribute msg
+padding v =
+    MenuAttribute <| \attrs -> { attrs | padding = { x = v, y = v } }
+
+
+{-| -}
+paddingX : Int -> MenuAttribute msg
+paddingX v =
+    MenuAttribute <|
+        \attrs -> { attrs | padding = { x = v, y = attrs.padding.y } }
+
+
+{-| -}
+paddingY : Int -> MenuAttribute msg
+paddingY v =
+    MenuAttribute <|
+        \attrs -> { attrs | padding = { y = v, x = attrs.padding.x } }
+
+
+{-| -}
+titlePadding : Int -> MenuAttribute msg
+titlePadding v =
+    MenuAttribute <|
+        \attrs -> { attrs | titlePadding = { x = v, y = v } }
+
+
+{-| -}
+titlePaddingX : Int -> MenuAttribute msg
+titlePaddingX v =
+    MenuAttribute <|
+        \attrs -> { attrs | titlePadding = { x = v, y = attrs.titlePadding.y } }
+
+
+{-| -}
+titlePaddingY : Int -> MenuAttribute msg
+titlePaddingY v =
+    MenuAttribute <|
+        \attrs -> { attrs | titlePadding = { y = v, x = attrs.titlePadding.x } }
 
 
 
@@ -38,10 +117,9 @@ type Attribute msg
 type alias Attributes msg =
     { disabled : Bool
     , selected : Bool
+    , padding : Bool
     , left : Maybe (List (H.Html msg))
     , right : Maybe (List (H.Html msg))
-    , paddingX : Int
-    , paddingY : Int
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -50,12 +128,20 @@ defaultAttrs : Attributes msg
 defaultAttrs =
     { disabled = False
     , selected = False
+    , padding = True
     , left = Nothing
     , right = Nothing
-    , paddingX = 12
-    , paddingY = 8
     , htmlAttributes = []
     }
+
+
+applyAttrs : List (Attribute msg) -> Attributes msg
+applyAttrs attrs =
+    List.foldl (\(Attribute fn) a -> fn a) defaultAttrs attrs
+
+
+
+-- Attribute functions
 
 
 {-| -}
@@ -83,15 +169,9 @@ right v =
 
 
 {-| -}
-paddingX : Int -> Attribute msg
-paddingX v =
-    Attribute <| \attrs -> { attrs | paddingX = v }
-
-
-{-| -}
-paddingY : Int -> Attribute msg
-paddingY v =
-    Attribute <| \attrs -> { attrs | paddingY = v }
+noPadding : Attribute msg
+noPadding =
+    Attribute <| \attrs -> { attrs | padding = False }
 
 
 {-| -}
@@ -112,37 +192,33 @@ noAttr =
 
 {-| -}
 view : List (H.Html msg) -> H.Html msg
-view children =
-    H.ul [ HA.class "ew-m-0 ew-p-0 ew-list-none ew-bg-base-bg ew-font-text" ]
+view =
+    viewCustom []
+
+
+{-| -}
+viewCustom : List (MenuAttribute msg) -> List (H.Html msg) -> H.Html msg
+viewCustom attrs_ children =
+    let
+        attrs : MenuAttributes
+        attrs =
+            applyMenuAttrs attrs_
+    in
+    H.ul
+        [ HA.class "ew-m-0 ew-p-0 ew-list-none ew-bg-base-bg ew-font-text"
+        , Theme.styles
+            [ ( "--ew-menu-padding", paddingString attrs.padding )
+            , ( "--ew-menu-title-padding", paddingString attrs.titlePadding )
+            ]
+        ]
         (children
             |> List.map (\i -> H.li [ HA.class "ew-m-0" ] [ i ])
         )
 
 
-applyAttrs : List (Attribute msg) -> Attributes msg
-applyAttrs attrs =
-    List.foldl (\(Attribute fn) a -> fn a) defaultAttrs attrs
-
-
-baseAttrs : Attributes msg -> List (H.Attribute msg)
-baseAttrs attrs =
-    attrs.htmlAttributes
-        ++ [ HA.disabled attrs.disabled
-           , HA.class "ew-m-0 ew-w-full ew-box-border ew-flex ew-items-center ew-content-start"
-           , HA.class "ew-text-left ew-text-base ew-text-fg"
-           , HA.class "hover:ew-bg-base-aux/[0.07]"
-           , HA.class "active:ew-bg-base-aux/10"
-           , HA.class "ew-focusable ew-relative focus:ew-z-10"
-           , HA.classList
-                [ ( "ew-text-primary-fg ew-bg-primary-fg/10 hover:ew-bg-primary-fg/[0.15] active:ew-bg-primary-fg/20", attrs.selected )
-                , ( "ew-text-base-fg ew-bg-base-bg", not attrs.selected )
-                , ( "ew-m-disabled", attrs.disabled )
-                ]
-           , HA.style "padding-left" (String.fromInt attrs.paddingX)
-           , HA.style "padding-right" (String.fromInt attrs.paddingX)
-           , HA.style "padding-top" (String.fromInt attrs.paddingY)
-           , HA.style "padding-bottom" (String.fromInt attrs.paddingY)
-           ]
+paddingString : { x : Int, y : Int } -> String
+paddingString { x, y } =
+    String.fromInt y ++ "px " ++ String.fromInt x ++ "px"
 
 
 {-| -}
@@ -161,7 +237,11 @@ viewTitle attrs_ props =
     H.p
         [ HA.class "ew-m-0 ew-flex ew-items-center"
         , HA.class "ew-uppercase ew-text-xs ew-font-bold ew-font-text ew-text-base-aux"
-        , HA.class "ew-pt-6 ew-px-4 ew-pb-2"
+        , if attrs.padding then
+            Theme.styles [ ( "padding", "var(--ew-menu-title-padding)" ) ]
+
+          else
+            HA.class ""
         ]
         (baseContent attrs props.label)
 
@@ -210,6 +290,28 @@ viewLink attrs_ props =
                ]
         )
         (baseContent attrs props.label)
+
+
+baseAttrs : Attributes msg -> List (H.Attribute msg)
+baseAttrs attrs =
+    attrs.htmlAttributes
+        ++ [ HA.disabled attrs.disabled
+           , HA.class "ew-m-0 ew-w-full ew-box-border ew-flex ew-items-center ew-content-start"
+           , HA.class "ew-text-left ew-text-base ew-text-fg"
+           , HA.class "hover:ew-bg-base-aux/[0.07]"
+           , HA.class "active:ew-bg-base-aux/10"
+           , HA.class "ew-focusable ew-relative focus:ew-z-10"
+           , HA.classList
+                [ ( "ew-text-primary-fg ew-bg-primary-fg/10 hover:ew-bg-primary-fg/[0.15] active:ew-bg-primary-fg/20", attrs.selected )
+                , ( "ew-text-base-fg ew-bg-base-bg", not attrs.selected )
+                , ( "ew-m-disabled", attrs.disabled )
+                ]
+           , if attrs.padding then
+                Theme.styles [ ( "padding", "var(--ew-menu-padding)" ) ]
+
+             else
+                HA.class ""
+           ]
 
 
 baseContent : Attributes msg -> List (H.Html msg) -> List (H.Html msg)

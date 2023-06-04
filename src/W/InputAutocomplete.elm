@@ -1,8 +1,8 @@
 module W.InputAutocomplete exposing
-    ( view
+    ( view, viewSync
     , init, toString, toValue, Value
-    , viewCustom, optionsHeader
-    , disabled, readOnly, noFilter
+    , viewCustom, viewSyncCustom, optionsHeader
+    , disabled, readOnly
     , placeholder, prefix, suffix
     , required
     , onEnter, onBlur, onFocus
@@ -11,7 +11,7 @@ module W.InputAutocomplete exposing
 
 {-|
 
-@docs view
+@docs view, viewSync
 
 
 # Value
@@ -21,12 +21,12 @@ module W.InputAutocomplete exposing
 
 # Custom Rendering
 
-@docs viewCustom, optionsHeader
+@docs viewCustom, viewSyncCustom, optionsHeader
 
 
 # States
 
-@docs disabled, readOnly, noFilter
+@docs disabled, readOnly
 
 
 # Styles
@@ -54,6 +54,7 @@ import Array
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Html.Lazy
 import Json.Decode as D
 import W.Divider
 import W.Internal.Helpers as WH
@@ -101,66 +102,78 @@ toValue (Value data) =
 {-| -}
 init : { value : Maybe a, toString : a -> String } -> Value a
 init props =
-    Value
-        { input = ""
-        , value = props.value
-        , highlighted = 0
-        , focused = False
-        , toString = props.toString
-        }
+    { input = ""
+    , value = props.value
+    , highlighted = 0
+    , focused = False
+    , toString = props.toString
+    }
         |> initInput
+        |> Value
 
 
-initInput : Value a -> Value a
-initInput (Value data) =
-    Value
-        { data
-            | input =
-                data.value
-                    |> Maybe.map data.toString
-                    |> Maybe.withDefault ""
-        }
+initInput : ValueData a -> ValueData a
+initInput data =
+    { data
+        | input =
+            data.value
+                |> Maybe.map data.toString
+                |> Maybe.withDefault ""
+    }
 
 
-updateInput : ValueData a -> String -> Value a
-updateInput data input =
-    Value
-        { data
-            | input = input
-            , highlighted = 0
-            , focused = True
-        }
+type Msg a
+    = Input String
+    | Select Int a
+    | Focus
+    | Blur
+    | ArrowDown
+    | ArrowUp
 
 
-onSelect_ : Int -> a -> ValueData a -> Value a
-onSelect_ index value data =
-    Value
-        { data
-            | value = Just value
-            , highlighted = index
-            , focused = False
-        }
-        |> initInput
+update : (Value a -> msg) -> Value a -> Msg a -> msg
+update toMsg (Value model) msg =
+    let
+        newModel : ValueData a
+        newModel =
+            case msg of
+                Input value ->
+                    { model
+                        | input = value
+                        , highlighted = 0
+                        , focused = True
+                    }
 
+                Select index value ->
+                    { model
+                        | value = Just value
+                        , highlighted = index
+                        , focused = False
+                    }
+                        |> initInput
 
-onFocus_ : Value a -> Value a
-onFocus_ (Value data) =
-    Value { data | focused = True }
+                Focus ->
+                    { model | focused = True }
 
+                Blur ->
+                    { model | focused = False }
+                        |> initInput
 
-onBlur_ : Value a -> Value a
-onBlur_ (Value data) =
-    Value { data | focused = False }
-        |> initInput
+                ArrowDown ->
+                    if model.focused then
+                        { model | highlighted = model.highlighted + 1 }
 
+                    else
+                        { model | focused = True }
 
-updateHighlighted : (Int -> Int) -> ValueData a -> Value a
-updateHighlighted fn data =
-    if data.focused then
-        Value { data | highlighted = fn data.highlighted }
+                ArrowUp ->
+                    if model.focused then
+                        { model | highlighted = model.highlighted - 1 }
 
-    else
-        Value { data | focused = True }
+                    else
+                        { model | focused = True }
+    in
+    toMsg (Value newModel)
 
 
 
@@ -256,7 +269,6 @@ optionsHeader v =
     Attribute <| \attrs -> { attrs | optionsHeader = Just v }
 
 
-{-| -}
 noFilter : Attribute msg
 noFilter =
     Attribute <| \attrs -> { attrs | noFilter = True }
@@ -294,6 +306,47 @@ noAttr =
 
 
 -- Main
+
+
+{-| -}
+viewSync :
+    List (Attribute msg)
+    ->
+        { id : String
+        , value : Value a
+        , options : List a
+        , onInput : Value a -> msg
+        }
+    -> H.Html msg
+viewSync attrs_ props =
+    viewSyncCustom attrs_
+        { id = props.id
+        , value = props.value
+        , options = props.options
+        , onInput = props.onInput
+        , toHtml = H.text << toStringFn props.value
+        }
+
+
+{-| -}
+viewSyncCustom :
+    List (Attribute msg)
+    ->
+        { id : String
+        , value : Value a
+        , options : List a
+        , onInput : Value a -> msg
+        , toHtml : a -> H.Html msg
+        }
+    -> H.Html msg
+viewSyncCustom attrs_ props =
+    viewCustom (noFilter :: attrs_)
+        { id = props.id
+        , value = props.value
+        , options = Just props.options
+        , onInput = props.onInput
+        , toHtml = props.toHtml
+        }
 
 
 {-| -}
@@ -335,6 +388,10 @@ viewCustom attrs_ props =
                 Value v ->
                     v
 
+        update_ : Msg a -> msg
+        update_ =
+            update props.onInput props.value
+
         attrs : Attributes msg
         attrs =
             applyAttrs attrs_
@@ -365,72 +422,74 @@ viewCustom attrs_ props =
         highlighted =
             modBy (max (List.length options) 1) valueData.highlighted
     in
-    H.input
-        (attrs.htmlAttributes
-            ++ [ WH.maybeAttr HA.placeholder attrs.placeholder
-               , HA.disabled (attrs.disabled || attrs.readOnly)
-               , HA.readonly attrs.readOnly
-               , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
-               , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
-               , HA.required attrs.required
-               , HA.autocomplete False
-               , HA.id props.id
-               , HA.class W.Internal.Input.baseClass
-               , HA.class "ew-pr-10"
-               , HA.value valueData.input
-               , WH.maybeAttr (HE.on "focusin") (attrs.onFocus |> Maybe.map D.succeed)
-               , WH.maybeAttr (HE.on "focusout") (attrs.onBlur |> Maybe.map D.succeed)
-               , HE.onFocus (props.onInput (onFocus_ props.value))
-               , HE.onBlur (props.onInput (onBlur_ props.value))
-               , HE.on "keydown"
-                    (D.field "key" D.string
-                        |> D.andThen
-                            (\key ->
-                                case key of
-                                    "Enter" ->
-                                        options
-                                            |> Array.fromList
-                                            |> Array.get highlighted
-                                            |> Maybe.map
-                                                (\value ->
-                                                    onSelect_ highlighted value valueData
-                                                        |> props.onInput
+    valueData.input
+        |> Html.Lazy.lazy
+            (\_ ->
+                H.input
+                    (attrs.htmlAttributes
+                        ++ [ WH.maybeAttr HA.placeholder attrs.placeholder
+                           , HA.disabled (attrs.disabled || attrs.readOnly)
+                           , HA.readonly attrs.readOnly
+                           , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
+                           , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
+                           , HA.required attrs.required
+                           , HA.autocomplete False
+                           , HA.id props.id
+                           , HA.class W.Internal.Input.baseClass
+                           , HA.class "ew-pr-10"
+                           , HA.value valueData.input
+                           , WH.maybeAttr (HE.on "focusin") (attrs.onFocus |> Maybe.map D.succeed)
+                           , WH.maybeAttr (HE.on "focusout") (attrs.onBlur |> Maybe.map D.succeed)
+                           , HE.onFocus (update_ Focus)
+                           , HE.onBlur (update_ Blur)
+                           , HE.on "keydown"
+                                (D.field "key" D.string
+                                    |> D.andThen
+                                        (\key ->
+                                            case key of
+                                                "Enter" ->
+                                                    options
+                                                        |> Array.fromList
+                                                        |> Array.get highlighted
+                                                        |> Maybe.map
+                                                            (\value ->
+                                                                Select highlighted value
+                                                                    |> update_
+                                                                    |> D.succeed
+                                                            )
+                                                        |> Maybe.withDefault
+                                                            (attrs.onEnter
+                                                                |> Maybe.map (\msg -> D.succeed msg)
+                                                                |> Maybe.withDefault (D.fail "ignored action")
+                                                            )
+
+                                                "ArrowDown" ->
+                                                    ArrowDown
+                                                        |> update_
                                                         |> D.succeed
-                                                )
-                                            |> Maybe.withDefault
-                                                (attrs.onEnter
-                                                    |> Maybe.map (\msg -> D.succeed msg)
-                                                    |> Maybe.withDefault (D.fail "ignored action")
-                                                )
 
-                                    "ArrowDown" ->
-                                        valueData
-                                            |> updateHighlighted ((+) 1)
-                                            |> props.onInput
-                                            |> D.succeed
+                                                "ArrowUp" ->
+                                                    ArrowUp
+                                                        |> update_
+                                                        |> D.succeed
 
-                                    "ArrowUp" ->
-                                        valueData
-                                            |> updateHighlighted ((+) -1)
-                                            |> props.onInput
-                                            |> D.succeed
-
-                                    _ ->
-                                        D.fail "ignored key"
-                            )
+                                                _ ->
+                                                    D.fail "ignored key"
+                                        )
+                                )
+                           , HE.on "input"
+                                (D.at [ "target", "value" ] D.string
+                                    |> D.andThen
+                                        (\value ->
+                                            Input value
+                                                |> update_
+                                                |> D.succeed
+                                        )
+                                )
+                           ]
                     )
-               , HE.on "input"
-                    (D.at [ "target", "value" ] D.string
-                        |> D.andThen
-                            (\value ->
-                                updateInput valueData value
-                                    |> props.onInput
-                                    |> D.succeed
-                            )
-                    )
-               ]
-        )
-        []
+                    []
+            )
         |> W.Internal.Input.viewWithIcon
             { prefix = attrs.prefix
             , suffix = attrs.suffix
@@ -448,7 +507,7 @@ viewCustom attrs_ props =
         |> (\x ->
                 H.div [ HA.class "ew-relative ew-group" ]
                     [ x
-                    , if valueData.focused then
+                    , if valueData.focused |> Debug.log "focused" then
                         H.div
                             [ HA.class "ew-hidden group-focus-within:ew-block"
                             , HA.class "ew-absolute ew-top-full ew-left-0 ew-right-0"
@@ -473,8 +532,8 @@ viewCustom attrs_ props =
                                                         ]
                                                         { label = [ props.toHtml value ]
                                                         , onClick =
-                                                            onSelect_ index value valueData
-                                                                |> props.onInput
+                                                            Select index value
+                                                                |> update_
                                                         }
                                                 )
                                        )

@@ -129,7 +129,6 @@ view attrs_ props =
                 |> (*) 100
                 |> String.fromFloat
                 |> (\s -> s ++ "%")
-                |> Debug.log "valueString"
 
         colorAttr : H.Attribute msg
         colorAttr =
