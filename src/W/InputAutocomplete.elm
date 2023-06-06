@@ -1,6 +1,6 @@
 module W.InputAutocomplete exposing
     ( view, viewSync
-    , init, toString, toValue, Value
+    , init, toString, toValue, stringChanged, valueChanged, Value
     , viewCustom, viewSyncCustom, optionsHeader
     , disabled, readOnly
     , placeholder, prefix, suffix
@@ -16,7 +16,7 @@ module W.InputAutocomplete exposing
 
 # Value
 
-@docs init, toString, toValue, Value
+@docs init, toString, toValue, stringChanged, valueChanged, Value
 
 
 # Custom Rendering
@@ -88,6 +88,12 @@ toString (Value { input }) =
     input
 
 
+{-| -}
+stringChanged : Value a -> Value a -> Bool
+stringChanged a b =
+    toString a /= toString b
+
+
 toStringFn : Value a -> (a -> String)
 toStringFn (Value data) =
     data.toString
@@ -97,6 +103,12 @@ toStringFn (Value data) =
 toValue : Value a -> Maybe a
 toValue (Value data) =
     data.value
+
+
+{-| -}
+valueChanged : Value a -> Value a -> Bool
+valueChanged a b =
+    toValue a /= toValue b
 
 
 {-| -}
@@ -156,8 +168,9 @@ update toMsg (Value model) msg =
                     { model | focused = True }
 
                 Blur ->
-                    { model | focused = False }
-                        |> initInput
+                    -- We don't call `focused = False` on blur
+                    -- since that would prevent click behavior.
+                    initInput model
 
                 ArrowDown ->
                     if model.focused then
@@ -498,7 +511,7 @@ viewCustom attrs_ props =
             , mask = Nothing
             , maskInput = ""
             }
-            (if props.options == Nothing then
+            (if props.options == Nothing && valueData.input /= "" then
                 W.Loading.dots [ W.Loading.size 20 ]
 
              else
@@ -507,9 +520,9 @@ viewCustom attrs_ props =
         |> (\x ->
                 H.div [ HA.class "ew-relative ew-group" ]
                     [ x
-                    , if valueData.focused |> Debug.log "focused" then
+                    , if valueData.focused then
                         H.div
-                            [ HA.class "ew-hidden group-focus-within:ew-block"
+                            [ HA.class "ew-hidden group-focus-within:ew-block hover:ew-block"
                             , HA.class "ew-absolute ew-top-full ew-left-0 ew-right-0"
                             , HA.class "ew-shadow ew-z-10 ew-bg-base-bg"
                             ]
