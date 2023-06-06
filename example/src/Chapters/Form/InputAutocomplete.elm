@@ -7,12 +7,24 @@ import Html as H
 import Html.Attributes as HA
 import Http
 import Json.Decode as D
+import Process
+import Task
+import Time
 import W.InputAutocomplete
 import W.Text
 
 
 
---
+-- Constants
+
+
+debounceTime : Int
+debounceTime =
+    200
+
+
+
+-- Model & Update
 
 
 type alias Person =
@@ -24,11 +36,14 @@ type alias Person =
 type alias Model =
     { value : W.InputAutocomplete.Value Person
     , options : Maybe (List Person)
+    , debounceUntil : Maybe Time.Posix
     }
 
 
 type Msg
     = OnInput (W.InputAutocomplete.Value Person)
+    | ScheduleGetOptions Time.Posix
+    | GetOptions Time.Posix
     | GotOptions (Result Http.Error (List Person))
 
 
@@ -40,6 +55,7 @@ init =
             , toString = .name
             }
     , options = Nothing
+    , debounceUntil = Nothing
     }
 
 
@@ -47,19 +63,50 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnInput value ->
-            ( { model | value = value |> Debug.log "value" }
-            , case W.InputAutocomplete.toString value of
-                "" ->
-                    Cmd.none
+            ( { model | value = value }
+            , if W.InputAutocomplete.stringChanged value model.value then
+                Task.perform ScheduleGetOptions Time.now
 
-                term ->
-                    searchPersons term
+              else
+                Cmd.none
             )
+
+        ScheduleGetOptions time ->
+            let
+                targetTime : Time.Posix
+                targetTime =
+                    time
+                        |> Time.posixToMillis
+                        |> (+) debounceTime
+                        |> Time.millisToPosix
+            in
+            ( { model | debounceUntil = Just targetTime }
+            , Process.sleep (toFloat debounceTime)
+                |> Task.map (\_ -> targetTime)
+                |> Task.perform GetOptions
+            )
+
+        GetOptions debounce ->
+            let
+                searchTerm : String
+                searchTerm =
+                    W.InputAutocomplete.toString model.value
+            in
+            case model.debounceUntil of
+                Just target ->
+                    if Time.posixToMillis debounce >= Time.posixToMillis target && searchTerm /= "" then
+                        ( { model | options = Nothing }, searchPersons searchTerm )
+
+                    else
+                        ( model, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         GotOptions result ->
             case result of
                 Ok options ->
-                    ( { model | options = Just options |> Debug.log "options" }, Cmd.none )
+                    ( { model | options = Just options }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -83,7 +130,7 @@ searchPersons term =
 
 
 
---
+-- View
 
 
 viewDoc :
