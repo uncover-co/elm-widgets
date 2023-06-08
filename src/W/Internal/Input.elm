@@ -10,7 +10,8 @@ import Html.Attributes as HA
 
 
 view :
-    { prefix : Maybe (List (H.Html msg))
+    { small : Bool
+    , prefix : Maybe (List (H.Html msg))
     , suffix : Maybe (List (H.Html msg))
     , readOnly : Bool
     , disabled : Bool
@@ -24,11 +25,13 @@ view attrs input =
         [ HA.class "ew-input ew-bg-base-bg"
         , HA.class "ew-flex ew-items-stretch"
         , HA.class "ew-box-border ew-border ew-border-solid ew-border-base-aux/30 ew-rounded"
-        , HA.class "ew-font-text ew-text-base ew-text-base-fg"
+        , HA.class "ew-font-text ew-text-base-fg"
         , HA.class "ew-transition"
         , HA.class "ew-ring-offset-0 ew-ring-primary-fg/50"
         , HA.classList
             [ ( "focus-within:focus-visible:ew-ring focus-within:focus-visible:ew-border-primary-fg", not attrs.readOnly )
+            , ( "ew-text-base", not attrs.small )
+            , ( "ew-text-sm", attrs.small )
             ]
         ]
         [ case attrs.prefix of
@@ -44,11 +47,12 @@ view attrs input =
         , H.div
             [ HA.class "ew-grow ew-relative"
             , HA.class "ew-flex ew-items-stretch ew-group"
-            , HA.class "ew-min-h-[48px]"
             , HA.class "ew-rounded"
             , HA.classList
                 [ ( "ew-text-transparent focus-within:ew-text-base-fg", attrs.mask /= Nothing )
                 , ( "ew-text-base-fg", attrs.mask == Nothing )
+                , ( "ew-min-h-[32px]", attrs.small )
+                , ( "ew-min-h-[48px]", not attrs.small )
                 ]
             , if attrs.readOnly then
                 HA.class "ew-bg-base-aux/[0.07] focus-within:ew-bg-base-aux/10"
@@ -97,6 +101,7 @@ view attrs input =
 viewWithIcon :
     { prefix : Maybe (List (H.Html msg))
     , suffix : Maybe (List (H.Html msg))
+    , small : Bool
     , disabled : Bool
     , readOnly : Bool
     , mask : Maybe (String -> String)
@@ -120,24 +125,30 @@ prefixSuffixClass =
         "ew-flex ew-items-center ew-justify-center ew-box-border"
             ++ " ew-border-0 ew-border-solid ew-border-base-aux/30"
             ++ " ew-p-2 ew-min-w-[48px] ew-self-stretch"
-            ++ " ew-text-sm ew-text-base ew-text-base-aux"
+            ++ " ew-text-base-aux"
 
 
-baseClass : String
-baseClass =
-    baseClassNoColor ++ " ew-text-inherit"
+baseClass : Bool -> String
+baseClass small =
+    baseClassNoColor small ++ " ew-text-inherit"
 
 
-baseClassNoColor : String
-baseClassNoColor =
+baseClassNoColor : Bool -> String
+baseClassNoColor small =
     "ew-appearance-none"
         ++ " ew-w-full"
         ++ " ew-py-2 ew-px-3 ew-box-border"
         ++ " ew-border-0 ew-outline-0"
-        ++ " ew-font-text ew-text-base ew-leading-none"
+        ++ " ew-font-text ew-leading-none"
         ++ " ew-placeholder-base-aux/80"
         ++ " ew-bg-transparent"
         ++ " focus:ew-outline-none focus:ew-shadow-none"
+        ++ (if small then
+                " ew-text-sm"
+
+            else
+                " ew-text-base"
+           )
 
 
 iconWrapper : String -> H.Html msg -> H.Html msg

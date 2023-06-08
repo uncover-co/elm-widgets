@@ -33,6 +33,7 @@ chapter_ =
               , \{ inputText } ->
                     W.InputText.view
                         [ W.InputText.placeholder "Type something…"
+                        , W.InputText.small
                         , W.InputText.mask (\s -> "R$ " ++ s)
                         , W.InputText.prefix [ H.text "$" ]
                         ]

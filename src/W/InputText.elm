@@ -1,7 +1,7 @@
 module W.InputText exposing
     ( view
     , email, password, search, telephone, url, numeric, decimal
-    , placeholder, mask, prefix, suffix
+    , small, placeholder, mask, prefix, suffix
     , autofocus, disabled, readOnly
     , onEnter, onFocus, onBlur
     , required, minLength, maxLength, exactLength, pattern, validation
@@ -21,7 +21,7 @@ module W.InputText exposing
 
 # Styles
 
-@docs placeholder, mask, prefix, suffix
+@docs small, placeholder, mask, prefix, suffix
 
 
 # States
@@ -151,6 +151,7 @@ type alias Attributes msg =
     , maxLength : Maybe Int
     , pattern : Maybe String
     , placeholder : Maybe String
+    , small : Bool
     , validation : Maybe (String -> Maybe String)
     , mask : Maybe (String -> String)
     , prefix : Maybe (List (H.Html msg))
@@ -180,6 +181,7 @@ defaultAttrs =
     , pattern = Nothing
     , validation = Nothing
     , placeholder = Nothing
+    , small = False
     , prefix = Nothing
     , suffix = Nothing
     , mask = Nothing
@@ -297,6 +299,12 @@ validation v =
 
 
 {-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
+
+
+{-| -}
 prefix : List (H.Html msg) -> Attribute msg
 prefix v =
     Attribute <| \attrs -> { attrs | prefix = Just v }
@@ -353,7 +361,7 @@ baseAttrs attrs =
     attrs.htmlAttributes
         ++ [ HA.type_ (inputInputTypeToString attrs.type_)
            , WH.maybeAttr (HA.attribute "inputmode") attrs.inputMode
-           , HA.class W.Internal.Input.baseClass
+           , HA.class (W.Internal.Input.baseClass attrs.small)
            , WH.attrIf attrs.readOnly HA.tabindex -1
            , HA.required attrs.required
            , HA.disabled attrs.disabled
@@ -390,7 +398,8 @@ view attrs_ props =
             WH.limitString attrs.maxLength props.value
     in
     W.Internal.Input.view
-        { disabled = attrs.disabled
+        { small = attrs.small
+        , disabled = attrs.disabled
         , readOnly = attrs.readOnly
         , prefix = attrs.prefix
         , suffix = attrs.suffix
@@ -426,7 +435,8 @@ viewWithValidation attrs_ props =
             WH.limitString attrs.maxLength props.value
     in
     W.Internal.Input.view
-        { disabled = attrs.disabled
+        { small = attrs.small
+        , disabled = attrs.disabled
         , readOnly = attrs.readOnly
         , prefix = attrs.prefix
         , suffix = attrs.suffix

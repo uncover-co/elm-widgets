@@ -3,7 +3,7 @@ module W.InputAutocomplete exposing
     , init, toString, toValue, stringChanged, valueChanged, Value
     , viewCustom, viewSyncCustom, optionsHeader
     , autofocus, disabled, readOnly
-    , placeholder, prefix, suffix
+    , small, placeholder, prefix, suffix
     , required
     , onEnter, onBlur, onFocus
     , htmlAttrs, noAttr, Attribute
@@ -31,7 +31,7 @@ module W.InputAutocomplete exposing
 
 # Styles
 
-@docs placeholder, prefix, suffix
+@docs small, placeholder, prefix, suffix
 
 
 # Validation Attributes
@@ -203,6 +203,7 @@ type alias Attributes msg =
     , required : Bool
     , readOnly : Bool
     , autofocus : Bool
+    , small : Bool
     , placeholder : Maybe String
     , prefix : Maybe (List (H.Html msg))
     , suffix : Maybe (List (H.Html msg))
@@ -226,6 +227,7 @@ defaultAttrs =
     , required = False
     , readOnly = False
     , autofocus = False
+    , small = False
     , placeholder = Nothing
     , prefix = Nothing
     , suffix = Nothing
@@ -270,6 +272,12 @@ required v =
 autofocus : Attribute msg
 autofocus =
     Attribute <| \attrs -> { attrs | autofocus = True }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -457,7 +465,7 @@ viewCustom attrs_ props =
                            , HA.autofocus attrs.autofocus
                            , HA.autocomplete False
                            , HA.id props.id
-                           , HA.class W.Internal.Input.baseClass
+                           , HA.class (W.Internal.Input.baseClass attrs.small)
                            , HA.class "ew-pr-10"
                            , HA.value valueData.input
                            , WH.maybeAttr (HE.on "focusin") (attrs.onFocus |> Maybe.map D.succeed)
@@ -513,7 +521,8 @@ viewCustom attrs_ props =
                     []
             )
         |> W.Internal.Input.viewWithIcon
-            { prefix = attrs.prefix
+            { small = attrs.small
+            , prefix = attrs.prefix
             , suffix = attrs.suffix
             , disabled = attrs.disabled
             , readOnly = attrs.readOnly

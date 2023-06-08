@@ -1,7 +1,7 @@
 module W.InputTime exposing
     ( view
     , init, toTime, toTimeZone, toString, Value
-    , prefix, suffix
+    , small, prefix, suffix
     , autofocus, disabled, readOnly
     , required, min, max, step
     , viewWithValidation, errorToString, Error(..)
@@ -21,7 +21,7 @@ module W.InputTime exposing
 
 # Styles
 
-@docs prefix, suffix
+@docs small, prefix, suffix
 
 
 # States
@@ -146,6 +146,7 @@ type alias Attributes msg =
     , readOnly : Bool
     , required : Bool
     , autofocus : Bool
+    , small : Bool
     , min : Maybe Time.Posix
     , max : Maybe Time.Posix
     , step : Maybe Int
@@ -169,6 +170,7 @@ defaultAttrs =
     , readOnly = False
     , required = False
     , autofocus = False
+    , small = False
     , min = Nothing
     , max = Nothing
     , step = Nothing
@@ -207,6 +209,12 @@ required v =
 autofocus : Attribute msg
 autofocus =
     Attribute <| \attrs -> { attrs | autofocus = True }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -277,7 +285,7 @@ baseAttrs : Attributes msg -> Time.Zone -> String -> List (H.Attribute msg)
 baseAttrs attrs timeZone value =
     attrs.htmlAttributes
         ++ [ HA.type_ "time"
-           , HA.class W.Internal.Input.baseClass
+           , HA.class (W.Internal.Input.baseClass attrs.small)
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
@@ -314,7 +322,8 @@ view attrs_ props =
         )
         []
         |> W.Internal.Input.viewWithIcon
-            { prefix = attrs.prefix
+            { small = attrs.small
+            , prefix = attrs.prefix
             , suffix = attrs.suffix
             , readOnly = attrs.readOnly
             , disabled = attrs.disabled
@@ -403,7 +412,8 @@ viewWithValidation attrs_ props =
         )
         []
         |> W.Internal.Input.viewWithIcon
-            { prefix = attrs.prefix
+            { small = attrs.small
+            , prefix = attrs.prefix
             , suffix = attrs.suffix
             , readOnly = attrs.readOnly
             , disabled = attrs.disabled

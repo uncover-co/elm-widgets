@@ -1,6 +1,7 @@
 module W.Tag exposing
     ( view, viewButton, viewLink
-    , small, primary, secondary, success, warning, danger, color
+    , large, small
+    , primary, secondary, success, warning, danger, color
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -9,9 +10,14 @@ module W.Tag exposing
 @docs view, viewButton, viewLink
 
 
-# Styles
+# Sizes
 
-@docs small, primary, secondary, success, warning, danger, color
+@docs large, small
+
+
+# Colors
+
+@docs primary, secondary, success, warning, danger, color
 
 
 # Html
@@ -38,10 +44,16 @@ type Attribute msg
 type alias Attributes msg =
     { htmlAttributes : List (H.Attribute msg)
     , color : String
-    , small : Bool
+    , size : Size
     , href : Maybe String
     , onClick : Maybe msg
     }
+
+
+type Size
+    = Large
+    | Medium
+    | Small
 
 
 applyAttrs : List (Attribute msg) -> Attributes msg
@@ -53,7 +65,7 @@ defaultAttrs : Attributes msg
 defaultAttrs =
     { htmlAttributes = []
     , color = Theme.neutralForeground
-    , small = False
+    , size = Medium
     , href = Nothing
     , onClick = Nothing
     }
@@ -78,7 +90,22 @@ noAttr =
 {-| -}
 small : Bool -> Attribute msg
 small v =
-    Attribute <| \attrs -> { attrs | small = v }
+    Attribute <|
+        \attrs ->
+            { attrs
+                | size =
+                    if v then
+                        Small
+
+                    else
+                        attrs.size
+            }
+
+
+{-| -}
+large : Attribute msg
+large =
+    Attribute <| \attrs -> { attrs | size = Large }
 
 
 {-| -}
@@ -180,13 +207,18 @@ view attrs_ children =
         baseAttrs =
             attrs.htmlAttributes
                 ++ [ HA.class "ew-m-0 ew-box-border ew-relative ew-inline-flex ew-items-center ew-leading-none ew-font-text ew-font-medium ew-tracking-wider"
-                   , HA.class "ew-rounded-full ew-border-solid ew-border-2 ew-border-current"
+                   , HA.class "ew-rounded-full ew-border-solid ew-border-current"
                    , HA.class "before:ew-content-[''] before:ew-absolute before:ew-inset-0 before:ew-rounded-full before:ew-bg-current before:ew-opacity-10"
                    , HA.style "color" attrs.color
-                   , HA.classList
-                        [ ( "ew-h-8 ew-px-3 ew-text-base", not attrs.small )
-                        , ( "ew-h-7 ew-px-3 ew-text-sm", attrs.small )
-                        ]
+                   , case attrs.size of
+                        Large ->
+                            HA.class "ew-h-8 ew-px-4 ew-text-base ew-border-2"
+
+                        Medium ->
+                            HA.class "ew-h-7 ew-px-3 ew-text-sm ew-border-2"
+
+                        Small ->
+                            HA.class "ew-h-[20px] ew-px-2 ew-text-xs ew-border"
                    ]
     in
     case ( attrs.onClick, attrs.href ) of

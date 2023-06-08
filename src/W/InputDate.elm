@@ -2,7 +2,7 @@ module W.InputDate exposing
     ( view
     , init, toDate, toTimeZone, toString, Value
     , autofocus, disabled, readOnly
-    , prefix, suffix
+    , small, prefix, suffix
     , min, max, required
     , viewWithValidation, errorToString, Error(..)
     , onEnter, onFocus, onBlur
@@ -26,7 +26,7 @@ module W.InputDate exposing
 
 # Styles
 
-@docs prefix, suffix
+@docs small, prefix, suffix
 
 
 # Validation Attributes
@@ -147,6 +147,7 @@ type alias Attributes msg =
     , readOnly : Bool
     , required : Bool
     , autofocus : Bool
+    , small : Bool
     , min : Maybe Time.Posix
     , max : Maybe Time.Posix
     , prefix : Maybe (List (H.Html msg))
@@ -170,6 +171,7 @@ defaultAttrs =
     , readOnly = False
     , required = False
     , autofocus = False
+    , small = False
     , min = Nothing
     , max = Nothing
     , prefix = Nothing
@@ -207,6 +209,12 @@ required v =
 autofocus : Attribute msg
 autofocus =
     Attribute <| \attrs -> { attrs | autofocus = True }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -271,7 +279,7 @@ baseAttrs : Attributes msg -> Value -> List (H.Attribute msg)
 baseAttrs attrs (Value valueString timeZone value) =
     attrs.htmlAttributes
         ++ [ HA.type_ "date"
-           , HA.class W.Internal.Input.baseClassNoColor
+           , HA.class (W.Internal.Input.baseClassNoColor attrs.small)
            , HA.classList
                 [ ( "ew-text-base-aux/80", value == Nothing )
                 , ( "ew-text-inherit", value /= Nothing )
@@ -316,7 +324,8 @@ view attrs_ props =
         )
         []
         |> W.Internal.Input.viewWithIcon
-            { prefix = attrs.prefix
+            { small = attrs.small
+            , prefix = attrs.prefix
             , suffix = attrs.suffix
             , disabled = attrs.disabled
             , readOnly = attrs.readOnly
@@ -392,7 +401,8 @@ viewWithValidation attrs_ props =
         )
         []
         |> W.Internal.Input.viewWithIcon
-            { prefix = attrs.prefix
+            { small = attrs.small
+            , prefix = attrs.prefix
             , suffix = attrs.suffix
             , disabled = attrs.disabled
             , readOnly = attrs.readOnly

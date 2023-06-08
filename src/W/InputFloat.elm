@@ -1,7 +1,7 @@
 module W.InputFloat exposing
     ( view
     , init, toFloat, toString, Value
-    , placeholder, mask, prefix, suffix
+    , small, placeholder, mask, prefix, suffix
     , autofocus, disabled, readOnly
     , required, min, max, step, validation
     , viewWithValidation, errorToString, Error(..)
@@ -21,7 +21,7 @@ module W.InputFloat exposing
 
 # Styles
 
-@docs placeholder, mask, prefix, suffix
+@docs small, placeholder, mask, prefix, suffix
 
 
 # States
@@ -145,6 +145,7 @@ type alias Attributes msg =
     , readOnly : Bool
     , required : Bool
     , autofocus : Bool
+    , small : Bool
     , min : Maybe Float
     , max : Maybe Float
     , validation : Maybe (Maybe Float -> String -> Maybe String)
@@ -171,6 +172,7 @@ defaultAttrs =
     , readOnly = False
     , required = False
     , autofocus = False
+    , small = False
     , min = Nothing
     , max = Nothing
     , validation = Nothing
@@ -200,6 +202,12 @@ placeholder v =
 mask : (String -> String) -> Attribute msg
 mask v =
     Attribute <| \attrs -> { attrs | mask = Just v }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -301,7 +309,7 @@ baseAttrs : Attributes msg -> List (H.Attribute msg)
 baseAttrs attrs =
     attrs.htmlAttributes
         ++ [ HA.type_ "number"
-           , HA.class W.Internal.Input.baseClass
+           , HA.class (W.Internal.Input.baseClass attrs.small)
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
@@ -337,7 +345,8 @@ view attrs_ props =
             toString props.value
     in
     W.Internal.Input.view
-        { disabled = attrs.disabled
+        { small = attrs.small
+        , disabled = attrs.disabled
         , readOnly = attrs.readOnly
         , prefix = attrs.prefix
         , suffix = attrs.suffix
@@ -376,7 +385,8 @@ viewWithValidation attrs_ props =
             toString props.value
     in
     W.Internal.Input.view
-        { disabled = attrs.disabled
+        { small = attrs.small
+        , disabled = attrs.disabled
         , readOnly = attrs.readOnly
         , prefix = attrs.prefix
         , suffix = attrs.suffix

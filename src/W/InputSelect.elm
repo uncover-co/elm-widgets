@@ -1,7 +1,7 @@
 module W.InputSelect exposing
     ( view, viewGroups, viewOptional, viewGroupsOptional
-    , disabled, readOnly
-    , prefix, suffix
+    , autofocus, disabled, readOnly
+    , small, prefix, suffix
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -12,12 +12,12 @@ module W.InputSelect exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Styles
 
-@docs prefix, suffix
+@docs small, prefix, suffix
 
 
 # Html
@@ -47,6 +47,8 @@ type Attribute msg
 type alias Attributes msg =
     { disabled : Bool
     , readOnly : Bool
+    , small : Bool
+    , autofocus : Bool
     , prefix : Maybe (List (H.Html msg))
     , suffix : Maybe (List (H.Html msg))
     , htmlAttributes : List (H.Attribute msg)
@@ -62,6 +64,8 @@ defaultAttrs : Attributes msg
 defaultAttrs =
     { disabled = False
     , readOnly = False
+    , autofocus = False
+    , small = False
     , prefix = Nothing
     , suffix = Nothing
     , htmlAttributes = []
@@ -82,6 +86,18 @@ disabled v =
 readOnly : Bool -> Attribute msg
 readOnly v =
     Attribute <| \attrs -> { attrs | readOnly = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -139,7 +155,8 @@ viewGroups attrs_ props =
                 |> Dict.fromList
     in
     W.Internal.Input.viewWithIcon
-        { prefix = attrs.prefix
+        { small = attrs.small
+        , prefix = attrs.prefix
         , suffix = attrs.suffix
         , disabled = attrs.disabled
         , readOnly = attrs.readOnly
@@ -149,9 +166,10 @@ viewGroups attrs_ props =
         W.Internal.Icons.chevronDown
         (H.select
             (attrs.htmlAttributes
-                ++ [ HA.class W.Internal.Input.baseClass
+                ++ [ HA.class (W.Internal.Input.baseClass attrs.small)
                    , HA.disabled attrs.disabled
                    , HA.readonly attrs.readOnly
+                   , HA.autofocus attrs.autofocus
                    , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
                    , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
                    , HA.placeholder "Select"
