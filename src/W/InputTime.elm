@@ -2,7 +2,7 @@ module W.InputTime exposing
     ( view
     , init, toTime, toTimeZone, toString, Value
     , prefix, suffix
-    , disabled, readOnly
+    , autofocus, disabled, readOnly
     , required, min, max, step
     , viewWithValidation, errorToString, Error(..)
     , onEnter, onFocus, onBlur
@@ -26,7 +26,7 @@ module W.InputTime exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Validation Attributes
@@ -145,6 +145,7 @@ type alias Attributes msg =
     { disabled : Bool
     , readOnly : Bool
     , required : Bool
+    , autofocus : Bool
     , min : Maybe Time.Posix
     , max : Maybe Time.Posix
     , step : Maybe Int
@@ -167,6 +168,7 @@ defaultAttrs =
     { disabled = False
     , readOnly = False
     , required = False
+    , autofocus = False
     , min = Nothing
     , max = Nothing
     , step = Nothing
@@ -199,6 +201,12 @@ readOnly v =
 required : Bool -> Attribute msg
 required v =
     Attribute <| \attrs -> { attrs | required = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
 
 
 {-| -}
@@ -273,6 +281,7 @@ baseAttrs attrs timeZone value =
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
+           , HA.autofocus attrs.autofocus
            , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
            , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
            , WH.maybeAttr HA.min (Maybe.map (valueFromTime timeZone) attrs.min)

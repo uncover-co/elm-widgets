@@ -1,7 +1,7 @@
 module W.InputDate exposing
     ( view
     , init, toDate, toTimeZone, toString, Value
-    , disabled, readOnly
+    , autofocus, disabled, readOnly
     , prefix, suffix
     , min, max, required
     , viewWithValidation, errorToString, Error(..)
@@ -21,7 +21,7 @@ module W.InputDate exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Styles
@@ -146,6 +146,7 @@ type alias Attributes msg =
     , disabled : Bool
     , readOnly : Bool
     , required : Bool
+    , autofocus : Bool
     , min : Maybe Time.Posix
     , max : Maybe Time.Posix
     , prefix : Maybe (List (H.Html msg))
@@ -168,6 +169,7 @@ defaultAttrs =
     , disabled = False
     , readOnly = False
     , required = False
+    , autofocus = False
     , min = Nothing
     , max = Nothing
     , prefix = Nothing
@@ -199,6 +201,12 @@ readOnly v =
 required : Bool -> Attribute msg
 required v =
     Attribute <| \attrs -> { attrs | required = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
 
 
 {-| -}
@@ -271,6 +279,7 @@ baseAttrs attrs (Value valueString timeZone value) =
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
+           , HA.autofocus attrs.autofocus
            , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
            , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
            , WH.maybeAttr HA.min (Maybe.map (valueFromDate timeZone) attrs.min)

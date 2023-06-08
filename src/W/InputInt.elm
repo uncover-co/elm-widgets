@@ -2,7 +2,7 @@ module W.InputInt exposing
     ( view
     , init, toInt, toString, Value
     , placeholder, mask, prefix, suffix
-    , disabled, readOnly
+    , autofocus, disabled, readOnly
     , required, min, max, step, validation
     , viewWithValidation, errorToString, Error(..)
     , onEnter, onFocus, onBlur
@@ -26,7 +26,7 @@ module W.InputInt exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Validation Attributes
@@ -136,6 +136,7 @@ type alias Attributes msg =
     { disabled : Bool
     , readOnly : Bool
     , required : Bool
+    , autofocus : Bool
     , min : Maybe Int
     , max : Maybe Int
     , step : Maybe Int
@@ -161,6 +162,7 @@ defaultAttrs =
     { disabled = False
     , readOnly = False
     , required = False
+    , autofocus = False
     , min = Nothing
     , max = Nothing
     , step = Nothing
@@ -208,6 +210,12 @@ readOnly v =
 required : Bool -> Attribute msg
 required v =
     Attribute <| \attrs -> { attrs | required = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
 
 
 {-| -}
@@ -290,6 +298,7 @@ baseAttrs attrs =
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
+           , HA.autofocus attrs.autofocus
            , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
            , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
            , WH.maybeAttr HA.placeholder attrs.placeholder

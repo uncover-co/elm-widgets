@@ -2,7 +2,7 @@ module W.InputFloat exposing
     ( view
     , init, toFloat, toString, Value
     , placeholder, mask, prefix, suffix
-    , disabled, readOnly
+    , autofocus, disabled, readOnly
     , required, min, max, step, validation
     , viewWithValidation, errorToString, Error(..)
     , onEnter, onFocus, onBlur
@@ -26,7 +26,7 @@ module W.InputFloat exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Validation Attributes
@@ -144,6 +144,7 @@ type alias Attributes msg =
     { disabled : Bool
     , readOnly : Bool
     , required : Bool
+    , autofocus : Bool
     , min : Maybe Float
     , max : Maybe Float
     , validation : Maybe (Maybe Float -> String -> Maybe String)
@@ -169,6 +170,7 @@ defaultAttrs =
     { disabled = False
     , readOnly = False
     , required = False
+    , autofocus = False
     , min = Nothing
     , max = Nothing
     , validation = Nothing
@@ -216,6 +218,12 @@ readOnly v =
 required : Bool -> Attribute msg
 required v =
     Attribute <| \attrs -> { attrs | required = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
 
 
 {-| -}
@@ -297,6 +305,7 @@ baseAttrs attrs =
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
+           , HA.autofocus attrs.autofocus
            , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
            , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
            , WH.maybeAttr HA.min (Maybe.map String.fromFloat attrs.min)

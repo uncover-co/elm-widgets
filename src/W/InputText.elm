@@ -2,7 +2,7 @@ module W.InputText exposing
     ( view
     , email, password, search, telephone, url, numeric, decimal
     , placeholder, mask, prefix, suffix
-    , disabled, readOnly
+    , autofocus, disabled, readOnly
     , onEnter, onFocus, onBlur
     , required, minLength, maxLength, exactLength, pattern, validation
     , viewWithValidation, errorToString, Error(..)
@@ -26,7 +26,7 @@ module W.InputText exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Actions
@@ -146,6 +146,7 @@ type alias Attributes msg =
     , disabled : Bool
     , readOnly : Bool
     , required : Bool
+    , autofocus : Bool
     , minLength : Maybe Int
     , maxLength : Maybe Int
     , pattern : Maybe String
@@ -173,6 +174,7 @@ defaultAttrs =
     , disabled = False
     , readOnly = False
     , required = False
+    , autofocus = False
     , minLength = Nothing
     , maxLength = Nothing
     , pattern = Nothing
@@ -250,6 +252,12 @@ disabled v =
 readOnly : Bool -> Attribute msg
 readOnly v =
     Attribute <| \attrs -> { attrs | readOnly = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
 
 
 {-| -}
@@ -350,6 +358,7 @@ baseAttrs attrs =
            , HA.required attrs.required
            , HA.disabled attrs.disabled
            , HA.readonly attrs.readOnly
+           , HA.autofocus attrs.autofocus
            , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
            , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
            , WH.maybeAttr HA.placeholder attrs.placeholder

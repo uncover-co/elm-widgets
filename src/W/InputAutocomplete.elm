@@ -2,7 +2,7 @@ module W.InputAutocomplete exposing
     ( view, viewSync
     , init, toString, toValue, stringChanged, valueChanged, Value
     , viewCustom, viewSyncCustom, optionsHeader
-    , disabled, readOnly
+    , autofocus, disabled, readOnly
     , placeholder, prefix, suffix
     , required
     , onEnter, onBlur, onFocus
@@ -26,7 +26,7 @@ module W.InputAutocomplete exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Styles
@@ -202,6 +202,7 @@ type alias Attributes msg =
     { disabled : Bool
     , required : Bool
     , readOnly : Bool
+    , autofocus : Bool
     , placeholder : Maybe String
     , prefix : Maybe (List (H.Html msg))
     , suffix : Maybe (List (H.Html msg))
@@ -224,6 +225,7 @@ defaultAttrs =
     { disabled = False
     , required = False
     , readOnly = False
+    , autofocus = False
     , placeholder = Nothing
     , prefix = Nothing
     , suffix = Nothing
@@ -262,6 +264,12 @@ readOnly v =
 required : Bool -> Attribute msg
 required v =
     Attribute <| \attrs -> { attrs | required = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
 
 
 {-| -}
@@ -446,6 +454,7 @@ viewCustom attrs_ props =
                            , WH.attrIf attrs.readOnly (HA.attribute "aria-readonly") "true"
                            , WH.attrIf attrs.disabled (HA.attribute "aria-disabled") "true"
                            , HA.required attrs.required
+                           , HA.autofocus attrs.autofocus
                            , HA.autocomplete False
                            , HA.id props.id
                            , HA.class W.Internal.Input.baseClass

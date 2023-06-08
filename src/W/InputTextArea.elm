@@ -1,7 +1,7 @@
 module W.InputTextArea exposing
     ( view
     , placeholder, resizable, rows, autogrow
-    , disabled, readOnly
+    , autofocus, disabled, readOnly
     , required
     , onBlur, onEnter, onFocus
     , htmlAttrs, noAttr, Attribute
@@ -19,7 +19,7 @@ module W.InputTextArea exposing
 
 # States
 
-@docs disabled, readOnly
+@docs autofocus, disabled, readOnly
 
 
 # Validation Attributes
@@ -53,6 +53,7 @@ type alias Attributes msg =
     { disabled : Bool
     , readOnly : Bool
     , required : Bool
+    , autofocus : Bool
     , resizable : Bool
     , autogrow : Bool
     , rows : Int
@@ -74,6 +75,7 @@ defaultAttrs =
     { disabled = False
     , readOnly = False
     , required = False
+    , autofocus = False
     , placeholder = Nothing
     , resizable = False
     , autogrow = False
@@ -105,6 +107,12 @@ disabled v =
 readOnly : Bool -> Attribute msg
 readOnly v =
     Attribute <| \attrs -> { attrs | readOnly = v }
+
+
+{-| -}
+autofocus : Attribute msg
+autofocus =
+    Attribute <| \attrs -> { attrs | autofocus = True }
 
 
 {-| -}
@@ -200,6 +208,7 @@ view attrs_ props =
                    , HA.required attrs.required
                    , HA.disabled attrs.disabled
                    , HA.readonly attrs.readOnly
+                   , HA.autofocus attrs.autofocus
                    , HA.rows attrs.rows
                    , resizeStyle
                    , HA.value props.value
