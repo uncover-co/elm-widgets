@@ -1,8 +1,8 @@
 module W.Popover exposing
     ( viewNext
-    , showOnHover
+    , showOnHover, persistent
     , top, topRight, bottomRight, left, leftBottom, right, rightBottom
-    , over, offset, full, width
+    , over, offset, full, width, minWidth
     , htmlAttrs, noAttr, Attribute
     , view
     )
@@ -14,7 +14,7 @@ module W.Popover exposing
 
 # Behavior
 
-@docs showOnHover
+@docs showOnHover, persistent
 
 
 # Position
@@ -24,7 +24,7 @@ module W.Popover exposing
 
 # Styles
 
-@docs over, offset, full, width
+@docs over, offset, full, width, minWidth
 
 
 # Html
@@ -72,7 +72,8 @@ type alias Attributes msg =
     , offset : Float
     , full : Bool
     , over : Bool
-    , width : String
+    , persistent : Bool
+    , widthAttr : H.Attribute msg
     , showOnHover : Bool
     , unstyled : Bool
     , htmlAttributes : List (H.Attribute msg)
@@ -90,7 +91,8 @@ defaultAttrs =
     , offset = 0
     , full = False
     , over = False
-    , width = "auto"
+    , persistent = False
+    , widthAttr = HA.style "width" "auto"
     , showOnHover = False
     , unstyled = False
     , htmlAttributes = []
@@ -156,6 +158,12 @@ over =
 
 
 {-| -}
+persistent : Attribute msg
+persistent =
+    Attribute <| \attrs -> { attrs | persistent = True }
+
+
+{-| -}
 full : Bool -> Attribute msg
 full v =
     Attribute <| \attrs -> { attrs | full = v }
@@ -164,7 +172,13 @@ full v =
 {-| -}
 width : Int -> Attribute msg
 width v =
-    Attribute <| \attrs -> { attrs | width = String.fromInt v ++ "px" }
+    Attribute <| \attrs -> { attrs | widthAttr = HA.style "width" (String.fromInt v ++ "px") }
+
+
+{-| -}
+minWidth : Int -> Attribute msg
+minWidth v =
+    Attribute <| \attrs -> { attrs | widthAttr = HA.style "min-width" (String.fromInt v ++ "px") }
 
 
 {-| -}
@@ -311,24 +325,26 @@ view attrs_ props =
     in
     H.div
         [ HA.class "ew-popover ew-inline-flex ew-relative"
-        , HA.classList [ ( "ew-show-on-hover", attrs.showOnHover ) ]
+        , HA.classList
+            [ ( "ew-show-on-hover", attrs.showOnHover )
+            , ( "ew-persistent", attrs.persistent )
+            ]
         ]
-        (props.children
-            ++ [ H.div
-                    (positionAttrs
-                        ++ [ HA.class "ew-popover-content ew-absolute ew-z-[9999]"
-                           , HA.classList [ ( "ew-min-w-full", attrs.over ) ]
-                           ]
-                    )
-                    [ H.div
-                        (attrs.htmlAttributes
-                            ++ [ HA.style "width" attrs.width
-                               , HA.classList
-                                    [ ( "ew-overflow-visible ew-bg-base-bg ew-border-lg ew-border-0.5 ew-border-base-aux/20 ew-shadow", not attrs.unstyled )
-                                    ]
-                               ]
-                        )
-                        props.content
-                    ]
-               ]
-        )
+        [ H.div [ HA.class "ew-popover-trigger ew-w-full" ] props.children
+        , H.div
+            (positionAttrs
+                ++ [ HA.class "ew-popover-content ew-absolute ew-z-[9999]"
+                   , HA.classList [ ( "ew-min-w-full", attrs.over ) ]
+                   ]
+            )
+            [ H.div
+                (attrs.htmlAttributes
+                    ++ [ attrs.widthAttr
+                       , HA.classList
+                            [ ( "ew-overflow-visible ew-bg-base-bg ew-border-lg ew-border-0.5 ew-border-base-aux/20 ew-shadow", not attrs.unstyled )
+                            ]
+                       ]
+                )
+                props.content
+            ]
+        ]

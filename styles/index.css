@@ -244,25 +244,33 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
 /* 
  * ======================================================
  * Popover
+ * 
+ * Using a really small transition on the `visibility`
+ * properties enables the browser to receive an internal
+ * click event before the popover disappears.
+ *
  * ======================================================
  */
 
 .ew-popover-content {
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
+  visibility: hidden;
 }
 .ew-popover-content:hover {
-  pointer-events: auto;
-  opacity: 1;
+  transition: visibility 50ms;
 }
-.ew-popover:focus-within > .ew-popover-content {
-  pointer-events: auto;
-  opacity: 1;
+.ew-popover.ew-persistent:focus-within > .ew-popover-content {
+  visibility: visible;
 }
-.ew-popover.ew-show-on-hover:hover > .ew-popover-content {
-  pointer-events: auto;
-  opacity: 1;
+.ew-popover-trigger:focus-within + .ew-popover-content {
+  visibility: visible;
+  animation: ew-animation-fade 0.4s forwards;
+}
+.ew-popover.ew-show-on-hover .ew-popover-trigger:hover + .ew-popover-content {
+  visibility: visible;
+  animation: ew-animation-fade 0.4s forwards;
+}
+.ew-popover.ew-show-on-hover > .ew-popover-content:hover {
+  visibility: visible;
 }
 
 /* 

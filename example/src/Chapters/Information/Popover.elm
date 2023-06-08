@@ -62,7 +62,7 @@ chapter_ : Chapter x
 chapter_ =
     chapter "Popover"
         |> renderComponentList
-            ([ ( "Bottom", [] )
+            ([ ( "Bottom (Persistent)", [ W.Popover.persistent ] )
              , ( "Bottom Right", [ W.Popover.bottomRight ] )
              , ( "Top", [ W.Popover.top ] )
              , ( "Top Right", [ W.Popover.topRight ] )
