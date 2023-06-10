@@ -162,8 +162,9 @@ view attrs_ children =
         mainAttrs : List (H.Attribute msg)
         mainAttrs =
             [ HA.class "ew-grow ew-flex ew-items-center"
-            , HA.class "ew-w-full ew-p-2 ew-bg-transparent"
+            , HA.class "ew-w-full ew-bg-transparent"
             , HA.class "ew-btn-like ew-text-base ew-text-left ew-font-text ew-text-base-fg"
+            , HA.class "ew-p-2"
             ]
 
         mainClickableClass : H.Attribute msg
@@ -193,12 +194,12 @@ view attrs_ children =
                     H.div mainAttrs
     in
     H.div
-        (HA.class "ew-flex ew-items-center ew-box-border ew-bg-base-bg"
+        (HA.class "ew-flex ew-items-center ew-gap-2 ew-box-border ew-bg-base-bg"
             :: WH.maybeAttr (HA.style "padding" << paddingString) attrs.padding
             :: attrs.htmlAttributes
         )
         [ main_
-            [ WH.maybeHtml (\left_ -> H.div [ HA.class "ew-shrink-0 ew-px-3 ew-py-2 ew-pl-0" ] left_) attrs.left
+            [ WH.maybeHtml (side "ew-pr-2") attrs.left
             , H.div [ HA.class "ew-grow" ]
                 [ WH.maybeHtml (\header_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pb-1" ] header_) attrs.header
                 , H.div [ HA.class "ew ew-data-row-label" ] children
@@ -206,8 +207,16 @@ view attrs_ children =
                 ]
             ]
         , attrs.right
-            |> Maybe.map (\right_ -> H.div [ HA.class "ew-shrink-0 ew-pl-2" ] right_)
+            |> Maybe.map (side "")
             |> Maybe.withDefault (H.text "")
+        ]
+
+
+side : String -> List (H.Html msg) -> H.Html msg
+side extraClass =
+    H.div
+        [ HA.class extraClass
+        , HA.class "ew-shrink-0 ew-flex ew-items-center ew-gap-2"
         ]
 
 

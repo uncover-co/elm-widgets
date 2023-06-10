@@ -109,9 +109,29 @@ chapter_ =
                     ]
                     [ H.text "Label" ]
               )
-            , ( "With Custom Padding"
-              , W.DataRow.view [ W.DataRow.paddingX 44, W.DataRow.paddingY 4 ]
-                    [ H.text "Label"
+            , ( "With Actions + Header + Footer + Left (Custom Padding)"
+              , W.DataRow.view
+                    [ W.DataRow.paddingX 44, W.DataRow.paddingY 4 
+                    , W.DataRow.href "/logAction/#"
+                    , W.DataRow.header [ H.text "Admin" ]
+                    , W.DataRow.footer [ H.text "user@email.com" ]
+                    , W.DataRow.left
+                        [ H.div
+                            [ HA.style "background" "#f5f5f5"
+                            , HA.style "border-radius" "50%"
+                            , HA.style "border" "3px solid #dadada"
+                            , HA.style "width" "20px"
+                            , HA.style "height" "20px"
+                            ]
+                            []
+                        ]
+                    , W.DataRow.right
+                        [ W.Button.view [ W.Button.primary ]
+                            { label = [ H.text "Click me" ]
+                            , onClick = logAction "onClick Action"
+                            }
+                        ]
                     ]
+                    [ H.text "Label" ]
               )
             ]
