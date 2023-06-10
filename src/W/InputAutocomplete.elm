@@ -1,11 +1,11 @@
 module W.InputAutocomplete exposing
     ( view, viewSync
-    , init, toString, toValue, stringChanged, valueChanged, Value
+    , init, reset, toString, toValue, stringChanged, valueChanged, Value
     , viewCustom, viewSyncCustom, optionsHeader
-    , autofocus, disabled, readOnly
+    , isLoading, autofocus, disabled, readOnly
     , small, placeholder, prefix, suffix
     , required
-    , onEnter, onBlur, onFocus
+    , onEnter, onDone, onDelete, onBlur, onFocus
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -16,7 +16,7 @@ module W.InputAutocomplete exposing
 
 # Value
 
-@docs init, toString, toValue, stringChanged, valueChanged, Value
+@docs init, reset, toString, toValue, stringChanged, valueChanged, Value
 
 
 # Custom Rendering
@@ -26,7 +26,7 @@ module W.InputAutocomplete exposing
 
 # States
 
-@docs autofocus, disabled, readOnly
+@docs isLoading, autofocus, disabled, readOnly
 
 
 # Styles
@@ -41,7 +41,7 @@ module W.InputAutocomplete exposing
 
 # Actions
 
-@docs onEnter, onBlur, onFocus
+@docs onEnter, onDone, onDelete, onBlur, onFocus
 
 
 # Html
@@ -109,6 +109,12 @@ toValue (Value data) =
 valueChanged : Value a -> Value a -> Bool
 valueChanged a b =
     toValue a /= toValue b
+
+
+{-| -}
+reset : Value a -> Value a
+reset (Value data) =
+    Value { data | value = Nothing, input = "" }
 
 
 {-| -}
@@ -203,6 +209,7 @@ type alias Attributes msg =
     , required : Bool
     , readOnly : Bool
     , autofocus : Bool
+    , isLoading : Maybe Bool
     , small : Bool
     , placeholder : Maybe String
     , prefix : Maybe (List (H.Html msg))
@@ -210,6 +217,8 @@ type alias Attributes msg =
     , onFocus : Maybe msg
     , onBlur : Maybe msg
     , onEnter : Maybe msg
+    , onDone : Maybe msg
+    , onDelete : Maybe msg
     , htmlAttributes : List (H.Attribute msg)
     , optionsHeader : Maybe (String -> H.Html msg)
     , noFilter : Bool
@@ -227,6 +236,7 @@ defaultAttrs =
     , required = False
     , readOnly = False
     , autofocus = False
+    , isLoading = Nothing
     , small = False
     , placeholder = Nothing
     , prefix = Nothing
@@ -234,6 +244,8 @@ defaultAttrs =
     , onFocus = Nothing
     , onBlur = Nothing
     , onEnter = Nothing
+    , onDone = Nothing
+    , onDelete = Nothing
     , htmlAttributes = []
     , optionsHeader = Nothing
     , noFilter = False
@@ -260,6 +272,13 @@ disabled v =
 readOnly : Bool -> Attribute msg
 readOnly v =
     Attribute <| \attrs -> { attrs | readOnly = v }
+
+
+{-| Control loading state manually. Usually, loading state is displayed when `Nothing` is passed in as options.
+-}
+isLoading : Bool -> Attribute msg
+isLoading v =
+    Attribute <| \attrs -> { attrs | isLoading = Just v }
 
 
 {-| -}
@@ -319,6 +338,18 @@ onFocus v =
 onEnter : msg -> Attribute msg
 onEnter v =
     Attribute <| \attrs -> { attrs | onEnter = Just v }
+
+
+{-| -}
+onDone : msg -> Attribute msg
+onDone v =
+    Attribute <| \attrs -> { attrs | onDone = Just v }
+
+
+{-| -}
+onDelete : msg -> Attribute msg
+onDelete v =
+    Attribute <| \attrs -> { attrs | onDelete = Just v }
 
 
 {-| -}
@@ -450,6 +481,11 @@ viewCustom attrs_ props =
         highlighted : Int
         highlighted =
             modBy (max (List.length options) 1) valueData.highlighted
+
+        showLoading : Bool
+        showLoading =
+            attrs.isLoading
+                |> Maybe.withDefault (props.options == Nothing && valueData.input /= "")
     in
     valueData.input
         |> Html.Lazy.lazy
@@ -478,20 +514,41 @@ viewCustom attrs_ props =
                                         (\key ->
                                             case key of
                                                 "Enter" ->
-                                                    options
-                                                        |> Array.fromList
-                                                        |> Array.get highlighted
-                                                        |> Maybe.map
-                                                            (\value ->
-                                                                Select highlighted value
-                                                                    |> update_
-                                                                    |> D.succeed
-                                                            )
-                                                        |> Maybe.withDefault
-                                                            (attrs.onEnter
-                                                                |> Maybe.map (\msg -> D.succeed msg)
-                                                                |> Maybe.withDefault (D.fail "ignored action")
-                                                            )
+                                                    case ( attrs.onDone, valueData.input ) of
+                                                        ( Just onDone_, "" ) ->
+                                                            D.succeed onDone_
+
+                                                        _ ->
+                                                            options
+                                                                |> Array.fromList
+                                                                |> Array.get highlighted
+                                                                |> Maybe.map
+                                                                    (\value ->
+                                                                        Select highlighted value
+                                                                            |> update_
+                                                                            |> D.succeed
+                                                                    )
+                                                                |> Maybe.withDefault
+                                                                    (attrs.onEnter
+                                                                        |> Maybe.map (\msg -> D.succeed msg)
+                                                                        |> Maybe.withDefault (D.fail "ignored action")
+                                                                    )
+
+                                                "Delete" ->
+                                                    case ( attrs.onDelete, valueData.input ) of
+                                                        ( Just onDelete_, "" ) ->
+                                                            D.succeed onDelete_
+
+                                                        _ ->
+                                                            D.fail "ignored event"
+
+                                                "Backspace" ->
+                                                    case ( attrs.onDelete, valueData.input ) of
+                                                        ( Just onDelete_, "" ) ->
+                                                            D.succeed onDelete_
+
+                                                        _ ->
+                                                            D.fail "ignored event"
 
                                                 "ArrowDown" ->
                                                     ArrowDown
@@ -529,7 +586,7 @@ viewCustom attrs_ props =
             , mask = Nothing
             , maskInput = ""
             }
-            (if props.options == Nothing && valueData.input /= "" then
+            (if showLoading then
                 W.Loading.dots [ W.Loading.size 20 ]
 
              else
@@ -559,7 +616,7 @@ viewCustom attrs_ props =
                                             |> List.indexedMap
                                                 (\index value ->
                                                     W.Menu.viewButton
-                                                        [ W.Menu.selected (valueData.highlighted == index)
+                                                        [ W.Menu.selected (highlighted == index)
                                                         ]
                                                         { label = [ props.toHtml value ]
                                                         , onClick =

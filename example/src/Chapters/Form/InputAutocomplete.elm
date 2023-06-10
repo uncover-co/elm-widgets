@@ -10,7 +10,9 @@ import Json.Decode as D
 import Process
 import Task
 import Time
+import W.Container
 import W.InputAutocomplete
+import W.Tag
 import W.Text
 
 
@@ -36,12 +38,15 @@ type alias Person =
 type alias Model =
     { value : W.InputAutocomplete.Value Person
     , options : Maybe (List Person)
+    , selected : List Person
+    , isLoading : Bool
     , debounceUntil : Maybe Time.Posix
     }
 
 
 type Msg
     = OnInput (W.InputAutocomplete.Value Person)
+    | OnRemoveLast
     | ScheduleGetOptions Time.Posix
     | GetOptions Time.Posix
     | GotOptions (Result Http.Error (List Person))
@@ -55,6 +60,8 @@ init =
             , toString = .name
             }
     , options = Nothing
+    , selected = []
+    , isLoading = False
     , debounceUntil = Nothing
     }
 
@@ -63,14 +70,27 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnInput value ->
-            ( { model | value = value }
-            , if W.InputAutocomplete.stringChanged value model.value then
-                Task.perform ScheduleGetOptions Time.now
+            case W.InputAutocomplete.toValue value of
+                Just person ->
+                    ( { model
+                        | value = W.InputAutocomplete.reset value
+                        , selected = model.selected ++ [ person ]
+                      }
+                    , Cmd.none
+                    )
 
-              else
-                Cmd.none
-            )
+                Nothing ->
+                    ( { model | value = value }
+                    , if W.InputAutocomplete.stringChanged value model.value then
+                        Task.perform ScheduleGetOptions Time.now
 
+                      else
+                        Cmd.none
+                    )
+        OnRemoveLast ->
+            ( { model | selected = model.selected |> List.reverse |> List.drop 1 |> List.reverse }, Cmd.none )
+
+            
         ScheduleGetOptions time ->
             let
                 targetTime : Time.Posix
@@ -80,7 +100,7 @@ update msg model =
                         |> (+) debounceTime
                         |> Time.millisToPosix
             in
-            ( { model | debounceUntil = Just targetTime }
+            ( { model | isLoading = True, debounceUntil = Just targetTime }
             , Process.sleep (toFloat debounceTime)
                 |> Task.map (\_ -> targetTime)
                 |> Task.perform GetOptions
@@ -95,7 +115,7 @@ update msg model =
             case model.debounceUntil of
                 Just target ->
                     if Time.posixToMillis debounce >= Time.posixToMillis target && searchTerm /= "" then
-                        ( { model | options = Nothing }, searchPersons searchTerm )
+                        ( model, searchPersons searchTerm )
 
                     else
                         ( model, Cmd.none )
@@ -106,7 +126,7 @@ update msg model =
         GotOptions result ->
             case result of
                 Ok options ->
-                    ( { model | options = Just options }, Cmd.none )
+                    ( { model | options = Just options, isLoading = False }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -155,80 +175,44 @@ chapter_ =
     chapter "Input Autocomplete"
         |> renderStatefulComponentList
             ([ ( "Default"
-               , \{ value, options } ->
-                    W.InputAutocomplete.view
-                        [ W.InputAutocomplete.placeholder "Search by name…"
-                        ]
-                        { id = "autocomplete-default"
-                        , value = value
-                        , options = options
-                        , onInput = OnInput
-                        }
-               )
-             , ( "Loading"
-               , \{ value } ->
-                    W.InputAutocomplete.view [ W.InputAutocomplete.placeholder "Fetching some options…" ]
-                        { id = "autocomplete-loading"
-                        , value = value
-                        , options = Nothing
-                        , onInput = OnInput
-                        }
-               )
-             , ( "Read Only"
-               , \{ value, options } ->
-                    W.InputAutocomplete.view
-                        [ W.InputAutocomplete.readOnly True
-                        , W.InputAutocomplete.placeholder "You can't touch me"
-                        ]
-                        { id = "autocomplete-read-only"
-                        , value = value
-                        , options = options
-                        , onInput = OnInput
-                        }
-               )
-             , ( "Sync"
-               , \{ value, options } ->
-                    W.InputAutocomplete.view
-                        [ W.InputAutocomplete.placeholder "Search for a number…"
-                        ]
-                        { id = "autocomplete-read-only"
-                        , value = value
-                        , options = options
-                        , onInput = OnInput
-                        }
-               )
-             , ( "Custom Renders"
-               , \{ value, options } ->
-                    W.InputAutocomplete.viewCustom
-                        [ W.InputAutocomplete.placeholder "Search for a number…"
-                        , W.InputAutocomplete.optionsHeader
-                            (\input ->
-                                if input == "" then
-                                    W.Text.view
-                                        [ W.Text.small ]
-                                        [ H.text <| "Please search a number between 0 and 10." ]
+               , \{ value, options, selected, isLoading } ->
+                    W.Container.view
+                        [ W.Container.gap_2 ]
+                        [ selected
+                            |> List.map (\x -> W.Tag.view [] [ H.text x.name ])
+                            |> W.Container.view
+                                [ W.Container.horizontal
+                                , W.Container.gap_2
+                                ]
+                        , W.InputAutocomplete.viewCustom
+                            [ W.InputAutocomplete.placeholder "Search by name…"
+                            , W.InputAutocomplete.isLoading isLoading
+                            , W.InputAutocomplete.onDelete OnRemoveLast
+                            , W.InputAutocomplete.optionsHeader
+                                (\input ->
+                                    if input == "" then
+                                        W.Text.view
+                                            [ W.Text.small ]
+                                            [ H.text <| "Place write a few letters of an indian name." ]
 
-                                else
-                                    W.Text.view
-                                        [ W.Text.small ]
-                                        [ H.text <| "Searching for \"" ++ input ++ "\"..." ]
-                            )
+                                    else
+                                        W.Text.view
+                                            [ W.Text.small ]
+                                            [ H.text <| "Searching for \"" ++ input ++ "\"..." ]
+                                )
+                            ]
+                            { id = "autocomplete-read-only"
+                            , value = value
+                            , options = options
+                            , onInput = OnInput
+                            , toHtml =
+                                \option ->
+                                    H.div []
+                                        [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text option.name ]
+                                        , H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text option.email ]
+                                        ]
+                            }
                         ]
-                        { id = "autocomplete-read-only"
-                        , value = value
-                        , options = options
-                        , onInput = OnInput
-                        , toHtml =
-                            \option ->
-                                H.div []
-                                    [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text option.name ]
-                                    , if Just option == W.InputAutocomplete.toValue value then
-                                        H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text "Active" ]
-
-                                      else
-                                        H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text "Not active" ]
-                                    ]
-                        }
                )
              ]
                 |> List.map viewDoc
