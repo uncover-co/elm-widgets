@@ -598,11 +598,11 @@ viewCustom attrs_ props =
                     , if valueData.focused then
                         H.div
                             [ HA.class "ew-hidden group-focus-within:ew-block hover:ew-block"
-                            , HA.class "ew-absolute ew-top-full ew-left-0 ew-right-0"
+                            , HA.class "ew-absolute ew-top-full ew-mt-2 ew-left-0 ew-right-0"
                             , HA.class "ew-shadow ew-z-10 ew-bg-base-bg"
                             ]
                             [ W.Menu.view
-                                ((case attrs.optionsHeader of
+                                [ case attrs.optionsHeader of
                                     Just optionsHeader_ ->
                                         H.div []
                                             [ H.div [ HA.class "ew-p-3" ] [ optionsHeader_ valueData.input ]
@@ -611,21 +611,21 @@ viewCustom attrs_ props =
 
                                     Nothing ->
                                         H.text ""
-                                 )
-                                    :: (options
-                                            |> List.indexedMap
-                                                (\index value ->
-                                                    W.Menu.viewButton
-                                                        [ W.Menu.selected (highlighted == index)
-                                                        ]
-                                                        { label = [ props.toHtml value ]
-                                                        , onClick =
-                                                            Select index value
-                                                                |> update_
-                                                        }
-                                                )
-                                       )
-                                )
+                                , H.div [ HA.class "ew-overflow-auto ew-max-h-64" ]
+                                    (options
+                                        |> List.indexedMap
+                                            (\index value ->
+                                                W.Menu.viewButton
+                                                    [ W.Menu.selected (highlighted == index)
+                                                    ]
+                                                    { label = [ props.toHtml value ]
+                                                    , onClick =
+                                                        Select index value
+                                                            |> update_
+                                                    }
+                                            )
+                                    )
+                                ]
                             ]
 
                       else

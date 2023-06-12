@@ -61,6 +61,9 @@
 }
 
 @layer utilities {
+  .ew-focusable-reset {
+    @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
+  }
   .ew-focusable {
     @apply ew-transition;
     @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;

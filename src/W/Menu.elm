@@ -318,10 +318,12 @@ baseAttrs attrs =
            , HA.class "ew-m-0 ew-w-full ew-box-border ew-flex ew-items-center ew-content-start"
            , HA.class "ew-text-left ew-text-base ew-text-fg"
            , HA.class "hover:ew-bg-base-aux/[0.07]"
+           , HA.class "focus:ew-bg-base-aux/[0.07]"
            , HA.class "active:ew-bg-base-aux/10"
-           , HA.class "ew-focusable ew-relative focus:ew-z-10"
+           , HA.class "ew-focusable-reset ew-relative focus:ew-z-10"
            , HA.classList
-                [ ( "ew-text-primary-fg ew-bg-primary-fg/10 hover:ew-bg-primary-fg/[0.15] active:ew-bg-primary-fg/20", attrs.selected )
+                [ ( "ew-text-primary-fg ew-bg-primary-fg/10", attrs.selected )
+                , ( "hover:ew-bg-primary-fg/[0.15] focus:ew-bg-primary-fg/[0.15] active:ew-bg-primary-fg/20", attrs.selected )
                 , ( "ew-text-base-fg ew-bg-base-bg", not attrs.selected )
                 , ( "ew-m-disabled", attrs.disabled )
                 ]
