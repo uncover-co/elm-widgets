@@ -87,10 +87,10 @@ update msg model =
                       else
                         Cmd.none
                     )
+
         OnRemoveLast ->
             ( { model | selected = model.selected |> List.reverse |> List.drop 1 |> List.reverse }, Cmd.none )
 
-            
         ScheduleGetOptions time ->
             let
                 targetTime : Time.Posix

@@ -259,15 +259,26 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   visibility: hidden;
 }
 .ew-popover-content:hover {
-  transition: visibility 50ms;
+  transition: visibility 100ms;
 }
-.ew-popover.ew-persistent:focus-within > .ew-popover-content {
-  visibility: visible;
-}
+
 .ew-popover-trigger:focus-within + .ew-popover-content {
   visibility: visible;
   animation: ew-animation-fade 0.4s forwards;
 }
+
+.ew-popover.ew-is-open > .ew-popover-content {
+  visibility: visible;
+  animation: ew-animation-fade 0.4s forwards;
+}
+.ew-popover.ew-is-closed .ew-popover-trigger:focus-within + .ew-popover-content {
+  visibility: hidden;
+}
+
+.ew-popover.ew-persistent:focus-within > .ew-popover-content {
+  visibility: visible;
+}
+
 .ew-popover.ew-show-on-hover .ew-popover-trigger:hover + .ew-popover-content {
   visibility: visible;
   animation: ew-animation-fade 0.4s forwards;

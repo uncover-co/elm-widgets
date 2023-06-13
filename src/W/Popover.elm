@@ -1,5 +1,5 @@
 module W.Popover exposing
-    ( viewNext
+    ( viewNext, viewControlled
     , showOnHover, persistent
     , top, topRight, bottomRight, left, leftBottom, right, rightBottom
     , over, offset, full, width, minWidth
@@ -9,7 +9,7 @@ module W.Popover exposing
 
 {-|
 
-@docs viewNext
+@docs viewNext, viewControlled
 
 
 # Behavior
@@ -73,6 +73,7 @@ type alias Attributes msg =
     , full : Bool
     , over : Bool
     , persistent : Bool
+    , isOpen : Maybe Bool
     , widthAttr : H.Attribute msg
     , showOnHover : Bool
     , unstyled : Bool
@@ -92,6 +93,7 @@ defaultAttrs =
     , full = False
     , over = False
     , persistent = False
+    , isOpen = Nothing
     , widthAttr = HA.style "width" "auto"
     , showOnHover = False
     , unstyled = False
@@ -163,6 +165,11 @@ persistent =
     Attribute <| \attrs -> { attrs | persistent = True }
 
 
+isOpen : Bool -> Attribute msg
+isOpen v =
+    Attribute <| \attrs -> { attrs | isOpen = Just v }
+
+
 {-| -}
 full : Bool -> Attribute msg
 full v =
@@ -213,6 +220,22 @@ viewNext :
     -> H.Html msg
 viewNext attrs props =
     view attrs
+        { content = props.content
+        , children = props.trigger
+        }
+
+
+{-| -}
+viewControlled :
+    List (Attribute msg)
+    ->
+        { isOpen : Bool
+        , content : List (H.Html msg)
+        , trigger : List (H.Html msg)
+        }
+    -> H.Html msg
+viewControlled attrs props =
+    view (isOpen props.isOpen :: attrs)
         { content = props.content
         , children = props.trigger
         }
@@ -325,26 +348,28 @@ view attrs_ props =
     in
     H.div
         [ HA.class "ew-popover ew-inline-flex ew-relative"
-        , HA.classList
-            [ ( "ew-show-on-hover", attrs.showOnHover )
-            , ( "ew-persistent", attrs.persistent )
-            ]
+        , case attrs.isOpen of
+            Just isOpen_ ->
+                HA.classList
+                    [ ( "ew-is-open", isOpen_ )
+                    , ( "ew-is-closed", not isOpen_ )
+                    ]
+
+            Nothing ->
+                HA.classList
+                    [ ( "ew-show-on-hover", attrs.showOnHover )
+                    , ( "ew-persistent", attrs.persistent )
+                    ]
         ]
         [ H.div [ HA.class "ew-popover-trigger ew-w-full" ] props.children
         , H.div
             (positionAttrs
-                ++ [ HA.class "ew-popover-content ew-absolute ew-z-[9999]"
+                ++ [ HA.class "ew-popover-content ew-absolute ew-z-[9999] shrink-0"
                    , HA.classList [ ( "ew-min-w-full", attrs.over ) ]
                    ]
             )
             [ H.div
-                (attrs.htmlAttributes
-                    ++ [ attrs.widthAttr
-                       , HA.classList
-                            [ ( "ew-overflow-visible ew-bg-base-bg ew-border-lg ew-border-0.5 ew-border-base-aux/20 ew-shadow", not attrs.unstyled )
-                            ]
-                       ]
-                )
+                (attrs.htmlAttributes ++ [ attrs.widthAttr, HA.class "ew-overflow-visible" ])
                 props.content
             ]
         ]

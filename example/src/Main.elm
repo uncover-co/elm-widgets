@@ -49,6 +49,7 @@ type alias SharedState =
         { default : Float
         , customColor : Float
         }
+    , popover : Chapters.Information.Popover.Model
     , inputText : Chapters.Form.InputText.Model
     , inputInt : Chapters.Form.InputInt.Model
     , inputFloat : Chapters.Form.InputFloat.Model
@@ -65,6 +66,7 @@ main =
                 , theme = Chapters.Theme.init
                 , autocomplete = Chapters.Form.InputAutocomplete.init
                 , range = Chapters.Form.InputSlider.init
+                , popover = Chapters.Information.Popover.init
                 , inputText = Chapters.Form.InputText.init
                 , inputInt = Chapters.Form.InputInt.init
                 , inputFloat = Chapters.Form.InputFloat.init
