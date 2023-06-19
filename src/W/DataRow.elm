@@ -1,7 +1,7 @@
 module W.DataRow exposing
     ( view, header, footer, left, right
     , href, onClick
-    , padding, paddingX, paddingY, noPadding
+    , noBackground, padding, paddingX, paddingY, noPadding
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -15,9 +15,9 @@ module W.DataRow exposing
 @docs href, onClick
 
 
-# Custom Padding
+# Styles
 
-@docs padding, paddingX, paddingY, noPadding
+@docs noBackground, padding, paddingX, paddingY, noPadding
 
 
 # Html
@@ -49,6 +49,7 @@ type alias Attributes msg =
     , onClick : Maybe msg
     , padding : Maybe { x : Int, y : Int }
     , href : Maybe String
+    , noBackground : Bool
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -67,6 +68,7 @@ defaultAttrs =
     , onClick = Nothing
     , padding = Just { x = 8, y = 8 }
     , href = Nothing
+    , noBackground = False
     , htmlAttributes = []
     }
 
@@ -135,6 +137,12 @@ href v =
     Attribute <| \attrs -> { attrs | href = Just v }
 
 
+{-| -}
+noBackground : Attribute msg
+noBackground =
+    Attribute <| \attrs -> { attrs | noBackground = True }
+
+
 {-| Attributes applied to the parent element.
 -}
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
@@ -194,8 +202,9 @@ view attrs_ children =
                     H.div mainAttrs
     in
     H.div
-        (HA.class "ew-flex ew-items-center ew-gap-2 ew-box-border ew-bg-base-bg"
+        (HA.class "ew-flex ew-items-center ew-gap-2 ew-box-border"
             :: WH.maybeAttr (HA.style "padding" << paddingString) attrs.padding
+            :: HA.classList [ ( "ew-bg-base-bg", not attrs.noBackground ) ]
             :: attrs.htmlAttributes
         )
         [ main_

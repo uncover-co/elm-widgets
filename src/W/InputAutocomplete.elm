@@ -611,7 +611,7 @@ viewCustom attrs_ props =
 
                                     Nothing ->
                                         H.text ""
-                                , H.div [ HA.class "ew-overflow-auto ew-max-h-64" ]
+                                , H.div [ HA.class "ew-overflow-y-auto ew-overflow-x-hidden ew-max-h-64 ew-w-full" ]
                                     (options
                                         |> List.indexedMap
                                             (\index value ->
