@@ -264,12 +264,12 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
 
 .ew-popover-trigger:focus-within + .ew-popover-content {
   visibility: visible;
-  animation: ew-animation-fade 0.4s forwards;
+  animation: ew-animation-fade 0.2s forwards;
 }
 
 .ew-popover.ew-is-open > .ew-popover-content {
   visibility: visible;
-  animation: ew-animation-fade 0.4s forwards;
+  animation: ew-animation-fade 0.2s forwards;
 }
 .ew-popover.ew-is-closed .ew-popover-trigger:focus-within + .ew-popover-content {
   visibility: hidden;
@@ -281,11 +281,62 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
 
 .ew-popover.ew-show-on-hover .ew-popover-trigger:hover + .ew-popover-content {
   visibility: visible;
-  animation: ew-animation-fade 0.4s forwards;
+  animation: ew-animation-fade 0.2s forwards;
 }
 .ew-popover.ew-show-on-hover > .ew-popover-content:hover {
   visibility: visible;
 }
+
+/* 
+ * ======================================================
+ * Modal
+ * ======================================================
+ */
+
+/*
+.ew-modal-toggle:checked + .ew-modal > .ew-modal-background {
+    opacity: 1;
+    pointer-events: auto;
+}
+.ew-modal-toggle:checked + .ew-modal > .ew-modal-content-wrapper {
+    opacity: 1;
+}
+.ew-modal-toggle:checked + .ew-modal > .ew-modal-content-wrapper > .ew-modal-content {
+    opacity: 1;
+    pointer-events: auto;
+    animation: 0.2s ease-out forwards ew-animation-fade-slide-scale;
+}
+
+.ew-modal.ew-modal--is-open > .ew-modal-background {
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.ew-modal.ew-modal--is-open > .ew-modal-content-wrapper, {
+    opacity: 1;
+}
+.ew-modal.ew-modal--is-open > .ew-modal-content-wrapper > .ew-modal-content {
+    opacity: 1;
+    pointer-events: auto;
+}
+*/
+
+.ew-modal.ew-modal--is-open {
+  display: block;
+  opacity: 1;
+}
+.ew-modal-toggle:checked + .ew-modal {
+  display: block;
+  opacity: 1;
+}
+
+.ew-modal.ew-modal--is-open > .ew-modal-content {
+  animation: 0.2s ease-out forwards ew-animation-fade-slide-scale;
+}
+.ew-modal-toggle:checked + .ew-modal > .ew-modal-content {
+  animation: 0.2s ease-out forwards ew-animation-fade-slide-scale;
+}
+
 
 /* 
  * ======================================================

@@ -6,8 +6,10 @@ import Html as H
 import Html.Attributes as HA
 import Theme
 import W.Button
-import W.Modal
 import W.Container
+import W.Modal
+import W.Popover
+import W.Text
 
 
 chapter_ : Chapter x
@@ -18,18 +20,25 @@ chapter_ =
                 [ W.Container.background (Theme.baseAuxWithAlpha 0.07)
                 , W.Container.alignCenterY
                 , W.Container.alignCenterX
-                , W.Container.styleAttrs
-                    [ ( "position", "relative" )
-                    , ( "height", "400px" )
-                    ]
+                , W.Container.styleAttrs [ ( "height", "400px" ) ]
                 ]
 
         content =
             H.div
                 [ HA.style "width" "100%"
                 , HA.style "height" "600px"
+                , HA.style "padding" "8px"
                 ]
-                []
+                [ W.Popover.viewNext 
+                    [ W.Popover.right, W.Popover.width 200 ]
+                    { trigger =
+                        [ W.Button.viewDummy
+                            []
+                            [ H.text "Popovers should be usable inside modals" ]
+                        ]
+                    , content = [ W.Text.view [] [ H.text "This should be visible" ] ]
+                    }
+                ]
     in
     chapter "Modal"
         |> renderComponentList

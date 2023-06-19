@@ -3,6 +3,7 @@ module W.Modal exposing
     , viewToggable, viewToggle
     , absolute, noBlur, zIndex
     , htmlAttrs, noAttr, Attribute
+    , maxWidth
     )
 
 {-|
@@ -41,6 +42,7 @@ If you don't want to manage your modal open state at all, use the toggable versi
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import W.Internal.Icons
 
 
 
@@ -56,6 +58,7 @@ type alias Attributes msg =
     { absolute : Bool
     , zIndex : Int
     , blur : Bool
+    , maxWidth : Int
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -69,7 +72,8 @@ defaultAttrs : Attributes msg
 defaultAttrs =
     { absolute = False
     , zIndex = 1000
-    , blur = False
+    , blur = True
+    , maxWidth = 480
     , htmlAttributes = []
     }
 
@@ -84,6 +88,12 @@ absolute =
 noBlur : Attribute msg
 noBlur =
     Attribute <| \attrs -> { attrs | blur = False }
+
+
+{-| -}
+maxWidth : Int -> Attribute msg
+maxWidth v =
+    Attribute <| \attrs -> { attrs | maxWidth = v }
 
 
 {-| -}
@@ -153,107 +163,87 @@ view_ attrs_ props =
         attrs =
             applyAttrs attrs_
 
-        backgroundAttrs : List (H.Attribute msg)
-        backgroundAttrs =
-            [ HA.class "ew-modal-background ew-block ew-absolute ew-inset-0"
-            , HA.class "ew-transition ew-duration-300"
-            , HA.class "ew-opacity-0 ew-bg-black/30 ew-pointer-events-none"
-            , HA.classList [ ( "ew-backdrop-blur-sm", attrs.blur ) ]
+        closeButtonAttrs : List (H.Attribute msg)
+        closeButtonAttrs =
+            [ HA.class "ew-block"
+            , HA.class "ew-absolute ew-top-2 ew-right-2"
+            , HA.class "ew-bg-base-bg ew-text-base-aux ew-p-2.5 ew-rounded-md"
+            , HA.class "ew-focusable ew-border-0"
+            , HA.class "ew-opacity-50 hover:ew-opacity-100 focus-visible:ew-opacity-100"
+            , HA.class "ew-shadow hover:ew-shadow-lg"
+            , HA.class "ew-transition"
             ]
+
+        closeButton : List (H.Html msg) -> H.Html msg
+        closeButton children =
+            case props of
+                Stateless { id } ->
+                    H.label (HA.for id :: closeButtonAttrs) children
+
+                Stateful { onClose } ->
+                    onClose
+                        |> Maybe.map (\x -> H.button (HE.onClick x :: closeButtonAttrs) children)
+                        |> Maybe.withDefault (H.text "")
+
+        wrapper : H.Html msg
+        wrapper =
+            H.div
+                [ HA.attribute "role" "dialog"
+                , HA.style "z-index" (String.fromInt attrs.zIndex)
+                , HA.class "ew-modal ew-hidden ew-bg-black/30"
+                , HA.class "ew-flex ew-flex-col"
+                , HA.style "overflow-y" "auto"
+                , HA.style "overflow-x" "hidden"
+                , HA.class "ew-py-8 ew-px-12"
+                , if attrs.blur then
+                    HA.style "backdrop-filter" "blur(1px)"
+
+                  else
+                    HA.class ""
+                , HA.classList
+                    [ ( "ew-modal--is-open"
+                      , case props of
+                            Stateful { isOpen } ->
+                                isOpen
+
+                            _ ->
+                                False
+                      )
+                    , ( "ew-absolute ew-inset-0", attrs.absolute )
+                    , ( "ew-fixed ew-inset-0", not attrs.absolute )
+                    ]
+                ]
+                [ closeButton [ W.Internal.Icons.close { size = 10 } ]
+                , H.div
+                    (attrs.htmlAttributes
+                        ++ [ HA.class "ew-modal-content ew-relative ew-opacity-0"
+                           , HA.class "ew-overflow-visible"
+                           , HA.class "ew-m-auto ew-max-w-full ew-shrink-0"
+                           , HA.style "width" (String.fromInt attrs.maxWidth ++ "px")
+                           , HA.class "ew-bg-base-bg ew-shadow-lg ew-rounded-lg"
+                           ]
+                    )
+                    (case props of
+                        Stateless { content } ->
+                            content
+
+                        Stateful { content } ->
+                            content
+                    )
+                ]
     in
-    H.div []
-        [ H.node "style" [] [ H.text toggleStyle ]
-        , case props of
-            Stateless { id } ->
-                H.node
+    case props of
+        Stateless { id } ->
+            H.div []
+                [ H.node
                     "input"
                     [ HA.id id
                     , HA.type_ "checkbox"
                     , HA.class "ew-hidden ew-modal-toggle"
                     ]
                     []
-
-            _ ->
-                H.text ""
-        , H.div
-            [ HA.attribute "role" "dialog"
-            , HA.style "z-index" (String.fromInt attrs.zIndex)
-            , HA.class "ew-modal ew-inset-0 ew-flex ew-flex-col ew-items-center ew-justify-center ew-box-border ew-p-6"
-            , HA.class "ew-pointer-events-none"
-            , HA.classList
-                [ ( "ew-modal--is-open"
-                  , case props of
-                        Stateful { isOpen } ->
-                            isOpen
-
-                        _ ->
-                            False
-                  )
-                , ( "ew-absolute", attrs.absolute )
-                , ( "ew-fixed", not attrs.absolute )
+                , wrapper
                 ]
-            ]
-            [ case props of
-                Stateless { id } ->
-                    H.label
-                        (backgroundAttrs
-                            ++ [ HA.class "ew-focusable-inset hover:ew-bg-black/20"
-                               , HA.for id
-                               ]
-                        )
-                        []
 
-                Stateful { onClose } ->
-                    case onClose of
-                        Just onClose_ ->
-                            H.div
-                                (backgroundAttrs
-                                    ++ [ HA.class "ew-focusable-inset hover:ew-bg-black/20"
-                                       , HE.onClick onClose_
-                                       ]
-                                )
-                                []
-
-                        Nothing ->
-                            H.div backgroundAttrs []
-            , H.div
-                (attrs.htmlAttributes
-                    ++ [ HA.class "ew-modal-content ew-relative"
-                       , HA.class "ew-bg-base-bg ew-shadow-lg ew-rounded-lg"
-                       , HA.class "ew-w-full ew-max-w-md ew-max-h-[80%] ew-overflow-auto"
-                       , HA.class "ew-opacity-0 ew-pointer-events-none"
-                       , HA.class "ew-transition ew-duration-400"
-                       ]
-                )
-                (case props of
-                    Stateless { content } ->
-                        content
-
-                    Stateful { content } ->
-                        content
-                )
-            ]
-        ]
-
-
-
--- Helpers
-
-
-toggleStyle : String
-toggleStyle =
-    """
-.ew-modal-toggle:checked + .ew-modal, .ew-modal.ew-modal--is-open .ew-modal-background {
-    visibility: visible;
-    pointer-events: auto;
-}
-.ew-modal-toggle:checked + .ew-modal .ew-modal-background, .ew-modal.ew-modal--is-open .ew-modal-background {
-    opacity: 1;
-    pointer-events: auto;
-}
-.ew-modal-toggle:checked + .ew-modal .ew-modal-content, .ew-modal.ew-modal--is-open .ew-modal-content {
-    opacity: 1;
-    pointer-events: auto;
-    animation: 0.2s ease-out forwards ew-animation-fade-slide-scale;
-}
-"""
+        _ ->
+            wrapper

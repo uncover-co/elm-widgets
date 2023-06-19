@@ -369,7 +369,12 @@ view attrs_ props =
                    ]
             )
             [ H.div
-                (attrs.htmlAttributes ++ [ attrs.widthAttr, HA.class "ew-overflow-visible" ])
+                (attrs.htmlAttributes
+                    ++ [ attrs.widthAttr
+                       , HA.class "ew-overflow-visible"
+                       , HA.classList [ ( "ew-bg-base-bg ew-border-lg ew-border-0.5 ew-border-base-aux/20 ew-shadow", not attrs.unstyled ) ]
+                       ]
+                )
                 props.content
             ]
         ]
