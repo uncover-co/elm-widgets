@@ -1,9 +1,8 @@
 module W.Modal exposing
     ( view
     , viewToggable, viewToggle
-    , absolute, noBlur, zIndex
+    , absolute, maxWidth, noBlur, zIndex
     , htmlAttrs, noAttr, Attribute
-    , maxWidth
     )
 
 {-|
@@ -30,7 +29,7 @@ If you don't want to manage your modal open state at all, use the toggable versi
 
 # Styles
 
-@docs absolute, noBlur, zIndex
+@docs absolute, maxWidth, noBlur, zIndex
 
 
 # Html
