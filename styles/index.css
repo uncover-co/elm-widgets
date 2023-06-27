@@ -287,6 +287,11 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   visibility: visible;
 }
 
+/* All Popovers are persistent until we can make the non-persistent ones work. */
+.ew-popover:focus-within > .ew-popover-content {
+  visibility: visible;
+}
+
 /* 
  * ======================================================
  * Modal

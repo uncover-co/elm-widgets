@@ -104,7 +104,7 @@ view attrs_ children =
             ++ [ HA.class attrs.class
                , HA.class displayClass
                , HA.class layoutClass_
-               , HA.class "ew-box-border"
+               , HA.class "ew-box-border ew-flex-wrap"
                , styleAttrs_
                ]
         )
