@@ -24,10 +24,10 @@ chapter_ =
                 ]
 
         content =
-            H.div
-                [ HA.style "width" "100%"
-                , HA.style "height" "600px"
-                , HA.style "padding" "8px"
+            W.Container.view
+                [ W.Container.fill
+                , W.Container.pad_4
+                , W.Container.styleAttrs [ ( "height", "600px" ) ]
                 ]
                 [ W.Popover.viewNext 
                     [ W.Popover.right, W.Popover.width 200 ]
