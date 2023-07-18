@@ -164,17 +164,12 @@ view_ attrs_ props =
 
         closeButtonAttrs : List (H.Attribute msg)
         closeButtonAttrs =
-            [ HA.style "z-index" (String.fromInt attrs.zIndex)
-            , HA.class "ew-block ew-top-2 ew-right-2"
-            , HA.class "ew-bg-base-bg ew-text-base-aux ew-p-2.5 ew-rounded-md"
+            [ HA.class "ew-inline-block ew-relative ew-left-9"
+            , HA.class "ew-bg-base-bg ew-text-base-aux ew-p-2 ew-rounded-md"
             , HA.class "ew-focusable ew-border-0"
             , HA.class "ew-opacity-50 hover:ew-opacity-100 focus-visible:ew-opacity-100"
             , HA.class "ew-shadow hover:ew-shadow-lg"
             , HA.class "ew-transition"
-            , HA.classList
-                [ ( "ew-absolute", attrs.absolute )
-                , ( "ew-fixed", not attrs.absolute )
-                ]
             ]
 
         closeButton : List (H.Html msg) -> H.Html msg
@@ -191,51 +186,52 @@ view_ attrs_ props =
         wrapper : H.Html msg
         wrapper =
             H.div
-                []
+                [ HA.attribute "role" "dialog"
+                , HA.style "z-index" (String.fromInt attrs.zIndex)
+                , HA.class "ew-modal ew-hidden ew-bg-black/30"
+                , HA.class "ew-flex ew-flex-col"
+                , HA.style "overflow-y" "auto"
+                , HA.style "overflow-x" "hidden"
+                , HA.class "ew-py-8 ew-px-12"
+                , if attrs.blur then
+                    HA.style "backdrop-filter" "blur(1px)"
+
+                  else
+                    HA.class ""
+                , HA.classList
+                    [ ( "ew-modal--is-open"
+                      , case props of
+                            Stateful { isOpen } ->
+                                isOpen
+
+                            _ ->
+                                False
+                      )
+                    , ( "ew-absolute ew-inset-0", attrs.absolute )
+                    , ( "ew-fixed ew-inset-0", not attrs.absolute )
+                    ]
+                ]
                 [ H.div
-                    [ HA.attribute "role" "dialog"
-                    , HA.style "z-index" (String.fromInt attrs.zIndex)
-                    , HA.class "ew-modal ew-hidden ew-bg-black/30"
-                    , HA.class "ew-flex ew-flex-col"
-                    , HA.style "overflow-y" "auto"
-                    , HA.style "overflow-x" "hidden"
-                    , HA.class "ew-py-8 ew-px-8"
-                    , if attrs.blur then
-                        HA.style "backdrop-filter" "blur(1px)"
-
-                      else
-                        HA.class ""
-                    , HA.classList
-                        [ ( "ew-modal--is-open"
-                          , case props of
-                                Stateful { isOpen } ->
-                                    isOpen
-
-                                _ ->
-                                    False
-                          )
-                        , ( "ew-absolute ew-inset-0", attrs.absolute )
-                        , ( "ew-fixed ew-inset-0", not attrs.absolute )
-                        ]
+                    [ HA.class "ew-sticky ew-top-0 ew-h-0"
+                    , HA.class "ew-overflow-visible ew-text-right"
                     ]
-                    [ H.div
-                        (attrs.htmlAttributes
-                            ++ [ HA.class "ew-modal-content ew-relative ew-opacity-0"
-                               , HA.class "ew-overflow-visible"
-                               , HA.class "ew-m-auto ew-max-w-full ew-shrink-0"
-                               , HA.style "width" (String.fromInt attrs.maxWidth ++ "px")
-                               , HA.class "ew-bg-base-bg ew-shadow-lg ew-rounded-lg"
-                               ]
-                        )
-                        (case props of
-                            Stateless { content } ->
-                                content
+                    [ closeButton [ W.Internal.Icons.close { size = 10 } ] ]
+                , H.div
+                    (attrs.htmlAttributes
+                        ++ [ HA.class "ew-modal-content ew-relative ew-opacity-0"
+                           , HA.class "ew-overflow-visible"
+                           , HA.class "ew-m-auto ew-max-w-full ew-shrink-0"
+                           , HA.style "width" (String.fromInt attrs.maxWidth ++ "px")
+                           , HA.class "ew-bg-base-bg ew-shadow-lg ew-rounded-lg"
+                           ]
+                    )
+                    (case props of
+                        Stateless { content } ->
+                            content
 
-                            Stateful { content } ->
-                                content
-                        )
-                    ]
-                , closeButton [ W.Internal.Icons.close { size = 10 } ]
+                        Stateful { content } ->
+                            content
+                    )
                 ]
     in
     case props of
