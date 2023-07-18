@@ -221,7 +221,7 @@ type alias Attributes msg =
     , onDelete : Maybe msg
     , htmlAttributes : List (H.Attribute msg)
     , optionsHeader : Maybe (String -> H.Html msg)
-    , noFilter : Bool
+    , localFilter : Bool
     }
 
 
@@ -248,7 +248,7 @@ defaultAttrs =
     , onDelete = Nothing
     , htmlAttributes = []
     , optionsHeader = Nothing
-    , noFilter = False
+    , localFilter = False
     }
 
 
@@ -317,9 +317,9 @@ optionsHeader v =
     Attribute <| \attrs -> { attrs | optionsHeader = Just v }
 
 
-noFilter : Attribute msg
-noFilter =
-    Attribute <| \attrs -> { attrs | noFilter = True }
+localFilter : Attribute msg
+localFilter =
+    Attribute <| \attrs -> { attrs | localFilter = True }
 
 
 {-| -}
@@ -400,7 +400,7 @@ viewSyncCustom :
         }
     -> H.Html msg
 viewSyncCustom attrs_ props =
-    viewCustom (noFilter :: attrs_)
+    viewCustom (localFilter :: attrs_)
         { id = props.id
         , value = props.value
         , options = Just props.options
@@ -456,19 +456,9 @@ viewCustom attrs_ props =
         attrs =
             applyAttrs attrs_
 
-        selectedAndUnchanged : Bool
-        selectedAndUnchanged =
-            valueData.value
-                |> Maybe.map (\v -> valueData.toString v == valueData.input)
-                |> Maybe.withDefault False
-
         options : List a
         options =
-            if attrs.noFilter || selectedAndUnchanged then
-                props.options
-                    |> Maybe.withDefault []
-
-            else
+            if attrs.localFilter then
                 let
                     lowerCaseInput : String
                     lowerCaseInput =
@@ -477,6 +467,9 @@ viewCustom attrs_ props =
                 props.options
                     |> Maybe.withDefault []
                     |> List.filter (\o -> String.contains lowerCaseInput (String.toLower (valueData.toString o)))
+
+            else
+                Maybe.withDefault [] props.options
 
         highlighted : Int
         highlighted =

@@ -164,9 +164,8 @@ view_ attrs_ props =
 
         closeButtonAttrs : List (H.Attribute msg)
         closeButtonAttrs =
-            [ HA.class "ew-block"
-            , HA.class "ew-absolute ew-top-2 ew-right-2"
-            , HA.class "ew-bg-base-bg ew-text-base-aux ew-p-2.5 ew-rounded-md"
+            [ HA.class "ew-inline-block ew-relative ew-left-9"
+            , HA.class "ew-bg-base-bg ew-text-base-aux ew-p-2 ew-rounded-md"
             , HA.class "ew-focusable ew-border-0"
             , HA.class "ew-opacity-50 hover:ew-opacity-100 focus-visible:ew-opacity-100"
             , HA.class "ew-shadow hover:ew-shadow-lg"
@@ -212,7 +211,11 @@ view_ attrs_ props =
                     , ( "ew-fixed ew-inset-0", not attrs.absolute )
                     ]
                 ]
-                [ closeButton [ W.Internal.Icons.close { size = 10 } ]
+                [ H.div
+                    [ HA.class "ew-sticky ew-top-0 ew-h-0"
+                    , HA.class "ew-overflow-visible ew-text-right"
+                    ]
+                    [ closeButton [ W.Internal.Icons.close { size = 10 } ] ]
                 , H.div
                     (attrs.htmlAttributes
                         ++ [ HA.class "ew-modal-content ew-relative ew-opacity-0"
