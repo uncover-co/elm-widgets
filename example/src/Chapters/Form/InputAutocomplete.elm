@@ -70,16 +70,20 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnInput value ->
-            case W.InputAutocomplete.toValue value of
-                Just person ->
+            case
+                ( W.InputAutocomplete.valueChanged model.value value
+                , W.InputAutocomplete.toValue value
+                )
+            of
+                ( True, Just person ) ->
                     ( { model
-                        | value = W.InputAutocomplete.reset value
+                        | value = value
                         , selected = model.selected ++ [ person ]
                       }
                     , Cmd.none
                     )
 
-                Nothing ->
+                _ ->
                     ( { model | value = value }
                     , if W.InputAutocomplete.stringChanged value model.value then
                         Task.perform ScheduleGetOptions Time.now
