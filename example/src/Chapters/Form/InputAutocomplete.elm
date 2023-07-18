@@ -29,27 +29,27 @@ debounceTime =
 -- Model & Update
 
 
-type alias Person =
+type alias Author =
     { name : String
-    , email : String
+    , packages : String
     }
 
 
 type alias Model =
-    { value : W.InputAutocomplete.Value Person
-    , options : Maybe (List Person)
-    , selected : List Person
+    { value : W.InputAutocomplete.Value Author
+    , options : Maybe (List Author)
+    , selected : List Author
     , isLoading : Bool
     , debounceUntil : Maybe Time.Posix
     }
 
 
 type Msg
-    = OnInput (W.InputAutocomplete.Value Person)
+    = OnInput (W.InputAutocomplete.Value Author)
     | OnRemoveLast
     | ScheduleGetOptions Time.Posix
     | GetOptions Time.Posix
-    | GotOptions (Result Http.Error (List Person))
+    | GotOptions (Result Http.Error (List Author))
 
 
 init : Model
@@ -115,7 +115,7 @@ update msg model =
             case model.debounceUntil of
                 Just target ->
                     if Time.posixToMillis debounce >= Time.posixToMillis target && searchTerm /= "" then
-                        ( model, searchPersons searchTerm )
+                        ( model, searchAuthors searchTerm )
 
                     else
                         ( model, Cmd.none )
@@ -136,18 +136,29 @@ update msg model =
 {- TODO: Use packages.elm-book.com as a search engine as soon as that is ready. -}
 
 
-searchPersons : String -> Cmd Msg
-searchPersons term =
-    Http.get
-        { url = "https://gorest.co.in/public/v2/users?name=" ++ term
-        , expect =
-            D.map2 Person
-                (D.field "name" D.string)
-                (D.field "email" D.string)
-                |> D.list
-                |> Http.expectJson GotOptions
-        }
+elmAuthors : List Author
+elmAuthors =
+    [ { name = "Elm Dillon Kearns", packages =  "elm-pages, elm-graphql, html-to-elm" }
+    , { name = "Elm Jeroen Mengels", packages =  "elm-review" }
+    , { name = "Elm Matthew Griffith", packages =  "elm-ui, elm-gql" }
+    , { name = "Elm Ryan", packages =  "elm-spa, elm-land" }
+    ]
 
+
+searchAuthors : String -> Cmd Msg
+searchAuthors term =
+    Process.sleep 1000
+    |> Task.andThen (\_ ->
+        elmAuthors
+        |> List.filter (\author -> matches term author.name || matches term author.packages)
+        |> Debug.log "here"
+        |> Task.succeed
+    )
+    |> Task.attempt GotOptions
+
+matches : String -> String -> Bool
+matches a b =
+    String.contains (String.toLower a) (String.toLower b)
 
 
 -- View
@@ -193,7 +204,7 @@ chapter_ =
                                     if input == "" then
                                         W.Text.view
                                             [ W.Text.small ]
-                                            [ H.text <| "Place write a few letters of an indian name." ]
+                                            [ H.text <| "Please write a few letters of an elm author." ]
 
                                     else
                                         W.Text.view
@@ -209,7 +220,7 @@ chapter_ =
                                 \option ->
                                     H.div []
                                         [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text option.name ]
-                                        , H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text option.email ]
+                                        , H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text option.packages ]
                                         ]
                             }
                         ]
