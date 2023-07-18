@@ -1,6 +1,6 @@
 module W.Container exposing
     ( view
-    , vertical, horizontal, inline, fill
+    , vertical, horizontal, inline, noWrap, fill
     , background
     , card, rounded, extraRounded
     , shadow, largeShadow
@@ -25,7 +25,7 @@ module W.Container exposing
 
 # Styles
 
-@docs vertical, horizontal, inline, fill
+@docs vertical, horizontal, inline, noWrap, fill
 @docs background
 @docs card, rounded, extraRounded
 @docs shadow, largeShadow
@@ -89,6 +89,14 @@ view attrs_ children =
             else
                 "ew-flex"
 
+        wrapClass : String
+        wrapClass =
+            if attrs.wrap && attrs.orientation == Horizontal then
+                "ew-flex-wrap"
+
+            else
+                ""
+
         styleAttrs_ : H.Attribute msg
         styleAttrs_ =
             case attrs.background of
@@ -103,8 +111,9 @@ view attrs_ children =
         (attrs.htmlAttributes
             ++ [ HA.class attrs.class
                , HA.class displayClass
+               , HA.class wrapClass
                , HA.class layoutClass_
-               , HA.class "ew-box-border ew-flex-wrap"
+               , HA.class "ew-box-border"
                , styleAttrs_
                ]
         )
@@ -125,6 +134,7 @@ type alias Attributes msg =
     , class : String
     , styles : List ( String, String )
     , inline : Bool
+    , wrap : Bool
     , background : Maybe String
     , orientation : Orientation
     , verticalAlignment : Maybe VerticalAlignment
@@ -139,6 +149,7 @@ defaultAttrs =
     , class = ""
     , styles = []
     , inline = False
+    , wrap = True
     , background = Nothing
     , orientation = Vertical
     , horizontalAlignment = Nothing
@@ -191,6 +202,12 @@ node v =
 inline : Attribute msg
 inline =
     Attribute (\attr -> { attr | inline = True })
+
+
+{-| -}
+noWrap : Attribute msg
+noWrap =
+    Attribute (\attr -> { attr | wrap = False })
 
 
 {-| -}
