@@ -70,26 +70,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnInput value ->
-            case
-                ( W.InputAutocomplete.valueChanged model.value value
-                , W.InputAutocomplete.toValue value
-                )
-            of
-                ( True, Just person ) ->
+            case W.InputAutocomplete.onChange model.value value of
+                Just author ->
                     ( { model
                         | value = value
-                        , selected = model.selected ++ [ person ]
+                        , selected = model.selected ++ [ author ]
                       }
                     , Cmd.none
                     )
 
-                _ ->
+                Nothing ->
                     ( { model | value = value }
-                    , if W.InputAutocomplete.stringChanged value model.value then
-                        Task.perform ScheduleGetOptions Time.now
-
-                      else
-                        Cmd.none
+                    , Task.perform ScheduleGetOptions Time.now
                     )
 
         OnRemoveLast ->
@@ -142,10 +134,14 @@ update msg model =
 
 elmAuthors : List Author
 elmAuthors =
-    [ { name = "Elm Dillon Kearns", packages =  "elm-pages, elm-graphql, html-to-elm" }
-    , { name = "Elm Jeroen Mengels", packages =  "elm-review" }
-    , { name = "Elm Matthew Griffith", packages =  "elm-ui, elm-gql" }
-    , { name = "Elm Ryan", packages =  "elm-spa, elm-land" }
+    [ { name = "Brian Hicks", packages =  "BrianHicks/elm-csv" }
+    , { name = "Dillon Kearns", packages =  "dillonkearns/elm-pages, dillon-kearns/elm-graphql" }
+    , { name = "Evan Czaplicki", packages =  "elm/core" }
+    , { name = "Jakub Hampl", packages =  "gampleman/elm-visualization" }
+    , { name = "Georges Boris", packages =  "dtwrks/elm-book" }
+    , { name = "Jeroen Mengels", packages =  "jfmengels/elm-review" }
+    , { name = "Matthew Griffith", packages =  "mdgriffith/elm-ui, vendrinc/elm-gql" }
+    , { name = "Ryan Haskell-Glatz", packages =  "ryannhg/elm-spa, elm-land" }
     ]
 
 
@@ -155,7 +151,6 @@ searchAuthors term =
     |> Task.andThen (\_ ->
         elmAuthors
         |> List.filter (\author -> matches term author.name || matches term author.packages)
-        |> Debug.log "here"
         |> Task.succeed
     )
     |> Task.attempt GotOptions
@@ -229,6 +224,45 @@ chapter_ =
                             }
                         ]
                )
-             ]
+             , ( "Sync"
+               , \{ value, options, selected, isLoading } ->
+                    W.Container.view
+                        [ W.Container.gap_2 ]
+                        [ selected
+                            |> List.map (\x -> W.Tag.view [] [ H.text x.name ])
+                            |> W.Container.view
+                                [ W.Container.horizontal
+                                , W.Container.gap_2
+                                ]
+                        , W.InputAutocomplete.viewSyncCustom
+                            [ W.InputAutocomplete.placeholder "Search by name…"
+                            , W.InputAutocomplete.isLoading isLoading
+                            , W.InputAutocomplete.onDelete OnRemoveLast
+                            , W.InputAutocomplete.optionsHeader
+                                (\input ->
+                                    if input == "" then
+                                        W.Text.view
+                                            [ W.Text.small ]
+                                            [ H.text <| "Please write a few letters of an elm author." ]
+
+                                    else
+                                        W.Text.view
+                                            [ W.Text.small ]
+                                            [ H.text <| "Searching for \"" ++ input ++ "\"..." ]
+                                )
+                            ]
+                            { id = "autocomplete-read-only"
+                            , value = value
+                            , options = elmAuthors
+                            , onInput = OnInput
+                            , toHtml =
+                                \option ->
+                                    H.div []
+                                        [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text option.name ]
+                                        , H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text option.packages ]
+                                        ]
+                            }
+                        ]
+               )             ]
                 |> List.map viewDoc
             )

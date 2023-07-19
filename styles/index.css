@@ -167,6 +167,22 @@ input[type="search"].ew-input::-webkit-search-results-decoration {
 
 /* 
  * ======================================================
+ * Autocomplete
+ * ======================================================
+ */
+
+.ew-input-autocomplete--options {
+  display: none;
+}
+.ew-input-autocomplete:focus-within + .ew-input-autocomplete--options {
+  display: block;
+}
+.ew-input-autocomplete--options:active { 
+  display: block;
+}
+
+/* 
+ * ======================================================
  * Slider
  * We need to reset global styles here to deal with
  * libraries that change global styles (looking at you elm-ui)
@@ -247,49 +263,40 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
 /* 
  * ======================================================
  * Popover
- * 
- * Using a really small transition on the `visibility`
- * properties enables the browser to receive an internal
- * click event before the popover disappears.
- *
  * ======================================================
  */
 
 .ew-popover-content {
-  visibility: hidden;
-}
-.ew-popover-content:hover {
-  transition: visibility 100ms;
+  display: none;
 }
 
 .ew-popover-trigger:focus-within + .ew-popover-content {
-  visibility: visible;
+  display: block;
   animation: ew-animation-fade 0.2s forwards;
 }
 
 .ew-popover.ew-is-open > .ew-popover-content {
-  visibility: visible;
+  display: block;
   animation: ew-animation-fade 0.2s forwards;
 }
 .ew-popover.ew-is-closed .ew-popover-trigger:focus-within + .ew-popover-content {
-  visibility: hidden;
+  display: none;
 }
 
 .ew-popover.ew-persistent:focus-within > .ew-popover-content {
-  visibility: visible;
+  display: block;
 }
 
 .ew-popover.ew-show-on-hover .ew-popover-trigger:hover + .ew-popover-content {
-  visibility: visible;
+  display: block;
   animation: ew-animation-fade 0.2s forwards;
 }
 .ew-popover.ew-show-on-hover > .ew-popover-content:hover {
-  visibility: visible;
+  display: block;
 }
 
-/* All Popovers are persistent until we can make the non-persistent ones work. */
-.ew-popover:focus-within > .ew-popover-content {
-  visibility: visible;
+.ew-popover-content:active {
+  display: block !important;
 }
 
 /* 
