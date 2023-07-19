@@ -1,13 +1,12 @@
 module W.InputAutocomplete exposing
     ( view, viewSync
-    , init, reset, toString, toValue, stringChanged, valueChanged, Value
+    , init, reset, toString, toValue, onChange, stringChanged, valueChanged, Value
     , viewCustom, viewSyncCustom, optionsHeader
     , isLoading, autofocus, disabled, readOnly
     , small, placeholder, prefix, suffix
     , required
     , onEnter, onDone, onDelete, onBlur, onFocus
     , htmlAttrs, noAttr, Attribute
-    , onChange
     )
 
 {-|
@@ -17,7 +16,7 @@ module W.InputAutocomplete exposing
 
 # Value
 
-@docs init, reset, toString, toValue, stringChanged, valueChanged, Value
+@docs init, reset, toString, toValue, onChange, stringChanged, valueChanged, Value
 
 
 # Custom Rendering
