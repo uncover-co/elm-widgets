@@ -109,8 +109,7 @@ chapter_ =
                                 [ H.text "Toggle Modal"
                                 ]
                             ]
-                        , W.Modal.viewToggable
-                            [ W.Modal.closeOnBackgroundClick ]
+                        , W.Modal.viewToggableWithAutoClose []
                             { id = "my-modal-toggle"
                             , content =
                                 [ W.Container.view

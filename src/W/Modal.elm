@@ -1,9 +1,8 @@
 module W.Modal exposing
     ( view
-    , viewToggable, viewToggle
+    , viewToggle, viewToggable, viewToggableWithAutoClose
     , absolute, maxWidth, noBlur, zIndex
     , htmlAttrs, noAttr, Attribute
-    , closeOnBackgroundClick
     )
 
 {-|
@@ -25,7 +24,7 @@ If you don't want to manage your modal open state at all, use the toggable versi
             [ text "Click here to toggle modal" ]
         ]
 
-@docs viewToggable, viewToggle
+@docs viewToggle, viewToggable, viewToggableWithAutoClose
 
 
 # Styles
@@ -58,7 +57,6 @@ type alias Attributes msg =
     { absolute : Bool
     , zIndex : Int
     , blur : Bool
-    , closeOnBackgroundClick : Bool
     , maxWidth : Int
     , htmlAttributes : List (H.Attribute msg)
     }
@@ -74,7 +72,6 @@ defaultAttrs =
     { absolute = False
     , zIndex = 1000
     , blur = True
-    , closeOnBackgroundClick = False
     , maxWidth = 480
     , htmlAttributes = []
     }
@@ -90,12 +87,6 @@ absolute =
 noBlur : Attribute msg
 noBlur =
     Attribute <| \attrs -> { attrs | blur = False }
-
-
-{-| -}
-closeOnBackgroundClick : Attribute msg
-closeOnBackgroundClick =
-    Attribute <| \attrs -> { attrs | closeOnBackgroundClick = True }
 
 
 {-| -}
@@ -128,7 +119,7 @@ noAttr =
 
 
 type Modal msg
-    = Stateless { id : String, content : List (H.Html msg) }
+    = Stateless { id : String, content : List (H.Html msg), closeOnBackgroundClick : Bool }
     | Stateful { isOpen : Bool, onClose : Maybe msg, content : List (H.Html msg) }
 
 
@@ -157,7 +148,19 @@ viewToggable :
         }
     -> H.Html msg
 viewToggable attrs props =
-    view_ attrs (Stateless props)
+    view_ attrs (Stateless { id = props.id, content = props.content, closeOnBackgroundClick = False })
+
+
+{-| -}
+viewToggableWithAutoClose :
+    List (Attribute msg)
+    ->
+        { id : String
+        , content : List (H.Html msg)
+        }
+    -> H.Html msg
+viewToggableWithAutoClose attrs props =
+    view_ attrs (Stateless { id = props.id, content = props.content, closeOnBackgroundClick = True })
 
 
 {-| -}
@@ -183,29 +186,34 @@ view_ attrs_ props =
 
         statelessClose : H.Html msg
         statelessClose =
-            case ( props, attrs.closeOnBackgroundClick ) of
-                ( Stateless { id }, True ) ->
-                    H.label
-                        [ HA.for id
-                        , HA.class "ew-block"
-                        , HA.class "ew-absolute ew-inset-0"
-                        , HA.style "z-index" (String.fromInt (attrs.zIndex + 1))
-                        ]
-                        []
+            case props of
+                Stateless { id, closeOnBackgroundClick } ->
+                    if closeOnBackgroundClick then
+                        H.label
+                            [ HA.for id
+                            , HA.class "ew-block"
+                            , HA.class "ew-absolute ew-inset-0"
+                            , HA.style "z-index" (String.fromInt (attrs.zIndex + 1))
+                            ]
+                            []
+
+                    else
+                        H.text ""
 
                 _ ->
                     H.text ""
 
         backgroundAttrs : List (H.Attribute msg)
         backgroundAttrs =
-            case ( props, attrs.closeOnBackgroundClick ) of
-                ( Stateless _, True ) ->
-                    [ HA.class "ew-pointer-events-none" ]
+            case props of
+                Stateless { id, closeOnBackgroundClick } ->
+                    if closeOnBackgroundClick then
+                        [ HA.class "ew-pointer-events-none" ]
 
-                ( Stateless _, False ) ->
-                    []
+                    else
+                        []
 
-                ( Stateful { onClose }, _ ) ->
+                Stateful { onClose } ->
                     [ WH.maybeAttr HE.onClick onClose ]
 
         wrapper : H.Html msg
