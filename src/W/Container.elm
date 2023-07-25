@@ -343,7 +343,7 @@ layoutClass attrs =
                             "ew-justify-end"
 
                         Nothing ->
-                            "ew-justify-start"
+                            ""
 
                 xAxis : String
                 xAxis =

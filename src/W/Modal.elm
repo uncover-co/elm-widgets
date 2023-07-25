@@ -41,7 +41,6 @@ If you don't want to manage your modal open state at all, use the toggable versi
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-import W.Internal.Helpers as WH
 
 
 
@@ -133,6 +132,16 @@ toContent modal =
             content
 
 
+toClosable : Modal msg -> Bool
+toClosable modal =
+    case modal of
+        Stateless { closeOnBackgroundClick } ->
+            closeOnBackgroundClick
+
+        Stateful { onClose } ->
+            onClose /= Nothing
+
+
 {-| -}
 viewToggle : String -> List (H.Html msg) -> H.Html msg
 viewToggle id_ content =
@@ -184,8 +193,8 @@ view_ attrs_ props =
         attrs =
             applyAttrs attrs_
 
-        statelessClose : H.Html msg
-        statelessClose =
+        viewCloseTrigger : H.Html msg
+        viewCloseTrigger =
             case props of
                 Stateless { id, closeOnBackgroundClick } ->
                     if closeOnBackgroundClick then
@@ -193,28 +202,23 @@ view_ attrs_ props =
                             [ HA.for id
                             , HA.class "ew-block"
                             , HA.class "ew-absolute ew-inset-0"
-                            , HA.style "z-index" (String.fromInt (attrs.zIndex + 1))
                             ]
                             []
 
                     else
                         H.text ""
 
-                _ ->
-                    H.text ""
-
-        backgroundAttrs : List (H.Attribute msg)
-        backgroundAttrs =
-            case props of
-                Stateless { id, closeOnBackgroundClick } ->
-                    if closeOnBackgroundClick then
-                        [ HA.class "ew-pointer-events-none" ]
-
-                    else
-                        []
-
                 Stateful { onClose } ->
-                    [ WH.maybeAttr HE.onClick onClose ]
+                    case onClose of
+                        Just onClose_ ->
+                            H.label
+                                [ HE.onClick onClose_
+                                , HA.class "ew-absolute ew-inset-0"
+                                ]
+                                []
+
+                        Nothing ->
+                            H.text ""
 
         wrapper : H.Html msg
         wrapper =
@@ -240,16 +244,14 @@ view_ attrs_ props =
                   else
                     HA.class ""
                 ]
-                [ statelessClose
+                [ viewCloseTrigger
                 , H.div
-                    ([ -- Visibility and animations are handled by this class
-                       HA.class "ew-modal-content"
-                     , HA.class "ew-flex ew-absolute ew-inset-0"
-                     , HA.style "overflow-y" "auto"
-                     , HA.style "z-index" (String.fromInt (attrs.zIndex + 2))
-                     ]
-                        ++ backgroundAttrs
-                    )
+                    [ -- Visibility and animations are handled by this class
+                      HA.class "ew-modal-content"
+                    , HA.class "ew-flex ew-absolute ew-inset-0"
+                    , HA.classList [ ( "ew-pointer-events-none", toClosable props ) ]
+                    , HA.style "overflow-y" "auto"
+                    ]
                     [ H.div
                         [ HA.class "ew-relative ew-overflow-visible"
                         , HA.class "ew-m-auto ew-max-w-full ew-p-4"

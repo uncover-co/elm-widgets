@@ -112,7 +112,7 @@ viewWithIcon :
     -> H.Html msg
 viewWithIcon attrs icon input =
     view attrs
-        (H.div [ HA.class "ew-flex ew-items-stretch ew-w-full ew-relative" ]
+        (H.div [ HA.class "ew-flex ew-items-stretch ew-w-full ew-relative ew-pr-8" ]
             [ input
             , iconWrapper "ew-text-base-aux" icon
             ]
