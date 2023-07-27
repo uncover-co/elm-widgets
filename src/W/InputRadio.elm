@@ -138,10 +138,11 @@ view attrs_ props =
     in
     H.div
         [ HA.id props.id
-        , HA.class "ew-flex ew-gap-6"
+        , HA.class "ew-flex"
         , HA.classList
             [ ( "ew-flex-col", attrs.vertical )
-            , ( "", not attrs.vertical )
+            , ( "ew-gap-6", not attrs.small || not attrs.vertical )
+            , ( "ew-gap-4", attrs.small && attrs.vertical )
             ]
         ]
         (props.options
