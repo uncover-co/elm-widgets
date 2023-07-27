@@ -1,8 +1,9 @@
 module W.InputCheckbox exposing
     ( view, viewReadOnly
-    , color, toggle
+    , color, small, toggle
     , disabled, readOnly
     , htmlAttrs, noAttr, Attribute
+    , colorful
     )
 
 {-|
@@ -12,7 +13,7 @@ module W.InputCheckbox exposing
 
 # Styles
 
-@docs color, toggle
+@docs color, small, toggle
 
 
 # States
@@ -43,6 +44,8 @@ type Attribute msg
 
 type alias Attributes msg =
     { color : String
+    , small : Bool
+    , colorful : Bool
     , disabled : Bool
     , readOnly : Bool
     , style : Style
@@ -63,6 +66,8 @@ applyAttrs attrs =
 defaultAttrs : Attributes msg
 defaultAttrs =
     { color = Theme.primaryBackground
+    , small = False
+    , colorful = False
     , disabled = False
     , readOnly = False
     , style = Checkbox
@@ -78,6 +83,18 @@ defaultAttrs =
 color : String -> Attribute msg
 color v =
     Attribute <| \attrs -> { attrs | color = v }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
+
+
+{-| -}
+colorful : Attribute msg
+colorful =
+    Attribute <| \attrs -> { attrs | colorful = True }
 
 
 {-| -}
@@ -125,8 +142,9 @@ baseAttrs attrs_ value =
         ++ [ HA.classList
                 [ ( "ew-toggle", attrs.style == Toggle )
                 , ( "ew-checkbox ew-rounded before:ew-rounded-sm", attrs.style == Checkbox )
+                , ( "ew-small", attrs.small )
+                , ( "ew-colorful", attrs.colorful )
                 ]
-           , HA.style "color" attrs.color
            , Theme.stylesIf
                 [ ( "color", attrs.color, not attrs.disabled )
                 , ( "color", Theme.baseAux, attrs.disabled )

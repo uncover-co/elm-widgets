@@ -33,6 +33,10 @@
     @apply checked:before:ew-scale-100;
     @apply disabled:ew-bg-base-aux/[0.25];
   }
+  .ew-radio.ew-small {
+    @apply ew-appearance-none ew-w-5 ew-h-5;
+    @apply before:ew-w-2.5 before:ew-h-2.5;
+  }
   .ew-checkbox {
     @apply ew-m-0;
     @apply ew-appearance-none ew-w-7 ew-h-7;
@@ -47,12 +51,19 @@
 
     @apply hover:ew-opacity-90 active:ew-opacity-75;
 
-    @apply checked:ew-bg-current checked:ew-border-base-bg/30;
+    @apply checked:ew-bg-current checked:ew-border-0;
     @apply checked:before:ew-block;
 
     @apply disabled:ew-bg-base-aux/[0.25];
 
     @apply focus:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg;
+  }
+  .ew-checkbox.ew-small {
+    @apply ew-appearance-none ew-w-5 ew-h-5;
+    @apply before:ew-w-5 before:ew-h-5;
+  }
+  .ew-checkbox.ew-colorful {
+    @apply ew-border-current;
   }
   .ew-toggle {
     @apply ew-m-0;
@@ -78,6 +89,10 @@
 
     @apply focus-visible:ew-ring focus-visible:ew-border-primary-fg;
     @apply disabled:ew-bg-base-aux/[0.25];
+  }
+  .ew-toggle.ew-small {
+    @apply ew-w-9;
+    @apply before:ew-w-4 before:ew-h-4;
   }
 }
 

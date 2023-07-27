@@ -20,6 +20,17 @@ chapter_ =
                     , onInput = logActionWith String.fromInt "onInput"
                     }
               )
+            , ( "Small"
+              , W.InputRadio.view
+                    [ W.InputRadio.small ]
+                    { id = "default"
+                    , value = 1
+                    , toLabel = String.fromInt
+                    , toValue = String.fromInt
+                    , options = [ 1, 2, 3 ]
+                    , onInput = logActionWith String.fromInt "onInput"
+                    }
+              )
             , ( "Disabled"
               , W.InputRadio.view
                     [ W.InputRadio.disabled True ]
@@ -68,6 +79,17 @@ chapter_ =
                     [ W.InputRadio.vertical True ]
                     { id = "vertical"
                     , value = 2
+                    , toLabel = String.fromInt
+                    , toValue = String.fromInt
+                    , options = [ 1, 2, 3 ]
+                    , onInput = logActionWith String.fromInt "onInput"
+                    }
+              )
+            , ( "Vertical + Small"
+              , W.InputRadio.view
+                    [ W.InputRadio.small, W.InputRadio.vertical True ]
+                    { id = "default"
+                    , value = 1
                     , toLabel = String.fromInt
                     , toValue = String.fromInt
                     , options = [ 1, 2, 3 ]

@@ -3,6 +3,7 @@ module W.InputRadio exposing
     , color
     , disabled, readOnly, vertical
     , htmlAttrs, noAttr, Attribute
+    , small
     )
 
 {-|
@@ -29,6 +30,7 @@ module W.InputRadio exposing
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Theme
 
 
 
@@ -42,6 +44,7 @@ type Attribute msg
 
 type alias Attributes msg =
     { color : String
+    , small : Bool
     , disabled : Bool
     , readOnly : Bool
     , vertical : Bool
@@ -57,6 +60,7 @@ applyAttrs attrs =
 defaultAttrs : Attributes msg
 defaultAttrs =
     { color = "var(--theme-primary-bg)"
+    , small = False
     , disabled = False
     , readOnly = False
     , vertical = False
@@ -72,6 +76,12 @@ defaultAttrs =
 color : String -> Attribute msg
 color v =
     Attribute <| \attrs -> { attrs | color = v }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -145,11 +155,15 @@ view attrs_ props =
                         [ H.input
                             (attrs.htmlAttributes
                                 ++ [ HA.class "ew-radio ew-rounded-full before:ew-rounded-full"
-                                   , HA.style "color" attrs.color
                                    , HA.type_ "radio"
                                    , HA.name props.id
                                    , HA.value (props.toValue a)
                                    , HA.checked (a == props.value)
+                                   , HA.classList [ ( "ew-small", attrs.small ) ]
+                                   , Theme.stylesIf
+                                        [ ( "color", attrs.color, not attrs.disabled )
+                                        , ( "color", Theme.baseBackground, attrs.disabled )
+                                        ]
 
                                    -- Fallback since read only is not respected for radio inputs
                                    , HA.disabled (attrs.disabled || attrs.readOnly)
