@@ -17,7 +17,14 @@ chapter_ =
                     , onInput = logActionWithBool "onInput"
                     }
               )
-            , ( "Disabled"
+            , ( "Disabled (Checked)"
+              , W.InputCheckbox.view
+                    [ W.InputCheckbox.disabled True ]
+                    { value = True
+                    , onInput = logActionWithBool "onInput"
+                    }
+              )
+            , ( "Disabled (Unchecked)"
               , W.InputCheckbox.view
                     [ W.InputCheckbox.disabled True ]
                     { value = False

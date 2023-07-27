@@ -124,9 +124,14 @@ baseAttrs attrs_ value =
     attrs.htmlAttributes
         ++ [ HA.classList
                 [ ( "ew-toggle", attrs.style == Toggle )
-                , ( "ew-check-radio ew-rounded before:ew-rounded-sm", attrs.style == Checkbox )
+                , ( "ew-checkbox ew-rounded before:ew-rounded-sm", attrs.style == Checkbox )
                 ]
            , HA.style "color" attrs.color
+           , Theme.stylesIf
+                [ ( "color", attrs.color, not attrs.disabled )
+                , ( "color", Theme.baseAux, attrs.disabled )
+                , ( "--fg-color", Theme.baseBackground, True )
+                ]
            , HA.type_ "checkbox"
            , HA.checked value
 

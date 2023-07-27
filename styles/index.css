@@ -15,7 +15,7 @@
     @apply ew-appearance-none ew-no-underline;
     @apply ew-box-border ew-rounded-lg ew-border-0;
   }
-  .ew-check-radio {
+  .ew-radio {
     @apply ew-m-0;
     @apply ew-appearance-none ew-w-7 ew-h-7;
     @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
@@ -32,6 +32,27 @@
     @apply focus:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg;
     @apply checked:before:ew-scale-100;
     @apply disabled:ew-bg-base-aux/[0.25];
+  }
+  .ew-checkbox {
+    @apply ew-m-0;
+    @apply ew-appearance-none ew-w-7 ew-h-7;
+    @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
+    @apply ew-bg-base-bg ew-shadow-none;
+    @apply ew-inline-flex ew-items-center ew-justify-center;
+    @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
+
+    @apply before:ew-hidden;
+    @apply before:ew-content-[""];
+    @apply before:ew-w-7 before:ew-h-7;
+
+    @apply hover:ew-opacity-90 active:ew-opacity-75;
+
+    @apply checked:ew-bg-current checked:ew-border-base-bg/30;
+    @apply checked:before:ew-block;
+
+    @apply disabled:ew-bg-base-aux/[0.25];
+
+    @apply focus:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg;
   }
   .ew-toggle {
     @apply ew-m-0;
@@ -107,6 +128,11 @@
  * Input Reset and Icons
  * ======================================================
  */
+
+.ew-input-with-icon input,
+.ew-input-with-icon select {
+  padding-right: 42px;
+}
 
 /* Color */
 
@@ -349,6 +375,18 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   animation: 0.2s ease-out forwards ew-animation-fade-slide-scale;
 }
 
+/* 
+ * ======================================================
+ * Checkbox
+ * ======================================================
+ */
+
+.ew-checkbox::before {
+  background-image: linear-gradient(-45deg,transparent 65%,currentColor 65.99%), linear-gradient(45deg,transparent 75%,currentColor 75.99%), linear-gradient(-45deg,currentColor 40%,transparent 40.99%), linear-gradient(45deg,currentColor 30%,var(--fg-color) 30.99%,var(--fg-color) 40%,transparent 40.99%), linear-gradient(-45deg,var(--fg-color) 50%,currentColor 50.99%);
+}
+.ew-checkbox:disabled::before {
+  opacity: 0.4;
+}
 
 /* 
  * ======================================================

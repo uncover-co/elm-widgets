@@ -144,7 +144,7 @@ view attrs_ props =
                         ]
                         [ H.input
                             (attrs.htmlAttributes
-                                ++ [ HA.class "ew-check-radio ew-rounded-full before:ew-rounded-full"
+                                ++ [ HA.class "ew-radio ew-rounded-full before:ew-rounded-full"
                                    , HA.style "color" attrs.color
                                    , HA.type_ "radio"
                                    , HA.name props.id
