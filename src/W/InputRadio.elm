@@ -1,9 +1,8 @@
 module W.InputRadio exposing
     ( view
-    , color
+    , color, small
     , disabled, readOnly, vertical
     , htmlAttrs, noAttr, Attribute
-    , small
     )
 
 {-|
@@ -13,7 +12,7 @@ module W.InputRadio exposing
 
 # Styles
 
-@docs color
+@docs color, small
 
 
 # States

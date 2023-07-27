@@ -1,9 +1,8 @@
 module W.InputCheckbox exposing
     ( view, viewReadOnly
-    , color, small, toggle
+    , color, colorful, small, toggle
     , disabled, readOnly
     , htmlAttrs, noAttr, Attribute
-    , colorful
     )
 
 {-|
@@ -13,7 +12,7 @@ module W.InputCheckbox exposing
 
 # Styles
 
-@docs color, small, toggle
+@docs color, colorful, small, toggle
 
 
 # States

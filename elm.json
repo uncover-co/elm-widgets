@@ -3,7 +3,7 @@
     "name": "uncover-co/elm-widgets",
     "summary": "A collection of stateless, themable widgets for Elm applications.",
     "license": "MPL-2.0",
-    "version": "2.12.1",
+    "version": "2.13.0",
     "exposed-modules": [
         "W.Badge",
         "W.Button",
