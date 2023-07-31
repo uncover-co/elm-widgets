@@ -144,11 +144,6 @@
  * ======================================================
  */
 
-.ew-input-with-icon input,
-.ew-input-with-icon select {
-  padding-right: 42px;
-}
-
 /* Color */
 
 input[type="color"].ew-input-color::-webkit-color-swatch-wrapper,
@@ -156,19 +151,35 @@ input[type="color"].ew-input-color::-webkit-color-swatch {
   display: none;
 }
 
+/*
+ * TODO: Fix custom icons.
+ * I haven't yet found a way to properly deal with custom icons + padding behaviors on all browsers.
+ * Until then, I'm disabling custom icons on elements that have browser native icons on ANY browser.
+ */
+
+.ew-input-icon {
+  display: none;
+}
+
 /* Select, Time, Date, Autocomplete */
+
+/*
 
 .ew-input input::-ms-expand {
   display: none;
 }
 .ew-input input::-webkit-calendar-picker-indicator {
+  color: transparent;
   background-image: none;
   opacity: 0;
 }
 .ew-input input::-webkit-time-picker-indicator {
+  color: transparent;
   background-image: none;
   opacity: 0;
 }
+
+*/
 
 .ew-input select option {
   color: var(--theme-base-fg);
@@ -198,6 +209,8 @@ input[type="color"].ew-input-color::-webkit-color-swatch {
 
 /* Search */
 
+/*
+
 input[type="search"].ew-input,
 input[type="search"].ew-input::-webkit-search-decoration,
 input[type="search"].ew-input::-webkit-search-cancel-button,
@@ -205,6 +218,8 @@ input[type="search"].ew-input::-webkit-search-results-button,
 input[type="search"].ew-input::-webkit-search-results-decoration {
   -webkit-appearance:none;
 }
+
+*/
 
 /* 
  * ======================================================
