@@ -77,9 +77,9 @@ chapter_ =
                                     case validation of
                                         Ok f ->
                                             f
-                                            |> Maybe.map (String.fromFloat)
-                                            |> Maybe.withDefault "Nothing"
-                                            |> H.text
+                                                |> Maybe.map String.fromFloat
+                                                |> Maybe.withDefault "Nothing"
+                                                |> H.text
 
                                         Err errors ->
                                             H.div

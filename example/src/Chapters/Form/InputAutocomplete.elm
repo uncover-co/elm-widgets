@@ -134,30 +134,33 @@ update msg model =
 
 elmAuthors : List Author
 elmAuthors =
-    [ { name = "Brian Hicks", packages =  "BrianHicks/elm-csv" }
-    , { name = "Dillon Kearns", packages =  "dillonkearns/elm-pages, dillon-kearns/elm-graphql" }
-    , { name = "Evan Czaplicki", packages =  "elm/core" }
-    , { name = "Jakub Hampl", packages =  "gampleman/elm-visualization" }
-    , { name = "Georges Boris", packages =  "dtwrks/elm-book" }
-    , { name = "Jeroen Mengels", packages =  "jfmengels/elm-review" }
-    , { name = "Matthew Griffith", packages =  "mdgriffith/elm-ui, vendrinc/elm-gql" }
-    , { name = "Ryan Haskell-Glatz", packages =  "ryannhg/elm-spa, elm-land" }
+    [ { name = "Brian Hicks", packages = "BrianHicks/elm-csv" }
+    , { name = "Dillon Kearns", packages = "dillonkearns/elm-pages, dillon-kearns/elm-graphql" }
+    , { name = "Evan Czaplicki", packages = "elm/core" }
+    , { name = "Jakub Hampl", packages = "gampleman/elm-visualization" }
+    , { name = "Georges Boris", packages = "dtwrks/elm-book" }
+    , { name = "Jeroen Mengels", packages = "jfmengels/elm-review" }
+    , { name = "Matthew Griffith", packages = "mdgriffith/elm-ui, vendrinc/elm-gql" }
+    , { name = "Ryan Haskell-Glatz", packages = "ryannhg/elm-spa, elm-land" }
     ]
 
 
 searchAuthors : String -> Cmd Msg
 searchAuthors term =
     Process.sleep 1000
-    |> Task.andThen (\_ ->
-        elmAuthors
-        |> List.filter (\author -> matches term author.name || matches term author.packages)
-        |> Task.succeed
-    )
-    |> Task.attempt GotOptions
+        |> Task.andThen
+            (\_ ->
+                elmAuthors
+                    |> List.filter (\author -> matches term author.name || matches term author.packages)
+                    |> Task.succeed
+            )
+        |> Task.attempt GotOptions
+
 
 matches : String -> String -> Bool
 matches a b =
     String.contains (String.toLower a) (String.toLower b)
+
 
 
 -- View
@@ -263,6 +266,7 @@ chapter_ =
                                         ]
                             }
                         ]
-               )             ]
+               )
+             ]
                 |> List.map viewDoc
             )

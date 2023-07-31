@@ -1,6 +1,5 @@
 module Chapters.Form.InputTime exposing (chapter_)
 
-
 import ElmBook
 import ElmBook.Actions exposing (logAction)
 import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, withComponentList)
@@ -10,12 +9,13 @@ import W.InputTime
 
 logValue : W.InputTime.Value -> ElmBook.Msg x
 logValue value =
-    case (W.InputTime.toTime value) of
+    case W.InputTime.toTime value of
         Just v_ ->
             logAction ("Just " ++ String.fromInt (Time.toHour (W.InputTime.toTimeZone value) v_) ++ ":" ++ String.fromInt (Time.toMinute (W.InputTime.toTimeZone value) v_) ++ ":" ++ String.fromInt (Time.toSecond (W.InputTime.toTimeZone value) v_))
 
         Nothing ->
             logAction "Nothing"
+
 
 chapter_ : Chapter x
 chapter_ =

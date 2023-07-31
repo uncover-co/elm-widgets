@@ -30,7 +30,7 @@ chapter_ =
                 , W.Container.pad_4
                 , W.Container.styleAttrs [ ( "height", "600px" ) ]
                 ]
-                [ W.Popover.viewNext 
+                [ W.Popover.viewNext
                     [ W.Popover.right, W.Popover.offset 4, W.Popover.width 100 ]
                     { trigger =
                         [ W.Button.viewDummy

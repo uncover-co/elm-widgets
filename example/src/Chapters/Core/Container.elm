@@ -1,9 +1,9 @@
 module Chapters.Core.Container exposing (..)
 
-import ElmBook.Chapter exposing (Chapter, chapter, withComponentList, renderWithComponentList)
+import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, withComponentList)
 import Html as H
-import W.Container
 import Theme
+import W.Container
 
 
 square : H.Html msg
@@ -14,6 +14,7 @@ square =
         , W.Container.extraRounded
         ]
         []
+
 
 chapter_ : Chapter x
 chapter_ =
@@ -27,7 +28,7 @@ chapter_ =
                     , W.Container.background (Theme.baseAuxWithAlpha 0.1)
                     ]
                     (List.repeat 3 square)
-                )
+              )
             , ( "Horizontal + Space between elements"
               , W.Container.view
                     [ W.Container.pad_8

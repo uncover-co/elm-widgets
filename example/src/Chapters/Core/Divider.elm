@@ -1,6 +1,6 @@
 module Chapters.Core.Divider exposing (..)
 
-import ElmBook.Chapter exposing (Chapter, chapter, withComponentList, renderWithComponentList)
+import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, withComponentList)
 import Html as H
 import Html.Attributes as HA
 import W.Divider

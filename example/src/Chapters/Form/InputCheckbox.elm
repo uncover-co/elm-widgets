@@ -2,10 +2,10 @@ module Chapters.Form.InputCheckbox exposing (..)
 
 import ElmBook.Actions exposing (logActionWithBool)
 import ElmBook.Chapter exposing (Chapter, chapter, renderComponentList)
-import W.Container
-import W.InputCheckbox
 import Html as H
 import Html.Attributes as HA
+import W.Container
+import W.InputCheckbox
 
 
 chapter_ : Chapter x

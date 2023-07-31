@@ -64,7 +64,7 @@ init =
 type Msg
     = OnInputMask (Result (List W.InputText.Error) String) String
     | OnSelect Role
-    | OnSelectTime (W.InputTime.Value)
+    | OnSelectTime W.InputTime.Value
 
 
 update : Msg -> Model -> Model
