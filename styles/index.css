@@ -477,6 +477,10 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   padding-right: 12px;
 }
 
+.ew-table-group-header td {
+  padding: 16px 6px;
+}
+
 /* 
  * ======================================================
  * Animations

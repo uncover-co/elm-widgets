@@ -305,7 +305,9 @@ toGroupedRows groupBy_ data =
 viewGroupHeader : String -> Attributes msg a -> List (Column msg a) -> List a -> H.Html msg
 viewGroupHeader label _ columns data =
     H.tr
-        [ HA.class "ew-p-0 ew-font-semibold" ]
+        [ HA.class "ew-table-group-header"
+        , HA.class "ew-p-0 ew-font-semibold ew-bg-base-aux/[0.07]"
+        ]
         (columns
             |> List.map
                 (\(Column col) ->
@@ -338,13 +340,13 @@ viewTableRow attrs columns datum =
         [ HA.class "ew-p-0"
         , if attrs.highlight datum then
             HA.classList
-                [ ( "ew-bg-base-aux/[0.07]", True )
-                , ( "hover:ew-bg-base-aux/10", attrs.onClick /= Nothing )
+                [ ( "ew-bg-base-aux/10", True )
+                , ( "hover:ew-bg-base-aux/[0.07]", attrs.onClick /= Nothing )
                 ]
 
           else
             HA.classList
-                [ ( "hover:ew-bg-base-aux/[0.07]", attrs.onClick /= Nothing )
+                [ ( "hover:ew-bg-base-aux/[0.04]", attrs.onClick /= Nothing )
                 ]
         , WH.maybeAttr (\onClick_ -> HE.onClick (onClick_ datum)) attrs.onClick
         , WH.maybeAttr (\onMouseEnter_ -> HE.onMouseEnter (onMouseEnter_ datum)) attrs.onMouseEnter
