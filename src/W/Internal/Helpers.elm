@@ -8,6 +8,7 @@ module W.Internal.Helpers exposing
     , nearestFloats
     , nearestInts
     , onEnter
+    , or
     , stringIf
     , styles
     )
@@ -85,6 +86,15 @@ onEnter msg =
 
 
 -- Basics
+
+
+or : a -> a -> Bool -> a
+or a b cond =
+    if cond then
+        a
+
+    else
+        b
 
 
 keepIf : Bool -> Maybe a -> Maybe a

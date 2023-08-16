@@ -2,9 +2,9 @@ module W.Table exposing
     ( view
     , column, string, int, float, bool, Column
     , alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
-    , groupBy, groupValue, groupLabel
-    , highlight
     , onClick, onMouseEnter, onMouseLeave
+    , groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
+    , highlight
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -23,19 +23,19 @@ module W.Table exposing
 @docs alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
 
 
+# Actions
+
+@docs onClick, onMouseEnter, onMouseLeave
+
+
 # Groups
 
-@docs groupBy, groupValue, groupLabel
+@docs groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
 
 
 # Table Attributes
 
 @docs highlight
-
-
-# Actions
-
-@docs onClick, onMouseEnter, onMouseLeave
 
 
 # Html
@@ -63,10 +63,15 @@ type Attribute msg a
 
 type alias Attributes msg a =
     { groupBy : Maybe (a -> String)
+    , groupSortBy : List ( String, a, List a ) -> List ( String, a, List a )
+    , groupCollapsed : Maybe (a -> String -> Bool)
     , highlight : a -> Bool
     , onClick : Maybe (a -> msg)
     , onMouseEnter : Maybe (a -> msg)
     , onMouseLeave : Maybe msg
+    , onGroupClick : Maybe (a -> msg)
+    , onGroupMouseEnter : Maybe (a -> msg)
+    , onGroupMouseLeave : Maybe msg
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -79,10 +84,15 @@ applyAttrs attrs =
 defaultAttrs : Attributes msg a
 defaultAttrs =
     { groupBy = Nothing
+    , groupSortBy = identity
+    , groupCollapsed = Nothing
     , highlight = \_ -> False
     , onClick = Nothing
     , onMouseEnter = Nothing
     , onMouseLeave = Nothing
+    , onGroupClick = Nothing
+    , onGroupMouseEnter = Nothing
+    , onGroupMouseLeave = Nothing
     , htmlAttributes = []
     }
 
@@ -94,9 +104,27 @@ groupBy v =
 
 
 {-| -}
+groupSortBy : (a -> String -> comparable) -> Attribute msg a
+groupSortBy fn =
+    Attribute (\attrs -> { attrs | groupSortBy = List.sortBy (\( l, a, _ ) -> fn a l) })
+
+
+{-| -}
+groupCollapsed : (a -> String -> Bool) -> Attribute msg a
+groupCollapsed fn =
+    Attribute (\attrs -> { attrs | groupCollapsed = Just fn })
+
+
+{-| -}
 highlight : (a -> Bool) -> Attribute msg a
 highlight v =
     Attribute (\attrs -> { attrs | highlight = v })
+
+
+{-| -}
+onClick : (a -> msg) -> Attribute msg a
+onClick v =
+    Attribute (\attrs -> { attrs | onClick = Just v })
 
 
 {-| -}
@@ -112,9 +140,21 @@ onMouseLeave v =
 
 
 {-| -}
-onClick : (a -> msg) -> Attribute msg a
-onClick v =
-    Attribute (\attrs -> { attrs | onClick = Just v })
+onGroupClick : (a -> msg) -> Attribute msg a
+onGroupClick v =
+    Attribute (\attrs -> { attrs | onGroupClick = Just v })
+
+
+{-| -}
+onGroupMouseEnter : (a -> msg) -> Attribute msg a
+onGroupMouseEnter v =
+    Attribute (\attrs -> { attrs | onGroupMouseEnter = Just v })
+
+
+{-| -}
+onGroupMouseLeave : msg -> Attribute msg a
+onGroupMouseLeave v =
+    Attribute (\attrs -> { attrs | onGroupMouseLeave = Just v })
 
 
 {-| -}
@@ -150,7 +190,7 @@ type alias ColumnAttributes msg a =
     , width : H.Attribute msg
     , largeScreenOnly : Bool
     , toHtml : a -> H.Html msg
-    , toGroup : Maybe (String -> List a -> H.Html msg)
+    , toGroup : Maybe (String -> a -> List a -> H.Html msg)
     , htmlAttributes : List (H.Attribute msg)
     }
 
@@ -220,14 +260,20 @@ largeScreenOnly =
 
 {-| -}
 groupValue : (String -> List a -> H.Html msg) -> ColumnAttribute msg a
-groupValue v =
-    ColumnAttribute (\attrs -> { attrs | toGroup = Just v })
+groupValue fn =
+    ColumnAttribute (\attrs -> { attrs | toGroup = Just (\x _ xs -> fn x xs) })
+
+
+{-| -}
+groupValueCustom : (a -> List a -> H.Html msg) -> ColumnAttribute msg a
+groupValueCustom fn =
+    ColumnAttribute (\attrs -> { attrs | toGroup = Just (\_ x xs -> fn x xs) })
 
 
 {-| -}
 groupLabel : ColumnAttribute msg a
 groupLabel =
-    ColumnAttribute (\attrs -> { attrs | toGroup = Just (\label _ -> H.text label) })
+    ColumnAttribute (\attrs -> { attrs | toGroup = Just (\label _ _ -> H.text label) })
 
 
 
@@ -247,10 +293,18 @@ view attrs_ columns data =
             case attrs.groupBy of
                 Just groupBy_ ->
                     data
-                        |> toGroupedRows groupBy_
+                        |> toGroupedRows attrs groupBy_
                         |> List.concatMap
-                            (\( k, groupRows ) ->
-                                viewGroupHeader k attrs columns groupRows
+                            (\( groupLabel_, groupItem, groupItems ) ->
+                                let
+                                    groupRows : List a
+                                    groupRows =
+                                        attrs.groupCollapsed
+                                            |> Maybe.map (\fn -> fn groupItem groupLabel_)
+                                            |> Maybe.withDefault False
+                                            |> WH.or [] groupItems
+                                in
+                                viewGroupHeader attrs columns groupLabel_ groupItem groupItems
                                     :: List.map (viewTableRow attrs columns) groupRows
                             )
 
@@ -277,8 +331,8 @@ view attrs_ columns data =
         ]
 
 
-toGroupedRows : (a -> String) -> List a -> List ( String, List a )
-toGroupedRows groupBy_ data =
+toGroupedRows : Attributes msg a -> (a -> String) -> List a -> List ( String, a, List a )
+toGroupedRows attrs groupBy_ data =
     data
         |> List.foldl
             (\row acc ->
@@ -290,23 +344,31 @@ toGroupedRows groupBy_ data =
                 Dict.update key
                     (\items ->
                         case items of
-                            Just items_ ->
-                                Just (items_ ++ [ row ])
+                            Just ( a, items_ ) ->
+                                Just ( a, items_ ++ [ row ] )
 
                             Nothing ->
-                                Just [ row ]
+                                Just ( row, [ row ] )
                     )
                     acc
             )
             Dict.empty
         |> Dict.toList
+        |> List.map (\( label, ( a, items ) ) -> ( label, a, items ))
+        |> attrs.groupSortBy
 
 
-viewGroupHeader : String -> Attributes msg a -> List (Column msg a) -> List a -> H.Html msg
-viewGroupHeader label _ columns data =
+viewGroupHeader : Attributes msg a -> List (Column msg a) -> String -> a -> List a -> H.Html msg
+viewGroupHeader attrs columns groupLabel_ groupItem groupColumns =
     H.tr
         [ HA.class "ew-table-group-header"
         , HA.class "ew-p-0 ew-font-semibold ew-bg-base-aux/[0.07]"
+        , WH.maybeAttr (\fn -> HE.onClick (fn groupItem)) attrs.onGroupClick
+        , WH.maybeAttr (\fn -> HE.onMouseEnter (fn groupItem)) attrs.onGroupMouseEnter
+        , WH.maybeAttr HE.onMouseEnter attrs.onGroupMouseLeave
+        , HA.classList
+            [ ( "hover:ew-bg-base-aux/10 active:ew-bg-base-aux/[0.07]", attrs.onGroupClick /= Nothing )
+            ]
         ]
         (columns
             |> List.map
@@ -317,7 +379,7 @@ viewGroupHeader label _ columns data =
                             ++ [ HA.class "ew-shrink-0 ew-m-0 ew-break-words" ]
                         )
                         [ col.toGroup
-                            |> Maybe.map (\fn -> fn label data)
+                            |> Maybe.map (\fn -> fn groupLabel_ groupItem groupColumns)
                             |> Maybe.withDefault (H.text "")
                         ]
                 )
@@ -341,12 +403,12 @@ viewTableRow attrs columns datum =
         , if attrs.highlight datum then
             HA.classList
                 [ ( "ew-bg-base-aux/10", True )
-                , ( "hover:ew-bg-base-aux/[0.07]", attrs.onClick /= Nothing )
+                , ( "hover:ew-bg-base-aux/[0.07] active:ew-bg-base-aux/10", attrs.onClick /= Nothing )
                 ]
 
           else
             HA.classList
-                [ ( "hover:ew-bg-base-aux/[0.04]", attrs.onClick /= Nothing )
+                [ ( "hover:ew-bg-base-aux/[0.04] active:ew-bg-base-aux/[0.07]", attrs.onClick /= Nothing )
                 ]
         , WH.maybeAttr (\onClick_ -> HE.onClick (onClick_ datum)) attrs.onClick
         , WH.maybeAttr (\onMouseEnter_ -> HE.onMouseEnter (onMouseEnter_ datum)) attrs.onMouseEnter

@@ -71,8 +71,11 @@ chapter_ =
               )
             , ( "Groups"
               , W.Table.view
-                    [ W.Table.onClick (logActionWithString "onClick" << .name)
-                    , W.Table.groupBy .name
+                    [ W.Table.groupBy .name
+                    , W.Table.groupCollapsed (\_ n -> n == "Janine Bonfadini")
+                    , W.Table.onGroupClick (logActionWithString "onGroupClick" << .name)
+                    , W.Table.onGroupMouseEnter (logActionWithString "onGroupMouseEnter" << .name)
+                    , W.Table.onGroupMouseLeave (logAction "onGroupMouseLeave")
                     , W.Table.htmlAttrs [ HA.style "max-height" "400px" ]
                     ]
                     [ W.Table.column
