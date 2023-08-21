@@ -55,6 +55,9 @@ chapter_ =
             [ ( "Single"
               , W.InputField.view [] props
               )
+            , ( "Single without Padding"
+              , W.InputField.view [ W.InputField.padding 0 ] props
+              )
             , ( "Group + Status"
               , H.div []
                     [ W.InputField.view [] props
