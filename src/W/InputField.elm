@@ -1,6 +1,6 @@
 module W.InputField exposing
     ( view, hint
-    , alignRight
+    , alignRight, padding
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -11,7 +11,7 @@ module W.InputField exposing
 
 # Styles
 
-@docs alignRight
+@docs alignRight, padding
 
 
 # Html
@@ -37,6 +37,7 @@ type alias Attributes msg =
     { alignRight : Bool
     , hint : Maybe (List (H.Html msg))
     , htmlAttributes : List (H.Attribute msg)
+    , padding : Int
     }
 
 
@@ -50,6 +51,7 @@ defaultAttrs =
     { alignRight = False
     , hint = Nothing
     , htmlAttributes = []
+    , padding = 16
     }
 
 
@@ -77,6 +79,12 @@ htmlAttrs v =
 
 
 {-| -}
+padding : Int -> Attribute msg
+padding v =
+    Attribute <| \attrs -> { attrs | padding = v }
+
+
+{-| -}
 noAttr : Attribute msg
 noAttr =
     Attribute identity
@@ -101,8 +109,10 @@ view attrs_ props =
             applyAttrs attrs_
     in
     H.section
-        (HA.class "ew-p-4 ew-bg-base-bg ew-font-text"
-            :: attrs.htmlAttributes
+        ([ HA.class "ew-bg-base-bg ew-font-text"
+         , HA.style "padding" (String.fromInt attrs.padding)
+         ]
+            ++ attrs.htmlAttributes
         )
         [ H.div
             [ HA.classList [ ( "ew-flex ew-items-start ew-justify-between", attrs.alignRight ) ]
