@@ -1,6 +1,7 @@
 module W.Internal.Helpers exposing
     ( attrIf
     , formatFloat
+    , formatPx
     , keepIf
     , limitString
     , maybeAttr
@@ -9,6 +10,7 @@ module W.Internal.Helpers exposing
     , nearestInts
     , onEnter
     , or
+    , paddingXY
     , stringIf
     , styles
     )
@@ -171,3 +173,13 @@ formatFloat step value =
                     _ ->
                         ""
            )
+
+
+formatPx : Int -> String
+formatPx value =
+    String.fromInt value ++ "px"
+
+
+paddingXY : { x : Int, y : Int } -> String
+paddingXY { x, y } =
+    formatPx y ++ " " ++ formatPx x

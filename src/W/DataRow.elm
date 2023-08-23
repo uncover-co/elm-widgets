@@ -205,7 +205,7 @@ view attrs_ children =
             , HA.class "ew-w-full ew-bg-transparent"
             , HA.class "ew-btn-like ew-text-base ew-text-left ew-font-text ew-text-base-fg"
             , HA.class "ew-p-2"
-            , HA.style "gap" (px attrs.gap)
+            , HA.style "gap" (WH.formatPx attrs.gap)
             ]
 
         mainClickableClass : H.Attribute msg
@@ -252,8 +252,8 @@ view attrs_ children =
     in
     H.div
         (HA.class "ew-flex ew-items-center ew-gap-2 ew-box-border"
-            :: HA.style "gap" (px attrs.gap)
-            :: WH.maybeAttr (HA.style "padding" << paddingString) attrs.padding
+            :: HA.style "gap" (WH.formatPx attrs.gap)
+            :: WH.maybeAttr (HA.style "padding" << WH.paddingXY) attrs.padding
             :: HA.classList [ ( "ew-bg-base-bg", not attrs.noBackground ) ]
             :: attrs.htmlAttributes
         )
@@ -325,13 +325,8 @@ side : Int -> List (H.Html msg) -> H.Html msg
 side innerGap_ =
     H.div
         [ HA.class "ew-shrink-0 ew-flex ew-items-center ew-gap-2"
-        , HA.style "gap" (px innerGap_)
+        , HA.style "gap" (WH.formatPx innerGap_)
         ]
-
-
-paddingString : { x : Int, y : Int } -> String
-paddingString { x, y } =
-    px y ++ " " ++ px x
 
 
 ifNotEmpty : (List (H.Html msg) -> Attribute msg) -> List (H.Html msg) -> Attribute msg
@@ -342,8 +337,3 @@ ifNotEmpty attr xs =
 
         _ ->
             attr xs
-
-
-px : Int -> String
-px v =
-    String.fromInt v ++ "px"
