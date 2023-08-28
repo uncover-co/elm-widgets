@@ -1,7 +1,8 @@
 module W.DataRow exposing
     ( view, header, footer, left, right
-    , href, onClick
-    , noBackground, padding, paddingX, paddingY, noPadding
+    , viewNext, viewNextExtra
+    , href, onClick, noLeftClick
+    , noBackground, gap, innerGap, padding, paddingX, paddingY, noPadding
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -10,14 +11,21 @@ module W.DataRow exposing
 @docs view, header, footer, left, right
 
 
+# Next API
+
+This will be the only API available on the next major release.
+
+@docs viewNext, viewNextExtra
+
+
 # Actions
 
-@docs href, onClick
+@docs href, onClick, noLeftClick
 
 
 # Styles
 
-@docs noBackground, padding, paddingX, paddingY, noPadding
+@docs noBackground, gap, innerGap, padding, paddingX, paddingY, noPadding
 
 
 # Html
@@ -47,7 +55,10 @@ type alias Attributes msg =
     , left : Maybe (List (H.Html msg))
     , right : Maybe (List (H.Html msg))
     , onClick : Maybe msg
+    , noLeftClick : Bool
     , padding : Maybe { x : Int, y : Int }
+    , gap : Int
+    , innerGap : Int
     , href : Maybe String
     , noBackground : Bool
     , htmlAttributes : List (H.Attribute msg)
@@ -66,7 +77,10 @@ defaultAttrs =
     , left = Nothing
     , right = Nothing
     , onClick = Nothing
+    , noLeftClick = False
     , padding = Just { x = 8, y = 8 }
+    , gap = 8
+    , innerGap = 8
     , href = Nothing
     , noBackground = False
     , htmlAttributes = []
@@ -108,6 +122,12 @@ onClick v =
 
 
 {-| -}
+noLeftClick : Attribute msg
+noLeftClick =
+    Attribute <| \attrs -> { attrs | noLeftClick = True }
+
+
+{-| -}
 noPadding : Attribute msg
 noPadding =
     Attribute <| \attrs -> { attrs | padding = Nothing }
@@ -129,6 +149,18 @@ paddingX v =
 paddingY : Int -> Attribute msg
 paddingY v =
     Attribute <| \attrs -> { attrs | padding = Maybe.map (\p -> { p | y = v }) attrs.padding }
+
+
+{-| -}
+gap : Int -> Attribute msg
+gap v =
+    Attribute <| \attrs -> { attrs | gap = v }
+
+
+{-| -}
+innerGap : Int -> Attribute msg
+innerGap v =
+    Attribute <| \attrs -> { attrs | innerGap = v }
 
 
 {-| -}
@@ -173,11 +205,28 @@ view attrs_ children =
             , HA.class "ew-w-full ew-bg-transparent"
             , HA.class "ew-btn-like ew-text-base ew-text-left ew-font-text ew-text-base-fg"
             , HA.class "ew-p-2"
+            , HA.style "gap" (WH.formatPx attrs.gap)
             ]
 
         mainClickableClass : H.Attribute msg
         mainClickableClass =
             HA.class "ew-focusable hover:ew-bg-base-aux/[0.07] active:ew-bg-base-aux/10"
+
+        left_ : H.Html msg
+        left_ =
+            if attrs.noLeftClick then
+                WH.maybeHtml (side attrs.innerGap) attrs.left
+
+            else
+                H.text ""
+
+        mainLeft : H.Html msg
+        mainLeft =
+            if attrs.noLeftClick then
+                H.text ""
+
+            else
+                WH.maybeHtml (side attrs.innerGap) attrs.left
 
         main_ : List (H.Html msg) -> H.Html msg
         main_ =
@@ -203,32 +252,88 @@ view attrs_ children =
     in
     H.div
         (HA.class "ew-flex ew-items-center ew-gap-2 ew-box-border"
-            :: WH.maybeAttr (HA.style "padding" << paddingString) attrs.padding
+            :: HA.style "gap" (WH.formatPx attrs.gap)
+            :: WH.maybeAttr (HA.style "padding" << WH.paddingXY) attrs.padding
             :: HA.classList [ ( "ew-bg-base-bg", not attrs.noBackground ) ]
             :: attrs.htmlAttributes
         )
-        [ main_
-            [ WH.maybeHtml (side "ew-pr-2") attrs.left
+        [ left_
+        , main_
+            [ mainLeft
             , H.div [ HA.class "ew-grow" ]
                 [ WH.maybeHtml (\header_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pb-1" ] header_) attrs.header
                 , H.div [ HA.class "ew ew-data-row-label" ] children
                 , WH.maybeHtml (\footer_ -> H.div [ HA.class "ew-text-sm ew-text-base-aux ew-pt-0.5" ] footer_) attrs.footer
                 ]
             ]
-        , attrs.right
-            |> Maybe.map (side "")
-            |> Maybe.withDefault (H.text "")
+        , WH.maybeHtml (side attrs.innerGap) attrs.right
         ]
 
 
-side : String -> List (H.Html msg) -> H.Html msg
-side extraClass =
+
+-- Next API
+-- TODO: Make the only one on the next release.
+
+
+{-| -}
+viewNext :
+    List (Attribute msg)
+    ->
+        { left : List (H.Html msg)
+        , main : List (H.Html msg)
+        , right : List (H.Html msg)
+        }
+    -> H.Html msg
+viewNext attrs_ props =
+    view
+        (attrs_
+            ++ [ ifNotEmpty left props.left
+               , ifNotEmpty right props.right
+               ]
+        )
+        props.main
+
+
+{-| -}
+viewNextExtra :
+    List (Attribute msg)
+    ->
+        { left : List (H.Html msg)
+        , header : List (H.Html msg)
+        , main : List (H.Html msg)
+        , footer : List (H.Html msg)
+        , right : List (H.Html msg)
+        }
+    -> H.Html msg
+viewNextExtra attrs_ props =
+    view
+        (attrs_
+            ++ [ ifNotEmpty left props.left
+               , ifNotEmpty right props.right
+               , header props.header
+               , footer props.footer
+               ]
+        )
+        props.main
+
+
+
+-- Helpers
+
+
+side : Int -> List (H.Html msg) -> H.Html msg
+side innerGap_ =
     H.div
-        [ HA.class extraClass
-        , HA.class "ew-shrink-0 ew-flex ew-items-center ew-gap-2"
+        [ HA.class "ew-shrink-0 ew-flex ew-items-center ew-gap-2"
+        , HA.style "gap" (WH.formatPx innerGap_)
         ]
 
 
-paddingString : { x : Int, y : Int } -> String
-paddingString { x, y } =
-    String.fromInt y ++ "px " ++ String.fromInt x ++ "px"
+ifNotEmpty : (List (H.Html msg) -> Attribute msg) -> List (H.Html msg) -> Attribute msg
+ifNotEmpty attr xs =
+    case xs of
+        [] ->
+            noAttr
+
+        _ ->
+            attr xs

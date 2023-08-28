@@ -1,6 +1,5 @@
 module Chapters.Form.InputDate exposing (chapter_)
 
-
 import Date
 import ElmBook
 import ElmBook.Actions exposing (logAction)
@@ -11,7 +10,7 @@ import W.InputDate
 
 logValue : W.InputDate.Value -> ElmBook.Msg x
 logValue value =
-    case (W.InputDate.toDate value) of
+    case W.InputDate.toDate value of
         Just v_ ->
             logAction
                 ("Just "

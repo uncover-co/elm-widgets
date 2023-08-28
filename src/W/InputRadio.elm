@@ -1,6 +1,6 @@
 module W.InputRadio exposing
     ( view
-    , color
+    , color, small
     , disabled, readOnly, vertical
     , htmlAttrs, noAttr, Attribute
     )
@@ -12,7 +12,7 @@ module W.InputRadio exposing
 
 # Styles
 
-@docs color
+@docs color, small
 
 
 # States
@@ -29,6 +29,7 @@ module W.InputRadio exposing
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Theme
 
 
 
@@ -42,6 +43,7 @@ type Attribute msg
 
 type alias Attributes msg =
     { color : String
+    , small : Bool
     , disabled : Bool
     , readOnly : Bool
     , vertical : Bool
@@ -57,6 +59,7 @@ applyAttrs attrs =
 defaultAttrs : Attributes msg
 defaultAttrs =
     { color = "var(--theme-primary-bg)"
+    , small = False
     , disabled = False
     , readOnly = False
     , vertical = False
@@ -72,6 +75,12 @@ defaultAttrs =
 color : String -> Attribute msg
 color v =
     Attribute <| \attrs -> { attrs | color = v }
+
+
+{-| -}
+small : Attribute msg
+small =
+    Attribute <| \attrs -> { attrs | small = True }
 
 
 {-| -}
@@ -129,10 +138,11 @@ view attrs_ props =
     in
     H.div
         [ HA.id props.id
-        , HA.class "ew-flex ew-gap-6"
+        , HA.class "ew-flex"
         , HA.classList
             [ ( "ew-flex-col", attrs.vertical )
-            , ( "", not attrs.vertical )
+            , ( "ew-gap-6", not attrs.small || not attrs.vertical )
+            , ( "ew-gap-4", attrs.small && attrs.vertical )
             ]
         ]
         (props.options
@@ -144,12 +154,16 @@ view attrs_ props =
                         ]
                         [ H.input
                             (attrs.htmlAttributes
-                                ++ [ HA.class "ew-check-radio ew-rounded-full before:ew-rounded-full"
-                                   , HA.style "color" attrs.color
+                                ++ [ HA.class "ew-radio ew-rounded-full before:ew-rounded-full"
                                    , HA.type_ "radio"
                                    , HA.name props.id
                                    , HA.value (props.toValue a)
                                    , HA.checked (a == props.value)
+                                   , HA.classList [ ( "ew-small", attrs.small ) ]
+                                   , Theme.stylesIf
+                                        [ ( "color", attrs.color, not attrs.disabled )
+                                        , ( "color", Theme.baseBackground, attrs.disabled )
+                                        ]
 
                                    -- Fallback since read only is not respected for radio inputs
                                    , HA.disabled (attrs.disabled || attrs.readOnly)

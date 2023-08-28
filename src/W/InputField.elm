@@ -1,6 +1,7 @@
 module W.InputField exposing
     ( view, hint
     , alignRight
+    , padding, paddingX, paddingY, noPadding
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -14,6 +15,11 @@ module W.InputField exposing
 @docs alignRight
 
 
+# Padding
+
+@docs padding, paddingX, paddingY, noPadding
+
+
 # Html
 
 @docs htmlAttrs, noAttr, Attribute
@@ -22,6 +28,7 @@ module W.InputField exposing
 
 import Html as H
 import Html.Attributes as HA
+import W.Internal.Helpers as WH
 
 
 
@@ -37,6 +44,7 @@ type alias Attributes msg =
     { alignRight : Bool
     , hint : Maybe (List (H.Html msg))
     , htmlAttributes : List (H.Attribute msg)
+    , padding : Maybe { x : Int, y : Int }
     }
 
 
@@ -50,6 +58,7 @@ defaultAttrs =
     { alignRight = False
     , hint = Nothing
     , htmlAttributes = []
+    , padding = Just { x = 16, y = 16 }
     }
 
 
@@ -77,6 +86,30 @@ htmlAttrs v =
 
 
 {-| -}
+noPadding : Attribute msg
+noPadding =
+    Attribute <| \attrs -> { attrs | padding = Nothing }
+
+
+{-| -}
+padding : Int -> Attribute msg
+padding v =
+    Attribute <| \attrs -> { attrs | padding = Just { x = v, y = v } }
+
+
+{-| -}
+paddingX : Int -> Attribute msg
+paddingX v =
+    Attribute <| \attrs -> { attrs | padding = Maybe.map (\p -> { p | x = v }) attrs.padding }
+
+
+{-| -}
+paddingY : Int -> Attribute msg
+paddingY v =
+    Attribute <| \attrs -> { attrs | padding = Maybe.map (\p -> { p | y = v }) attrs.padding }
+
+
+{-| -}
 noAttr : Attribute msg
 noAttr =
     Attribute identity
@@ -101,7 +134,8 @@ view attrs_ props =
             applyAttrs attrs_
     in
     H.section
-        (HA.class "ew-p-4 ew-bg-base-bg ew-font-text"
+        (HA.class "ew-bg-base-bg ew-font-text"
+            :: WH.maybeAttr (HA.style "padding" << WH.paddingXY) attrs.padding
             :: attrs.htmlAttributes
         )
         [ H.div

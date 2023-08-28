@@ -64,7 +64,7 @@ init =
 type Msg
     = OnInputMask (Result (List W.InputText.Error) String) String
     | OnSelect Role
-    | OnSelectTime (W.InputTime.Value)
+    | OnSelectTime W.InputTime.Value
 
 
 update : Msg -> Model -> Model
@@ -109,10 +109,11 @@ chapter_ =
                                 [ H.text "Toggle Modal"
                                 ]
                             ]
-                        , W.Modal.viewToggable []
+                        , W.Modal.viewToggableWithAutoClose []
                             { id = "my-modal-toggle"
                             , content =
-                                [ W.Container.view [ W.Container.pad_8, W.Container.gap_2 ]
+                                [ W.Container.view
+                                    [ W.Container.pad_8, W.Container.gap_2 ]
                                     [ W.Heading.view [ W.Heading.alignCenter, W.Heading.primary ] [ H.text "Oh no... a modal package?" ]
                                     , W.Text.view [ W.Text.alignCenter ] [ H.text "Don't worry! No messages were harmed in the toggling of this modal!" ]
                                     ]

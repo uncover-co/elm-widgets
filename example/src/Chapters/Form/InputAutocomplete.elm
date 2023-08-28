@@ -29,27 +29,27 @@ debounceTime =
 -- Model & Update
 
 
-type alias Person =
+type alias Author =
     { name : String
-    , email : String
+    , packages : String
     }
 
 
 type alias Model =
-    { value : W.InputAutocomplete.Value Person
-    , options : Maybe (List Person)
-    , selected : List Person
+    { value : W.InputAutocomplete.Value Author
+    , options : Maybe (List Author)
+    , selected : List Author
     , isLoading : Bool
     , debounceUntil : Maybe Time.Posix
     }
 
 
 type Msg
-    = OnInput (W.InputAutocomplete.Value Person)
+    = OnInput (W.InputAutocomplete.Value Author)
     | OnRemoveLast
     | ScheduleGetOptions Time.Posix
     | GetOptions Time.Posix
-    | GotOptions (Result Http.Error (List Person))
+    | GotOptions (Result Http.Error (List Author))
 
 
 init : Model
@@ -70,22 +70,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnInput value ->
-            case W.InputAutocomplete.toValue value of
-                Just person ->
+            case W.InputAutocomplete.onChange model.value value of
+                Just author ->
                     ( { model
-                        | value = W.InputAutocomplete.reset value
-                        , selected = model.selected ++ [ person ]
+                        | value = value
+                        , selected = model.selected ++ [ author ]
                       }
                     , Cmd.none
                     )
 
                 Nothing ->
                     ( { model | value = value }
-                    , if W.InputAutocomplete.stringChanged value model.value then
-                        Task.perform ScheduleGetOptions Time.now
-
-                      else
-                        Cmd.none
+                    , Task.perform ScheduleGetOptions Time.now
                     )
 
         OnRemoveLast ->
@@ -115,7 +111,7 @@ update msg model =
             case model.debounceUntil of
                 Just target ->
                     if Time.posixToMillis debounce >= Time.posixToMillis target && searchTerm /= "" then
-                        ( model, searchPersons searchTerm )
+                        ( model, searchAuthors searchTerm )
 
                     else
                         ( model, Cmd.none )
@@ -136,17 +132,34 @@ update msg model =
 {- TODO: Use packages.elm-book.com as a search engine as soon as that is ready. -}
 
 
-searchPersons : String -> Cmd Msg
-searchPersons term =
-    Http.get
-        { url = "https://gorest.co.in/public/v2/users?name=" ++ term
-        , expect =
-            D.map2 Person
-                (D.field "name" D.string)
-                (D.field "email" D.string)
-                |> D.list
-                |> Http.expectJson GotOptions
-        }
+elmAuthors : List Author
+elmAuthors =
+    [ { name = "Brian Hicks", packages = "BrianHicks/elm-csv" }
+    , { name = "Dillon Kearns", packages = "dillonkearns/elm-pages, dillon-kearns/elm-graphql" }
+    , { name = "Evan Czaplicki", packages = "elm/core" }
+    , { name = "Jakub Hampl", packages = "gampleman/elm-visualization" }
+    , { name = "Georges Boris", packages = "dtwrks/elm-book" }
+    , { name = "Jeroen Mengels", packages = "jfmengels/elm-review" }
+    , { name = "Matthew Griffith", packages = "mdgriffith/elm-ui, vendrinc/elm-gql" }
+    , { name = "Ryan Haskell-Glatz", packages = "ryannhg/elm-spa, elm-land" }
+    ]
+
+
+searchAuthors : String -> Cmd Msg
+searchAuthors term =
+    Process.sleep 1000
+        |> Task.andThen
+            (\_ ->
+                elmAuthors
+                    |> List.filter (\author -> matches term author.name || matches term author.packages)
+                    |> Task.succeed
+            )
+        |> Task.attempt GotOptions
+
+
+matches : String -> String -> Bool
+matches a b =
+    String.contains (String.toLower a) (String.toLower b)
 
 
 
@@ -193,7 +206,7 @@ chapter_ =
                                     if input == "" then
                                         W.Text.view
                                             [ W.Text.small ]
-                                            [ H.text <| "Place write a few letters of an indian name." ]
+                                            [ H.text <| "Please write a few letters of an elm author." ]
 
                                     else
                                         W.Text.view
@@ -209,7 +222,47 @@ chapter_ =
                                 \option ->
                                     H.div []
                                         [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text option.name ]
-                                        , H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text option.email ]
+                                        , H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text option.packages ]
+                                        ]
+                            }
+                        ]
+               )
+             , ( "Sync"
+               , \{ value, options, selected, isLoading } ->
+                    W.Container.view
+                        [ W.Container.gap_2 ]
+                        [ selected
+                            |> List.map (\x -> W.Tag.view [] [ H.text x.name ])
+                            |> W.Container.view
+                                [ W.Container.horizontal
+                                , W.Container.gap_2
+                                ]
+                        , W.InputAutocomplete.viewSyncCustom
+                            [ W.InputAutocomplete.placeholder "Search by name…"
+                            , W.InputAutocomplete.isLoading isLoading
+                            , W.InputAutocomplete.onDelete OnRemoveLast
+                            , W.InputAutocomplete.optionsHeader
+                                (\input ->
+                                    if input == "" then
+                                        W.Text.view
+                                            [ W.Text.small ]
+                                            [ H.text <| "Please write a few letters of an elm author." ]
+
+                                    else
+                                        W.Text.view
+                                            [ W.Text.small ]
+                                            [ H.text <| "Searching for \"" ++ input ++ "\"..." ]
+                                )
+                            ]
+                            { id = "autocomplete-read-only"
+                            , value = value
+                            , options = elmAuthors
+                            , onInput = OnInput
+                            , toHtml =
+                                \option ->
+                                    H.div []
+                                        [ H.p [ HA.class "ew-m-0 ew-p-0" ] [ H.text option.name ]
+                                        , H.p [ HA.class "ew-m-0 ew-p-0 ew-text-sm" ] [ H.text option.packages ]
                                         ]
                             }
                         ]

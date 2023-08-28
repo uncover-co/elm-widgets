@@ -15,7 +15,7 @@
     @apply ew-appearance-none ew-no-underline;
     @apply ew-box-border ew-rounded-lg ew-border-0;
   }
-  .ew-check-radio {
+  .ew-radio {
     @apply ew-m-0;
     @apply ew-appearance-none ew-w-7 ew-h-7;
     @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
@@ -32,6 +32,38 @@
     @apply focus:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg;
     @apply checked:before:ew-scale-100;
     @apply disabled:ew-bg-base-aux/[0.25];
+  }
+  .ew-radio.ew-small {
+    @apply ew-appearance-none ew-w-5 ew-h-5;
+    @apply before:ew-w-2.5 before:ew-h-2.5;
+  }
+  .ew-checkbox {
+    @apply ew-m-0;
+    @apply ew-appearance-none ew-w-7 ew-h-7;
+    @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
+    @apply ew-bg-base-bg ew-shadow-none;
+    @apply ew-inline-flex ew-items-center ew-justify-center;
+    @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
+
+    @apply before:ew-hidden;
+    @apply before:ew-content-[""];
+    @apply before:ew-w-7 before:ew-h-7;
+
+    @apply hover:ew-opacity-90 active:ew-opacity-75;
+
+    @apply checked:ew-bg-current checked:ew-border-0;
+    @apply checked:before:ew-block;
+
+    @apply disabled:ew-bg-base-aux/[0.25];
+
+    @apply focus:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg;
+  }
+  .ew-checkbox.ew-small {
+    @apply ew-appearance-none ew-w-5 ew-h-5;
+    @apply before:ew-w-5 before:ew-h-5;
+  }
+  .ew-checkbox.ew-colorful {
+    @apply ew-border-current;
   }
   .ew-toggle {
     @apply ew-m-0;
@@ -57,6 +89,10 @@
 
     @apply focus-visible:ew-ring focus-visible:ew-border-primary-fg;
     @apply disabled:ew-bg-base-aux/[0.25];
+  }
+  .ew-toggle.ew-small {
+    @apply ew-w-9;
+    @apply before:ew-w-4 before:ew-h-4;
   }
 }
 
@@ -115,19 +151,35 @@ input[type="color"].ew-input-color::-webkit-color-swatch {
   display: none;
 }
 
+/*
+ * TODO: Fix custom icons.
+ * I haven't yet found a way to properly deal with custom icons + padding behaviors on all browsers.
+ * Until then, I'm disabling custom icons on elements that have browser native icons on ANY browser.
+ */
+
+.ew-input-icon {
+  display: none;
+}
+
 /* Select, Time, Date, Autocomplete */
+
+/*
 
 .ew-input input::-ms-expand {
   display: none;
 }
 .ew-input input::-webkit-calendar-picker-indicator {
+  color: transparent;
   background-image: none;
   opacity: 0;
 }
 .ew-input input::-webkit-time-picker-indicator {
+  color: transparent;
   background-image: none;
   opacity: 0;
 }
+
+*/
 
 .ew-input select option {
   color: var(--theme-base-fg);
@@ -157,12 +209,32 @@ input[type="color"].ew-input-color::-webkit-color-swatch {
 
 /* Search */
 
+/*
+
 input[type="search"].ew-input,
 input[type="search"].ew-input::-webkit-search-decoration,
 input[type="search"].ew-input::-webkit-search-cancel-button,
 input[type="search"].ew-input::-webkit-search-results-button,
 input[type="search"].ew-input::-webkit-search-results-decoration {
   -webkit-appearance:none;
+}
+
+*/
+
+/* 
+ * ======================================================
+ * Autocomplete
+ * ======================================================
+ */
+
+.ew-input-autocomplete--options {
+  display: none;
+}
+.ew-input-autocomplete:focus-within + .ew-input-autocomplete--options {
+  display: block;
+}
+.ew-input-autocomplete--options:active { 
+  display: block;
 }
 
 /* 
@@ -247,49 +319,40 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
 /* 
  * ======================================================
  * Popover
- * 
- * Using a really small transition on the `visibility`
- * properties enables the browser to receive an internal
- * click event before the popover disappears.
- *
  * ======================================================
  */
 
 .ew-popover-content {
-  visibility: hidden;
-}
-.ew-popover-content:hover {
-  transition: visibility 100ms;
+  display: none;
 }
 
 .ew-popover-trigger:focus-within + .ew-popover-content {
-  visibility: visible;
+  display: block;
   animation: ew-animation-fade 0.2s forwards;
 }
 
 .ew-popover.ew-is-open > .ew-popover-content {
-  visibility: visible;
+  display: block;
   animation: ew-animation-fade 0.2s forwards;
 }
 .ew-popover.ew-is-closed .ew-popover-trigger:focus-within + .ew-popover-content {
-  visibility: hidden;
+  display: none;
 }
 
 .ew-popover.ew-persistent:focus-within > .ew-popover-content {
-  visibility: visible;
+  display: block;
 }
 
 .ew-popover.ew-show-on-hover .ew-popover-trigger:hover + .ew-popover-content {
-  visibility: visible;
+  display: block;
   animation: ew-animation-fade 0.2s forwards;
 }
 .ew-popover.ew-show-on-hover > .ew-popover-content:hover {
-  visibility: visible;
+  display: block;
 }
 
-/* All Popovers are persistent until we can make the non-persistent ones work. */
-.ew-popover:focus-within > .ew-popover-content {
-  visibility: visible;
+.ew-popover-content:active {
+  display: block !important;
 }
 
 /* 
@@ -342,6 +405,18 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   animation: 0.2s ease-out forwards ew-animation-fade-slide-scale;
 }
 
+/* 
+ * ======================================================
+ * Checkbox
+ * ======================================================
+ */
+
+.ew-checkbox::before {
+  background-image: linear-gradient(-45deg,transparent 65%,currentColor 65.99%), linear-gradient(45deg,transparent 75%,currentColor 75.99%), linear-gradient(-45deg,currentColor 40%,transparent 40.99%), linear-gradient(45deg,currentColor 30%,var(--fg-color) 30.99%,var(--fg-color) 40%,transparent 40.99%), linear-gradient(-45deg,var(--fg-color) 50%,currentColor 50.99%);
+}
+.ew-checkbox:disabled::before {
+  opacity: 0.4;
+}
 
 /* 
  * ======================================================
@@ -383,6 +458,10 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   border-bottom: 1px solid rgb(var(--theme-base-aux-ch) / 0.2);
 }
 
+.ew-table thead {
+  border-bottom: 2px solid rgb(var(--theme-base-aux-ch) / 0.2);
+}
+
 .ew-table tbody tr:last-child {
   border-bottom: 0;
 }
@@ -400,6 +479,10 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
 .ew-table th:last-child,
 .ew-table td:last-child {
   padding-right: 12px;
+}
+
+.ew-table-group-header td {
+  padding: 16px 6px;
 }
 
 /* 

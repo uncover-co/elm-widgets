@@ -24,13 +24,14 @@ chapter_ =
                 ]
 
         content =
-            H.div
-                [ HA.style "width" "100%"
-                , HA.style "height" "600px"
-                , HA.style "padding" "8px"
+            W.Container.view
+                [ W.Container.fill
+                , W.Container.alignLeft
+                , W.Container.pad_4
+                , W.Container.styleAttrs [ ( "height", "600px" ) ]
                 ]
-                [ W.Popover.viewNext 
-                    [ W.Popover.right, W.Popover.width 200 ]
+                [ W.Popover.viewNext
+                    [ W.Popover.right, W.Popover.offset 4, W.Popover.width 100 ]
                     { trigger =
                         [ W.Button.viewDummy
                             []
@@ -67,6 +68,16 @@ chapter_ =
                         , content = [ content ]
                         }
                     , W.Modal.viewToggle "my-modal"
+                        [ W.Button.viewDummy [] [ H.text "Toggle Modal" ] ]
+                    ]
+              )
+            , ( "Modal with toggle + close on background"
+              , wrapper
+                    [ W.Modal.viewToggableWithAutoClose [ W.Modal.absolute, W.Modal.noBlur ]
+                        { id = "my-modal-auto-close"
+                        , content = [ content ]
+                        }
+                    , W.Modal.viewToggle "my-modal-auto-close"
                         [ W.Button.viewDummy [] [ H.text "Toggle Modal" ] ]
                     ]
               )

@@ -1,6 +1,7 @@
 module W.Internal.Helpers exposing
     ( attrIf
     , formatFloat
+    , formatPx
     , keepIf
     , limitString
     , maybeAttr
@@ -8,6 +9,8 @@ module W.Internal.Helpers exposing
     , nearestFloats
     , nearestInts
     , onEnter
+    , or
+    , paddingXY
     , stringIf
     , styles
     )
@@ -87,6 +90,15 @@ onEnter msg =
 -- Basics
 
 
+or : a -> a -> Bool -> a
+or a b cond =
+    if cond then
+        a
+
+    else
+        b
+
+
 keepIf : Bool -> Maybe a -> Maybe a
 keepIf a m =
     if a then
@@ -161,3 +173,13 @@ formatFloat step value =
                     _ ->
                         ""
            )
+
+
+formatPx : Int -> String
+formatPx value =
+    String.fromInt value ++ "px"
+
+
+paddingXY : { x : Int, y : Int } -> String
+paddingXY { x, y } =
+    formatPx y ++ " " ++ formatPx x

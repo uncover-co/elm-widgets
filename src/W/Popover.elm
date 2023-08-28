@@ -40,6 +40,7 @@ module W.Popover exposing
 
 import Html as H
 import Html.Attributes as HA
+import Theme
 
 
 
@@ -74,7 +75,7 @@ type alias Attributes msg =
     , over : Bool
     , persistent : Bool
     , isOpen : Maybe Bool
-    , widthAttr : H.Attribute msg
+    , widthAttr : ( String, String )
     , showOnHover : Bool
     , unstyled : Bool
     , htmlAttributes : List (H.Attribute msg)
@@ -94,7 +95,7 @@ defaultAttrs =
     , over = False
     , persistent = False
     , isOpen = Nothing
-    , widthAttr = HA.style "width" "auto"
+    , widthAttr = ( "width", "auto" )
     , showOnHover = False
     , unstyled = False
     , htmlAttributes = []
@@ -179,13 +180,13 @@ full v =
 {-| -}
 width : Int -> Attribute msg
 width v =
-    Attribute <| \attrs -> { attrs | widthAttr = HA.style "width" (String.fromInt v ++ "px") }
+    Attribute <| \attrs -> { attrs | widthAttr = ( "width", String.fromInt v ++ "px" ) }
 
 
 {-| -}
 minWidth : Int -> Attribute msg
 minWidth v =
-    Attribute <| \attrs -> { attrs | widthAttr = HA.style "min-width" (String.fromInt v ++ "px") }
+    Attribute <| \attrs -> { attrs | widthAttr = ( "min-width", String.fromInt v ++ "px" ) }
 
 
 {-| -}
@@ -370,9 +371,11 @@ view attrs_ props =
             )
             [ H.div
                 (attrs.htmlAttributes
-                    ++ [ attrs.widthAttr
-                       , HA.class "ew-overflow-visible"
-                       , HA.classList [ ( "ew-bg-base-bg ew-border-lg ew-border-0.5 ew-border-base-aux/20 ew-shadow", not attrs.unstyled ) ]
+                    ++ [ HA.class "ew-overflow-visible"
+                       , Theme.styles [ attrs.widthAttr ]
+                       , HA.classList
+                            [ ( "ew-bg-base-bg ew-rounded-sm ew-border-solid ew-border ew-border-base-aux/20 ew-shadow-lg", not attrs.unstyled )
+                            ]
                        ]
                 )
                 props.content

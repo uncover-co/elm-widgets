@@ -1,6 +1,6 @@
 module W.InputAutocomplete exposing
     ( view, viewSync
-    , init, reset, toString, toValue, stringChanged, valueChanged, Value
+    , init, reset, toString, toValue, onChange, stringChanged, valueChanged, Value
     , viewCustom, viewSyncCustom, optionsHeader
     , isLoading, autofocus, disabled, readOnly
     , small, placeholder, prefix, suffix
@@ -16,7 +16,7 @@ module W.InputAutocomplete exposing
 
 # Value
 
-@docs init, reset, toString, toValue, stringChanged, valueChanged, Value
+@docs init, reset, toString, toValue, onChange, stringChanged, valueChanged, Value
 
 
 # Custom Rendering
@@ -112,6 +112,16 @@ valueChanged a b =
 
 
 {-| -}
+onChange : Value a -> Value a -> Maybe a
+onChange before after =
+    if valueChanged before after then
+        toValue after
+
+    else
+        Nothing
+
+
+{-| -}
 reset : Value a -> Value a
 reset (Value data) =
     Value { data | value = Nothing, input = "" }
@@ -174,9 +184,7 @@ update toMsg (Value model) msg =
                     { model | focused = True }
 
                 Blur ->
-                    -- We don't call `focused = False` on blur
-                    -- since that would prevent click behavior.
-                    initInput model
+                    { model | focused = False }
 
                 ArrowDown ->
                     if model.focused then
@@ -221,7 +229,7 @@ type alias Attributes msg =
     , onDelete : Maybe msg
     , htmlAttributes : List (H.Attribute msg)
     , optionsHeader : Maybe (String -> H.Html msg)
-    , noFilter : Bool
+    , localFilter : Bool
     }
 
 
@@ -248,7 +256,7 @@ defaultAttrs =
     , onDelete = Nothing
     , htmlAttributes = []
     , optionsHeader = Nothing
-    , noFilter = False
+    , localFilter = False
     }
 
 
@@ -317,9 +325,9 @@ optionsHeader v =
     Attribute <| \attrs -> { attrs | optionsHeader = Just v }
 
 
-noFilter : Attribute msg
-noFilter =
-    Attribute <| \attrs -> { attrs | noFilter = True }
+localFilter : Attribute msg
+localFilter =
+    Attribute <| \attrs -> { attrs | localFilter = True }
 
 
 {-| -}
@@ -400,7 +408,7 @@ viewSyncCustom :
         }
     -> H.Html msg
 viewSyncCustom attrs_ props =
-    viewCustom (noFilter :: attrs_)
+    viewCustom (localFilter :: attrs_)
         { id = props.id
         , value = props.value
         , options = Just props.options
@@ -456,27 +464,18 @@ viewCustom attrs_ props =
         attrs =
             applyAttrs attrs_
 
-        selectedAndUnchanged : Bool
-        selectedAndUnchanged =
-            valueData.value
-                |> Maybe.map (\v -> valueData.toString v == valueData.input)
-                |> Maybe.withDefault False
-
-        options : List a
+        options : List ( Int, a )
         options =
-            if attrs.noFilter || selectedAndUnchanged then
+            if attrs.localFilter then
                 props.options
                     |> Maybe.withDefault []
+                    |> List.indexedMap Tuple.pair
+                    |> List.filter (Tuple.second >> valueData.toString >> matches valueData.input)
 
             else
-                let
-                    lowerCaseInput : String
-                    lowerCaseInput =
-                        valueData.input
-                in
                 props.options
                     |> Maybe.withDefault []
-                    |> List.filter (\o -> String.contains lowerCaseInput (String.toLower (valueData.toString o)))
+                    |> List.indexedMap Tuple.pair
 
         highlighted : Int
         highlighted =
@@ -523,7 +522,7 @@ viewCustom attrs_ props =
                                                                 |> Array.fromList
                                                                 |> Array.get highlighted
                                                                 |> Maybe.map
-                                                                    (\value ->
+                                                                    (\( _, value ) ->
                                                                         Select highlighted value
                                                                             |> update_
                                                                             |> D.succeed
@@ -593,42 +592,43 @@ viewCustom attrs_ props =
                 W.Internal.Icons.chevronDown
             )
         |> (\x ->
-                H.div [ HA.class "ew-relative ew-group" ]
-                    [ x
-                    , if valueData.focused then
-                        H.div
-                            [ HA.class "ew-hidden group-focus-within:ew-block hover:ew-block"
-                            , HA.class "ew-absolute ew-top-full ew-mt-2 ew-left-0 ew-right-0"
-                            , HA.class "ew-shadow ew-z-10 ew-bg-base-bg"
-                            ]
-                            [ W.Menu.view
-                                [ case attrs.optionsHeader of
-                                    Just optionsHeader_ ->
-                                        H.div []
-                                            [ H.div [ HA.class "ew-p-3" ] [ optionsHeader_ valueData.input ]
-                                            , W.Divider.view [] []
-                                            ]
+                H.div [ HA.class "ew-relative" ]
+                    [ H.div [ HA.class "ew-input-autocomplete" ] [ x ]
+                    , H.div
+                        [ HA.class "ew-input-autocomplete--options"
+                        , HA.class "ew-absolute ew-top-full ew-mt-2 ew-left-0 ew-right-0"
+                        , HA.class "ew-shadow ew-z-10 ew-bg-base-bg"
+                        ]
+                        [ W.Menu.view
+                            [ case attrs.optionsHeader of
+                                Just optionsHeader_ ->
+                                    H.div []
+                                        [ H.div [ HA.class "ew-p-3" ] [ optionsHeader_ valueData.input ]
+                                        , W.Divider.view [] []
+                                        ]
 
-                                    Nothing ->
-                                        H.text ""
-                                , H.div [ HA.class "ew-overflow-y-auto ew-overflow-x-hidden ew-max-h-64 ew-w-full" ]
-                                    (options
-                                        |> List.indexedMap
-                                            (\index value ->
-                                                W.Menu.viewButton
-                                                    [ W.Menu.selected (highlighted == index)
-                                                    ]
-                                                    { label = [ props.toHtml value ]
-                                                    , onClick =
-                                                        Select index value
-                                                            |> update_
-                                                    }
-                                            )
-                                    )
-                                ]
+                                Nothing ->
+                                    H.text ""
+                            , H.div [ HA.class "ew-overflow-y-auto ew-overflow-x-hidden ew-max-h-64 ew-w-full" ]
+                                (options
+                                    |> List.indexedMap
+                                        (\viewIndex ( index, value ) ->
+                                            W.Menu.viewButton
+                                                [ W.Menu.selected (highlighted == viewIndex)
+                                                ]
+                                                { label = [ props.toHtml value ]
+                                                , onClick =
+                                                    Select index value
+                                                        |> update_
+                                                }
+                                        )
+                                )
                             ]
-
-                      else
-                        H.text ""
+                        ]
                     ]
            )
+
+
+matches : String -> String -> Bool
+matches match input =
+    String.contains (String.toLower match) (String.toLower input)
