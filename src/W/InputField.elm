@@ -138,26 +138,36 @@ view attrs_ props =
             :: WH.maybeAttr (HA.style "padding" << WH.paddingXY) attrs.padding
             :: attrs.htmlAttributes
         )
-        [ H.div
-            [ HA.classList [ ( "ew-flex ew-items-start ew-justify-between", attrs.alignRight ) ]
-            ]
+        (if attrs.alignRight then
             [ H.div
-                [ HA.classList
-                    [ ( "ew-w-[40%] ew-pr-4 ew-pt-1", attrs.alignRight )
-                    , ( "ew-pb-2", not attrs.alignRight )
+                [ HA.class "ew-flex ew-items-start" ]
+                [ H.div
+                    [ HA.class "ew-flex ew-flex-col ew-justify-center"
+                    , HA.class "ew-w-[40%]"
+                    , HA.class "ew-box-border ew-pr-4 ew-min-h-[50px]"
                     ]
+                    [ H.h1 [ HA.class "ew-m-0 ew-font-normal ew-text-base ew-font-text ew-text-base-fg" ]
+                        props.label
+                    , attrs.hint
+                        |> Maybe.map (\f -> H.p [ HA.class "ew-m-0 ew-text-base-aux ew-text-sm ew-font-text ew-text-aux" ] f)
+                        |> Maybe.withDefault (H.text "")
+                    ]
+                , H.div
+                    [ HA.class "ew-w-[60%]" ]
+                    props.input
                 ]
-                [ H.h1
-                    [ HA.class "ew-m-0 ew-font-normal ew-text-sm ew-font-text ew-text-base-fg"
-                    ]
+            ]
+
+         else
+            [ H.div
+                [ HA.class "ew-pb-2" ]
+                [ H.h1 [ HA.class "ew-m-0 ew-font-normal ew-text-sm ew-font-text ew-text-base-fg" ]
                     props.label
                 , attrs.hint
                     |> Maybe.map (\f -> H.p [ HA.class "ew-m-0 ew-text-base-aux ew-text-xs ew-font-text ew-text-aux" ] f)
                     |> Maybe.withDefault (H.text "")
                 ]
-            , H.div
-                [ HA.classList [ ( "ew-w-[60%]", attrs.alignRight ) ]
-                ]
+            , H.div []
                 props.input
             ]
-        ]
+        )

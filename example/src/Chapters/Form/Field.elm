@@ -5,6 +5,7 @@ import ElmBook.Actions exposing (logActionWith, logActionWithString)
 import ElmBook.Chapter exposing (Chapter, chapter, renderComponentList)
 import Html as H
 import Html.Attributes as HA
+import W.Divider
 import W.InputField
 import W.InputRadio
 import W.InputSlider
@@ -49,6 +50,23 @@ chapter_ =
                     ]
                 ]
             }
+
+        singleInput :
+            { label : List (H.Html (ElmBook.Msg x))
+            , input : List (H.Html (ElmBook.Msg x))
+            }
+        singleInput =
+            { label =
+                [ H.text "Label" ]
+            , input =
+                [ W.InputText.view
+                    [ W.InputText.placeholder "..."
+                    ]
+                    { value = ""
+                    , onInput = logActionWithString "onInput"
+                    }
+                ]
+            }
     in
     chapter "Input Field"
         |> renderComponentList
@@ -71,7 +89,13 @@ chapter_ =
                     [ W.InputField.view
                         [ W.InputField.alignRight True
                         ]
-                        props
+                        singleInput
+                    , W.InputField.view
+                        [ W.InputField.alignRight True
+                        , W.InputField.hint [ H.text "Try writing some text here." ] 
+                        ]
+                        singleInput
+                    , W.Divider.view [] []
                     , W.InputField.view
                         [ W.InputField.alignRight True
                         ]
