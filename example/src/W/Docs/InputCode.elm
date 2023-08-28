@@ -30,4 +30,24 @@ docs =
                                 updateState (\state -> { state | inputCode = input })
                         }
               )
+            , ( "Hidden Characters"
+              , \{ inputCode } ->
+                    W.InputCode.view [ W.InputCode.hiddenCharacters ]
+                        { length = 6
+                        , value = inputCode
+                        , onInput =
+                            \input ->
+                                updateState (\state -> { state | inputCode = input })
+                        }
+              )
+            , ( "Uppercase"
+              , \{ inputCode } ->
+                    W.InputCode.view [ W.InputCode.uppercase ]
+                        { length = 6
+                        , value = inputCode
+                        , onInput =
+                            \input ->
+                                updateState (\state -> { state | inputCode = input })
+                        }
+              )
             ]

@@ -3,7 +3,7 @@
     "name": "uncover-co/elm-widgets",
     "summary": "A collection of stateless, themable widgets for Elm applications.",
     "license": "MPL-2.0",
-    "version": "2.17.0",
+    "version": "2.18.0",
     "exposed-modules": [
         "W.Badge",
         "W.Button",
@@ -15,6 +15,7 @@
         "W.InputField",
         "W.InputAutocomplete",
         "W.InputCheckbox",
+        "W.InputCode",
         "W.InputColor",
         "W.InputDate",
         "W.InputInt",
