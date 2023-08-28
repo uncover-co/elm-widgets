@@ -71,7 +71,8 @@ hiddenCharacters =
     Attribute (\attrs -> { attrs | hiddenCharacters = True })
 
 
-{-| -}
+{-| Applied to the hidden input field.
+-}
 htmlAttrs : List (H.Attribute msg) -> Attribute msg
 htmlAttrs v =
     Attribute <| \attrs -> { attrs | htmlAttributes = v }
@@ -120,26 +121,28 @@ view attrs_ props =
         H.label
             [ HA.class "ew-group/ew" ]
             [ H.input
-                [ HA.class "ew-h-0 ew-p-0 ew-m-0 ew-border-0 ew-opacity-0"
-                , HA.value props.value
-                , HE.onFocus (props.onInput "")
-                , HE.onInput
-                    (\v ->
-                        let
-                            value : String
-                            value =
-                                String.left props.length v
-                        in
-                        if attrs.uppercase then
-                            value
-                                |> String.toUpper
-                                |> props.onInput
+                (attrs.htmlAttributes
+                    ++ [ HA.class "ew-h-0 ew-p-0 ew-m-0 ew-border-0 ew-opacity-0"
+                       , HA.value props.value
+                       , HE.onFocus (props.onInput "")
+                       , HE.onInput
+                            (\v ->
+                                let
+                                    value : String
+                                    value =
+                                        String.left props.length v
+                                in
+                                if attrs.uppercase then
+                                    value
+                                        |> String.toUpper
+                                        |> props.onInput
 
-                        else
-                            value
-                                |> props.onInput
-                    )
-                ]
+                                else
+                                    value
+                                        |> props.onInput
+                            )
+                       ]
+                )
                 []
             , H.div
                 [ HA.class "ew-flex ew-gap-2" ]
