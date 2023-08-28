@@ -39,6 +39,7 @@ import ElmBook.ThemeOptions
 import Html as H
 import Theme
 import W.Styles
+import W.Docs.InputCode
 
 
 type alias SharedState =
@@ -50,6 +51,7 @@ type alias SharedState =
         , customColor : Float
         }
     , popover : Chapters.Information.Popover.Model
+    , inputCode : W.Docs.InputCode.Model
     , inputText : Chapters.Form.InputText.Model
     , inputInt : Chapters.Form.InputInt.Model
     , inputFloat : Chapters.Form.InputFloat.Model
@@ -67,6 +69,7 @@ main =
                 , autocomplete = Chapters.Form.InputAutocomplete.init
                 , range = Chapters.Form.InputSlider.init
                 , popover = Chapters.Information.Popover.init
+                , inputCode = W.Docs.InputCode.init
                 , inputText = Chapters.Form.InputText.init
                 , inputInt = Chapters.Form.InputInt.init
                 , inputFloat = Chapters.Form.InputFloat.init
@@ -134,6 +137,7 @@ main =
                 , Chapters.Form.InputInt.chapter_
                 , Chapters.Form.InputFloat.chapter_
                 , Chapters.Form.InputColor.chapter_
+                , W.Docs.InputCode.docs
                 , Chapters.Form.InputDate.chapter_
                 , Chapters.Form.InputTime.chapter_
                 , Chapters.Form.InputCheckbox.chapter_
