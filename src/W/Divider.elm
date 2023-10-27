@@ -1,6 +1,6 @@
 module W.Divider exposing
     ( view
-    , vertical, margins, light
+    , vertical, margins, light, color
     , noAttr, Attribute
     )
 
@@ -11,7 +11,7 @@ module W.Divider exposing
 
 # Styles
 
-@docs vertical, margins, light
+@docs vertical, margins, light, color
 
 
 # Html
@@ -22,6 +22,7 @@ module W.Divider exposing
 
 import Html as H
 import Html.Attributes as HA
+import Theme
 
 
 
@@ -34,7 +35,7 @@ type Attribute msg
 
 
 type alias Attributes =
-    { light : Bool
+    { color : String
     , vertical : Bool
     , margins : Int
     }
@@ -42,7 +43,7 @@ type alias Attributes =
 
 defaultAttrs : Attributes
 defaultAttrs =
-    { light = False
+    { color = Theme.baseAuxWithAlpha 0.2
     , vertical = False
     , margins = 0
     }
@@ -60,7 +61,13 @@ applyAttrs attrs =
 {-| -}
 light : Attribute msg
 light =
-    Attribute (\attrs -> { attrs | light = True })
+    Attribute (\attrs -> { attrs | color = Theme.baseAuxWithAlpha 0.07 })
+
+
+{-| -}
+color : String -> Attribute msg
+color v =
+    Attribute (\attrs -> { attrs | color = v })
 
 
 {-| -}
@@ -104,18 +111,14 @@ view attrs_ children =
     if List.isEmpty children then
         H.hr
             [ HA.class "ew-self-stretch ew-border-solid ew-border-0 ew-m-0 ew-outline-0 ew-shadow-none ew-appearance-none"
-            , HA.style "margin"
-                (if attrs.vertical then
-                    "0 " ++ String.fromInt attrs.margins ++ "px"
-
-                 else
-                    String.fromInt attrs.margins ++ "px 0"
-                )
             , HA.classList
                 [ ( "ew-border-t-2", not attrs.vertical )
                 , ( "ew-border-l-2", attrs.vertical )
-                , ( "ew-border-base-aux/20", not attrs.light )
-                , ( "ew-border-base-aux/[0.07]", attrs.light )
+                ]
+            , Theme.stylesIf
+                [ ( "border-color", attrs.color, True )
+                , ( "margin", "0 " ++ String.fromInt attrs.margins ++ "px", attrs.vertical )
+                , ( "margin", String.fromInt attrs.margins ++ "px 0", not attrs.vertical )
                 ]
             ]
             []
@@ -123,19 +126,21 @@ view attrs_ children =
     else
         H.div
             [ HA.class "ew-self-stretch ew-flex ew-items-center ew-justify-center ew-gap-1.5 ew-leading-none"
-            , HA.class "ew-font-text ew-text-sm ew-text-base-fg"
+            , HA.class "ew-font-text ew-text-sm"
             , HA.class "before:ew-content-[''] before:ew-block before:ew-grow"
             , HA.class "after:ew-content-[''] after:ew-block after:ew-grow"
-            , if attrs.vertical then
-                HA.style "width" (String.fromInt (attrs.margins * 2 + 2) ++ "px")
-
-              else
-                HA.style "height" (String.fromInt (attrs.margins * 2 + 2) ++ "px")
+            , HA.class "before:ew-bg-current after:ew-bg-current"
             , HA.classList
                 [ ( "before:ew-h-0.5 after:ew-h-0.5", not attrs.vertical )
                 , ( "ew-flex-col before:ew-w-0.5 after:ew-w-0.5", attrs.vertical )
-                , ( "before:ew-bg-base-aux/20 after:ew-bg-base-aux/20", not attrs.light )
-                , ( "before:ew-bg-base-aux/[0.07] after:ew-bg-base-aux/[0.07]", attrs.light )
+                ]
+            , Theme.stylesIf
+                [ ( "color", attrs.color, True )
+                , ( "width", String.fromInt (attrs.margins * 2 + 2) ++ "px", attrs.vertical )
+                , ( "height", String.fromInt (attrs.margins * 2 + 2) ++ "px", not attrs.vertical )
                 ]
             ]
-            children
+            [ H.span
+                [ HA.class "ew-text-base-fg" ]
+                children
+            ]

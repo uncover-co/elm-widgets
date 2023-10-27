@@ -207,18 +207,18 @@ view attrs_ children =
         baseAttrs =
             attrs.htmlAttributes
                 ++ [ HA.class "ew-m-0 ew-box-border ew-relative ew-inline-flex ew-items-center ew-leading-none ew-font-text ew-font-medium ew-tracking-wider"
-                   , HA.class "ew-rounded-full ew-border-solid ew-border-current"
+                   , HA.class "ew-rounded-full ew-border-solid ew-border-current ew-border-0"
                    , HA.class "before:ew-content-[''] before:ew-absolute before:ew-inset-0 before:ew-rounded-full before:ew-bg-current before:ew-opacity-10"
                    , HA.style "color" attrs.color
                    , case attrs.size of
                         Large ->
-                            HA.class "ew-h-8 ew-px-4 ew-text-base ew-border-2"
+                            HA.class "ew-h-8 ew-px-4 ew-text-base"
 
                         Medium ->
-                            HA.class "ew-h-7 ew-px-3 ew-text-sm ew-border-2"
+                            HA.class "ew-h-7 ew-px-3 ew-text-sm"
 
                         Small ->
-                            HA.class "ew-h-[20px] ew-px-2 ew-text-xs ew-border"
+                            HA.class "ew-h-[20px] ew-px-2 ew-text-xs"
                    ]
     in
     case ( attrs.onClick, attrs.href ) of

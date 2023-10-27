@@ -4,6 +4,7 @@ import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, with
 import Html as H
 import Html.Attributes as HA
 import W.Divider
+import Theme
 
 
 chapter_ : Chapter x
@@ -14,6 +15,7 @@ chapter_ =
               , H.div []
                     [ W.Divider.view [ W.Divider.margins 16 ] []
                     , W.Divider.view [ W.Divider.margins 16 ] [ H.text "or" ]
+                    , W.Divider.view [ W.Divider.margins 16, W.Divider.color (Theme.primaryForegroundWithAlpha 0.1) ] [ H.text "or" ]
                     ]
               )
             , ( "Vertical"
@@ -25,7 +27,7 @@ chapter_ =
                     [ W.Divider.view [ W.Divider.vertical ] []
                     , W.Divider.view [ W.Divider.vertical ] []
                     , W.Divider.view [ W.Divider.vertical ] [ H.text "or" ]
-                    , W.Divider.view [ W.Divider.vertical ] []
+                    , W.Divider.view [ W.Divider.vertical, W.Divider.color (Theme.primaryForegroundWithAlpha 0.1) ] []
                     ]
               )
             ]
