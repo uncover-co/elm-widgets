@@ -4,6 +4,7 @@ module W.Button exposing
     , outlined, invisible, rounded, large, small, icon, full, alignLeft, alignRight
     , disabled
     , htmlAttrs, noAttr, Attribute
+    , viewSubmit
     )
 
 {-|
@@ -264,6 +265,32 @@ viewDummy attrs_ children =
     H.div
         (HA.tabindex 0 :: HA.class "ew-cursor-default" :: attributes attrs)
         children
+
+
+{-| When using HTML forms with an `onSubmit` handler we also need a button element with "type" set as "submit".
+We shouldn't handle the `onClick` of this button directly otherwise we will two events when submitting.
+
+    H.form
+        []
+        [ -- ...some fields
+        , W.Button.viewSubmit []
+            [ H.text "Submit this form!" ]
+        ]
+
+-}
+viewSubmit :
+    List (Attribute msg)
+    -> List (H.Html msg)
+    -> H.Html msg
+viewSubmit attrs_ label =
+    let
+        attrs : Attributes msg
+        attrs =
+            applyAttrs attrs_
+    in
+    H.button
+        (HA.type_ "submit" :: attributes attrs)
+        label
 
 
 

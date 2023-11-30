@@ -4,6 +4,7 @@ import ElmBook.Actions exposing (logAction)
 import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, withComponentList)
 import Html as H
 import Html.Attributes as HA
+import Html.Events as HE
 import UI
 import W.Button
 
@@ -107,6 +108,14 @@ chapter_ =
                                     }
                             )
                     )
+              )
+            , ( "Submit button inside a form"
+              , H.form
+                    [ HA.style "margin" "0"
+                    , HE.onSubmit (logAction "Form submitted!")
+                    ]
+                    [ W.Button.viewSubmit [] [ H.text "Submit" ]
+                    ]
               )
             ]
         |> renderWithComponentList """
