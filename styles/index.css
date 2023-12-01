@@ -428,12 +428,39 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
   content: "";
   display: block;
   position: absolute;
+  border-style: solid;
+}
+
+.ew-tooltip.ew-tooltip-top::after {
   top: 100%;
   left: 50%;
   margin-left: -2px;
-  border-style: solid;
   border-width: 4px 4px 0 4px;
   border-color: var(--theme-neutral-bg) transparent transparent transparent;
+}
+
+.ew-tooltip.ew-tooltip-bottom::after {
+  bottom: 100%;
+  left: 50%;
+  margin-left: -2px;
+  border-width: 0 4px 4px 4px;
+  border-color: transparent transparent var(--theme-neutral-bg) transparent;
+}
+
+.ew-tooltip.ew-tooltip-left::after {
+  top: 50%;
+  left: 100%;
+  margin-top: -2px;
+  border-width: 4px 0 4px 4px;
+  border-color: transparent transparent transparent var(--theme-neutral-bg);
+}
+
+.ew-tooltip.ew-tooltip-right::after {
+  top: 50%;
+  right: 100%;
+  margin-top: -2px;
+  border-width: 4px 4px 4px 0;
+  border-color: transparent var(--theme-neutral-bg) transparent transparent;
 }
 
 /* 

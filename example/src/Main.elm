@@ -40,6 +40,7 @@ import Html as H
 import Theme
 import W.Styles
 import W.Docs.InputCode
+import W.Docs.Skeleton
 
 
 type alias SharedState =
@@ -124,6 +125,7 @@ main =
                 , Chapters.Information.Message.chapter_
                 , Chapters.Information.Notification.chapter_
                 , Chapters.Information.Popover.chapter_
+                , W.Docs.Skeleton.docs
                 , Chapters.Information.Tag.chapter_
                 , Chapters.Information.Tooltip.chapter_
                 ]

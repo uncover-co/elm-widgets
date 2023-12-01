@@ -1,5 +1,6 @@
 module W.Tooltip exposing
     ( view
+    , bottom, left, right
     , fast, slow, alwaysVisible
     , htmlAttrs, noAttr, Attribute
     )
@@ -7,6 +8,11 @@ module W.Tooltip exposing
 {-|
 
 @docs view
+
+
+# Position
+
+@docs bottom, left, right
 
 
 # Styles
@@ -34,10 +40,18 @@ type Attribute msg
 
 
 type alias Attributes msg =
-    { htmlAttributes : List (H.Attribute msg)
+    { position : Position
     , speed : Speed
     , alwaysVisible : Bool
+    , htmlAttributes : List (H.Attribute msg)
     }
+
+
+type Position
+    = Top
+    | Left
+    | Bottom
+    | Right
 
 
 type Speed
@@ -53,9 +67,10 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg
 defaultAttrs =
-    { htmlAttributes = []
+    { position = Top
     , speed = Default
     , alwaysVisible = False
+    , htmlAttributes = []
     }
 
 
@@ -64,15 +79,21 @@ defaultAttrs =
 
 
 {-| -}
-htmlAttrs : List (H.Attribute msg) -> Attribute msg
-htmlAttrs v =
-    Attribute <| \attrs -> { attrs | htmlAttributes = v }
+bottom : Attribute msg
+bottom =
+    Attribute <| \attrs -> { attrs | position = Bottom }
 
 
 {-| -}
-noAttr : Attribute msg
-noAttr =
-    Attribute identity
+left : Attribute msg
+left =
+    Attribute <| \attrs -> { attrs | position = Left }
+
+
+{-| -}
+right : Attribute msg
+right =
+    Attribute <| \attrs -> { attrs | position = Right }
 
 
 {-| -}
@@ -93,6 +114,18 @@ alwaysVisible =
     Attribute <| \attrs -> { attrs | alwaysVisible = True }
 
 
+{-| -}
+htmlAttrs : List (H.Attribute msg) -> Attribute msg
+htmlAttrs v =
+    Attribute <| \attrs -> { attrs | htmlAttributes = v }
+
+
+{-| -}
+noAttr : Attribute msg
+noAttr =
+    Attribute identity
+
+
 
 -- Main
 
@@ -111,18 +144,48 @@ view attrs_ props =
         attrs =
             applyAttrs attrs_
 
+        posAttrs : List (H.Attribute msg)
+        posAttrs =
+            case attrs.position of
+                Top ->
+                    [ HA.class "ew-tooltip-top ew-bottom-full ew-mb-1"
+                    , HA.class "group-hover:ew-translate-y-0"
+                    , HA.classList [ ( "ew-translate-y-0.5", not attrs.alwaysVisible ) ]
+                    ]
+
+                Bottom ->
+                    [ HA.class "ew-tooltip-bottom ew-top-full ew-mt-1"
+                    , HA.class "group-hover:ew-translate-y-0"
+                    , HA.classList [ ( "-ew-translate-y-0.5", not attrs.alwaysVisible ) ]
+                    ]
+
+                Left ->
+                    [ HA.class "ew-tooltip-left ew-top-1/2 ew-right-full ew-mr-1"
+                    , HA.class "-ew-translate-y-1/2 group-hover:ew-translate-x-0"
+                    , HA.classList [ ( "ew-translate-x-0.5", not attrs.alwaysVisible ) ]
+                    ]
+
+                Right ->
+                    [ HA.class "ew-tooltip-right ew-top-1/2 ew-left-full ew-ml-1"
+                    , HA.class "-ew-translate-y-1/2 group-hover:ew-translate-x-0"
+                    , HA.classList [ ( "-ew-translate-x-0.5", not attrs.alwaysVisible ) ]
+                    ]
+
         tooltip : H.Html msg
         tooltip =
             H.span
                 (attrs.htmlAttributes
+                    ++ posAttrs
                     ++ [ HA.class "ew-tooltip ew-pointer-events-none"
-                       , HA.class "ew-absolute ew-bottom-full ew-mb-1 ew-px-2 ew-py-1"
+
+                       -- TODO: Control z-index through CSS vars
+                       , HA.class "ew-z-[9999] ew-absolute ew-px-2 ew-py-1"
                        , HA.class "ew-w-max ew-rounded"
                        , HA.class "ew-font-text ew-text-sm"
                        , HA.class "ew-bg-neutral-bg ew-text-neutral-aux"
                        , HA.class "ew-transition"
-                       , HA.class "group-hover:ew-translate-y-0 group-hover:ew-opacity-100"
-                       , HA.classList [ ( "ew-translate-y-0.5 ew-opacity-0", not attrs.alwaysVisible ) ]
+                       , HA.class "group-hover:ew-opacity-100"
+                       , HA.classList [ ( "ew-opacity-0", not attrs.alwaysVisible ) ]
                        , case attrs.speed of
                             Fast ->
                                 HA.class "group-hover:ew-delay-100"
