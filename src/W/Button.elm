@@ -1,15 +1,14 @@
 module W.Button exposing
-    ( view, viewLink, viewDummy
+    ( view, viewLink, viewSubmit, viewDummy
     , primary, secondary, success, warning, danger, theme, ButtonTheme
     , outlined, invisible, rounded, large, small, icon, full, alignLeft, alignRight
     , disabled
     , htmlAttrs, noAttr, Attribute
-    , viewSubmit
     )
 
 {-|
 
-@docs view, viewLink, viewDummy
+@docs view, viewLink, viewSubmit, viewDummy
 
 
 # Colors
