@@ -1,6 +1,7 @@
 module W.Internal.Helpers exposing
     ( attrIf
     , formatFloat
+    , formatPct
     , formatPx
     , keepIf
     , limitString
@@ -183,3 +184,8 @@ formatPx value =
 paddingXY : { x : Int, y : Int } -> String
 paddingXY { x, y } =
     formatPx y ++ " " ++ formatPx x
+
+
+formatPct : Float -> String
+formatPct v =
+    String.fromFloat (v * 100) ++ "%"

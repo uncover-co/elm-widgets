@@ -249,7 +249,7 @@ width v =
 {-| -}
 relativeWidth : Float -> ColumnAttribute msg a
 relativeWidth v =
-    ColumnAttribute (\attrs -> { attrs | width = HA.style "width" (pctString v) })
+    ColumnAttribute (\attrs -> { attrs | width = HA.style "width" (WH.formatPct v) })
 
 
 {-| -}
@@ -499,11 +499,6 @@ bool attrs_ props =
 
 
 -- Helpers
-
-
-pctString : Float -> String
-pctString v =
-    String.fromFloat (v * 100) ++ "%"
 
 
 pxString : Int -> String

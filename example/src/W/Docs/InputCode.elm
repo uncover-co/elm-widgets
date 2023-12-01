@@ -18,7 +18,7 @@ init =
 
 docs : Chapter { x | inputCode : Model }
 docs =
-    chapter "W.InputCode"
+    chapter "Input Code"
         |> renderStatefulComponentList
             [ ( "Default"
               , \{ inputCode } ->
