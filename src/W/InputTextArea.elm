@@ -255,5 +255,5 @@ baseClass =
         ++ " ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50"
         ++ " disabled:ew-bg-base-aux/[0.25] disabled:ew-border-base-aux/[0.25]"
         ++ " focus:ew-bg-base-bg"
-        ++ " focus-visible:ew-border-primary-fg focus-visible-visible:ew-ring"
+        ++ " focus-visible:ew-border-primary-fg"
         ++ " read-only:focus:ew-bg-base-aux/10"

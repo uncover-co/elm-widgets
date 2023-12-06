@@ -29,7 +29,7 @@ view attrs input =
         , HA.class "ew-transition"
         , HA.class "ew-ring-offset-0 ew-ring-primary-fg/50"
         , HA.classList
-            [ ( "focus-within:focus-visible:ew-ring focus-within:focus-visible:ew-border-primary-fg", not attrs.readOnly )
+            [ ( "focus-within:ew-ring focus-within:ew-border-primary-fg", not attrs.readOnly )
             , ( "ew-text-base", not attrs.small )
             , ( "ew-text-sm", attrs.small )
             ]

@@ -13,15 +13,15 @@ import W.Text
 type alias Model =
     { value : String
     , validated : String
-    , validationMessage : String
+    , validationMessage : List String
     }
 
 
 init : Model
 init =
     { value = "Some text"
-    , validated = "Some text"
-    , validationMessage = ""
+    , validated = ""
+    , validationMessage = []
     }
 
 
@@ -124,7 +124,7 @@ chapter_ =
                             [ W.InputText.url
                             , W.InputText.minLength 5
                             , W.InputText.maxLength 15
-                            , W.InputText.pattern "http://[a-z]+"
+                            , W.InputText.pattern "http://[a-z|\\.]+"
                             , W.InputText.placeholder "https://app.site.com"
                             ]
                             { value = inputText.validated
@@ -143,21 +143,25 @@ chapter_ =
                                                         , validationMessage =
                                                             case result of
                                                                 Ok v_ ->
-                                                                    "Ok " ++ v_
+                                                                    []
 
-                                                                Err error ->
-                                                                    error
-                                                                        |> List.map W.InputText.errorToString
-                                                                        |> String.join " "
-                                                                        |> (++) "Err "
+                                                                Err errors ->
+                                                                    List.map W.InputText.errorToString errors
                                                     }
                                             }
                                         )
                             }
-                        , W.Container.view
-                            [ W.Container.pad_2 ]
-                            [ W.Text.view [] [ H.text inputText.validationMessage ]
-                            ]
+                        , if List.isEmpty inputText.validationMessage then
+                            H.text ""
+
+                          else
+                            W.Container.view
+                                [ W.Container.pad_2
+                                , W.Container.gap_2
+                                ]
+                                (inputText.validationMessage
+                                    |> List.map (\error -> W.Text.view [] [ H.text error ])
+                                )
                         ]
               )
             ]

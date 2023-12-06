@@ -4,6 +4,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>uncover/elm-theme</title>
+    <!--
+    Tailwind + All first-party plugins
+    By adding another tailwind instance with plugins we're also making sure elm-widgets is playing nicely
+    with these other modules with global CSS statements, etc.
+    -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
   </head>
   <body>
     <main id="app"></main>

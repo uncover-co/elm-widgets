@@ -181,6 +181,22 @@ input[type="color"].ew-input-color::-webkit-color-swatch {
 
 */
 
+.ew-input input:focus-visible,
+.ew-input select:focus-visible,
+textarea.ew-input:focus-visible {
+  outline: none;
+}
+
+.ew-input input:focus-visible,
+.ew-input select:focus-visible {
+  border: 0;
+  box-shadow: none;
+}
+
+textarea.ew-input:focus-visible {
+  border-color: var(--theme-primary-fg);
+}
+
 .ew-input select option {
   color: var(--theme-base-fg);
   background-color: var(--theme-base-bg);
