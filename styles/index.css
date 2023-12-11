@@ -15,7 +15,7 @@
     @apply ew-appearance-none ew-no-underline;
     @apply ew-box-border ew-rounded-lg ew-border-0;
   }
-  .ew-radio {
+  input[type="radio"].ew-radio {
     @apply ew-m-0;
     @apply ew-appearance-none ew-w-7 ew-h-7;
     @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
@@ -29,7 +29,7 @@
     @apply before:ew-transition before:ew-ease-out before:ew-duration-150;
     @apply hover:ew-opacity-90 active:ew-opacity-75;
     @apply checked:ew-bg-base-bg;
-    @apply focus:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg;
+    @apply focus:ew-bg-base-bg focus:ew-ring focus:ew-border-primary-fg;
     @apply checked:before:ew-scale-100;
     @apply disabled:ew-bg-base-aux/[0.25];
   }
@@ -37,7 +37,7 @@
     @apply ew-appearance-none ew-w-5 ew-h-5;
     @apply before:ew-w-2.5 before:ew-h-2.5;
   }
-  .ew-checkbox {
+  input[type="checkbox"].ew-checkbox {
     @apply ew-m-0;
     @apply ew-appearance-none ew-w-7 ew-h-7;
     @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
@@ -56,7 +56,7 @@
 
     @apply disabled:ew-bg-base-aux/[0.25];
 
-    @apply focus:ew-bg-base-bg focus-visible:ew-ring focus-visible:ew-border-primary-fg;
+    @apply focus:ew-bg-base-bg focus:ew-ring focus:ew-border-primary-fg;
   }
   .ew-checkbox.ew-small {
     @apply ew-appearance-none ew-w-5 ew-h-5;
@@ -193,8 +193,8 @@ textarea.ew-input:focus-visible {
   box-shadow: none;
 }
 
-textarea.ew-input:focus-visible {
-  border-color: var(--theme-primary-fg);
+textarea.ew-input:focus {
+  --tw-ring-color: rgb(var(--theme-primary-fg-ch) / 0.5);
 }
 
 .ew-input select option {
