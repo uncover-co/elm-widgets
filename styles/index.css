@@ -33,7 +33,7 @@
     @apply checked:before:ew-scale-100;
     @apply disabled:ew-bg-base-aux/[0.25];
   }
-  .ew-radio.ew-small {
+  input[type="radio"].ew-radio.ew-small {
     @apply ew-appearance-none ew-w-5 ew-h-5;
     @apply before:ew-w-2.5 before:ew-h-2.5;
   }
@@ -41,7 +41,7 @@
     @apply ew-m-0;
     @apply ew-appearance-none ew-w-7 ew-h-7;
     @apply ew-border-2 ew-border-solid ew-border-base-aux/30;
-    @apply ew-bg-base-bg ew-shadow-none;
+    @apply ew-bg-none ew-bg-base-bg ew-shadow-none;
     @apply ew-inline-flex ew-items-center ew-justify-center;
     @apply ew-outline-none ew-ring-offset-0 ew-ring-primary-fg/50;
 
@@ -58,16 +58,16 @@
 
     @apply focus:ew-bg-base-bg focus:ew-ring focus:ew-border-primary-fg;
   }
-  .ew-checkbox.ew-small {
+  input[type="checkbox"].ew-checkbox.ew-small {
     @apply ew-appearance-none ew-w-5 ew-h-5;
     @apply before:ew-w-5 before:ew-h-5;
   }
-  .ew-checkbox.ew-colorful {
+  input[type="checkbox"].ew-checkbox.ew-colorful {
     @apply ew-border-current;
   }
-  .ew-toggle {
+  input[type="checkbox"].ew-toggle {
     @apply ew-m-0;
-    @apply ew-appearance-none ew-w-11 ew-p-0.5 ew-rounded-full ew-box-content;
+    @apply ew-bg-none ew-rounded ew-appearance-none ew-h-auto ew-w-11 ew-p-0.5 ew-rounded-full ew-box-content;
     @apply ew-border-2 ew-border-solid;
     @apply ew-shadow-none;
     @apply ew-inline-flex ew-items-center ew-justify-start;
@@ -90,7 +90,7 @@
     @apply focus-visible:ew-ring focus-visible:ew-border-primary-fg;
     @apply disabled:ew-bg-base-aux/[0.25];
   }
-  .ew-toggle.ew-small {
+  input[type="checkbox"].ew-toggle.ew-small {
     @apply ew-w-9;
     @apply before:ew-w-4 before:ew-h-4;
   }
@@ -427,10 +427,10 @@ input[type="range"].ew-slider:focus-visible::-moz-range-thumb  {
  * ======================================================
  */
 
-.ew-checkbox::before {
+input[type="checkbox"].ew-checkbox::before {
   background-image: linear-gradient(-45deg,transparent 65%,currentColor 65.99%), linear-gradient(45deg,transparent 75%,currentColor 75.99%), linear-gradient(-45deg,currentColor 40%,transparent 40.99%), linear-gradient(45deg,currentColor 30%,var(--fg-color) 30.99%,var(--fg-color) 40%,transparent 40.99%), linear-gradient(-45deg,var(--fg-color) 50%,currentColor 50.99%);
 }
-.ew-checkbox:disabled::before {
+input[type="checkbox"].ew-checkbox:disabled::before {
   opacity: 0.4;
 }
 
