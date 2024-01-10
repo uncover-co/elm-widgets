@@ -1,7 +1,7 @@
 module W.DataRow exposing
     ( view, header, footer, left, right
     , viewNext, viewNextExtra
-    , href, onClick, noLeftClick
+    , href, openNewTab, onClick, noLeftClick
     , noBackground, gap, innerGap, padding, paddingX, paddingY, noPadding
     , htmlAttrs, noAttr, Attribute
     )
@@ -20,7 +20,7 @@ This will be the only API available on the next major release.
 
 # Actions
 
-@docs href, onClick, noLeftClick
+@docs href, openNewTab, onClick, noLeftClick
 
 
 # Styles
@@ -60,6 +60,7 @@ type alias Attributes msg =
     , gap : Int
     , innerGap : Int
     , href : Maybe String
+    , openNewTab : Bool
     , noBackground : Bool
     , htmlAttributes : List (H.Attribute msg)
     }
@@ -82,6 +83,7 @@ defaultAttrs =
     , gap = 8
     , innerGap = 8
     , href = Nothing
+    , openNewTab = False
     , noBackground = False
     , htmlAttributes = []
     }
@@ -169,6 +171,11 @@ href v =
     Attribute <| \attrs -> { attrs | href = Just v }
 
 
+openNewTab : Attribute msg
+openNewTab =
+    Attribute <| \attrs -> { attrs | openNewTab = True }
+
+
 {-| -}
 noBackground : Attribute msg
 noBackground =
@@ -244,6 +251,11 @@ view attrs_ children =
                         (mainAttrs
                             ++ [ mainClickableClass
                                , HA.href href_
+                               , if attrs.openNewTab then
+                                    HA.target "_blank"
+
+                                 else
+                                    HA.class ""
                                ]
                         )
 
