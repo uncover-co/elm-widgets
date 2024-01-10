@@ -32,6 +32,14 @@ chapter_ =
                     [ H.text "Label"
                     ]
               )
+            , ( "As Link opening on new tab"
+              , W.DataRow.view
+                    [ W.DataRow.href "/logAction/#"
+                    , W.DataRow.openNewTab
+                    ]
+                    [ H.text "Label"
+                    ]
+              )
             , ( "With Actions"
               , W.DataRow.view
                     [ W.DataRow.href "/logAction/#"
@@ -201,4 +209,3 @@ viewCircle =
         , HA.style "height" "20px"
         ]
         []
-    
