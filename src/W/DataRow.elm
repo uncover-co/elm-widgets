@@ -171,6 +171,7 @@ href v =
     Attribute <| \attrs -> { attrs | href = Just v }
 
 
+{-| -}
 openNewTab : Attribute msg
 openNewTab =
     Attribute <| \attrs -> { attrs | openNewTab = True }
