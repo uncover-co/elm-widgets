@@ -1,9 +1,8 @@
 module W.Skeleton exposing
     ( view
     , width, height, relativeWidth, relativeHeight
-    , circle
+    , circle, noAnimation
     , htmlAttrs, noAttr, Attribute
-    , noAnimation
     )
 
 {-|
@@ -18,7 +17,7 @@ module W.Skeleton exposing
 
 # Styles
 
-@docs circle
+@docs circle, noAnimation
 
 
 # Html
