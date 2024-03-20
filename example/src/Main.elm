@@ -38,9 +38,9 @@ import ElmBook.StatefulOptions
 import ElmBook.ThemeOptions
 import Html as H
 import Theme
-import W.Styles
 import W.Docs.InputCode
 import W.Docs.Skeleton
+import W.Styles
 
 
 type alias SharedState =

@@ -119,28 +119,27 @@ chapter_ =
                     ]
                     [ W.Table.string
                         [ W.Table.customLabel
-                            (W.Tooltip.view []
-                                { tooltip = [H.text "Person name"]
-                                , children = [H.text "Name"]
-                                })
+                            [ W.Tooltip.view []
+                                { tooltip = [ H.text "Person name" ]
+                                , children = [ H.text "Name" ]
+                                }
+                            ]
                         ]
                         { label = "Name"
-
-
                         , value = .name
                         }
                     , W.Table.int
                         [ W.Table.width 80
                         , W.Table.customLabel
-                            (W.Tooltip.view []
-                                { tooltip = [H.text "Person age"]
-                                , children = [H.text "Age"]
-                                })
+                            [ W.Tooltip.view []
+                                { tooltip = [ H.text "Person age" ]
+                                , children = [ H.text "Age" ]
+                                }
+                            ]
                         ]
                         { label = "Age"
                         , value = .age
                         }
-
                     ]
                     [ { name = "João", age = 28 }
                     , { name = "Maria", age = 29 }

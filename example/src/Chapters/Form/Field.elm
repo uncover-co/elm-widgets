@@ -92,7 +92,7 @@ chapter_ =
                         singleInput
                     , W.InputField.view
                         [ W.InputField.alignRight True
-                        , W.InputField.hint [ H.text "Try writing some text here." ] 
+                        , W.InputField.hint [ H.text "Try writing some text here." ]
                         ]
                         singleInput
                     , W.Divider.view [] []

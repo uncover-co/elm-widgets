@@ -100,7 +100,7 @@ chapter_ =
                     [ W.DataRow.href "/logAction/#"
                     , W.DataRow.header [ H.text "Admin" ]
                     , W.DataRow.footer [ H.text "user@email.com" ]
-                        , W.DataRow.left [ viewCircle ]
+                    , W.DataRow.left [ viewCircle ]
                     , W.DataRow.right
                         [ W.Button.view [ W.Button.primary ]
                             { label = [ H.text "Click me" ]
@@ -116,7 +116,7 @@ chapter_ =
                     , W.DataRow.href "/logAction/#"
                     , W.DataRow.header [ H.text "Admin" ]
                     , W.DataRow.footer [ H.text "user@email.com" ]
-                        , W.DataRow.left [ viewCircle ]
+                    , W.DataRow.left [ viewCircle ]
                     , W.DataRow.right
                         [ W.Button.view [ W.Button.primary ]
                             { label = [ H.text "Click me" ]
@@ -198,6 +198,7 @@ chapter_ =
                     }
               )
             ]
+
 
 viewCircle : H.Html msg
 viewCircle =
