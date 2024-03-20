@@ -1,7 +1,7 @@
 module W.Table exposing
     ( view
     , column, string, int, float, bool, Column
-    , alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+    , customLabel, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
     , onClick, onMouseEnter, onMouseLeave
     , groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
     , highlight
@@ -20,7 +20,7 @@ module W.Table exposing
 
 # Column Attributes
 
-@docs alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+@docs customLabel, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
 
 
 # Actions
@@ -229,6 +229,12 @@ columnHtmlAttrs v =
 
 
 {-| -}
+customLabel : H.Html msg -> ColumnAttribute msg a
+customLabel value =
+    ColumnAttribute (\attrs -> { attrs | customLabel = Just value })
+
+
+{-| -}
 alignRight : ColumnAttribute msg a
 alignRight =
     ColumnAttribute (\attrs -> { attrs | alignment = HA.class "ew-text-right" })
@@ -392,8 +398,13 @@ viewTableHeaderColumn (Column col) =
         (columnStyles col
             ++ [ HA.class "ew-m-0 ew-font-semibold ew-text-sm ew-text-base-aux" ]
         )
-        [ H.text col.label
-        ]
+        (case col.customLabel of
+            Just custom ->
+                [ custom ]
+
+            Nothing ->
+                [ H.text col.label ]
+        )
 
 
 viewTableRow : Attributes msg a -> List (Column msg a) -> a -> H.Html msg
