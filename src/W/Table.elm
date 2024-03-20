@@ -1,7 +1,7 @@
 module W.Table exposing
     ( view
     , column, string, int, float, bool, Column
-    , alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+    , customLabel, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
     , onClick, onMouseEnter, onMouseLeave
     , groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
     , highlight
@@ -20,7 +20,7 @@ module W.Table exposing
 
 # Column Attributes
 
-@docs alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+@docs customLabel, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
 
 
 # Actions
@@ -185,7 +185,7 @@ type ColumnAttribute msg a
 
 type alias ColumnAttributes msg a =
     { label : String
-    , customLabel : Maybe (H.Html msg)
+    , customLabel : Maybe (List (H.Html msg))
     , alignment : H.Attribute msg
     , width : H.Attribute msg
     , largeScreenOnly : Bool
@@ -226,6 +226,12 @@ columnStyles attrs =
 columnHtmlAttrs : List (H.Attribute msg) -> ColumnAttribute msg a
 columnHtmlAttrs v =
     ColumnAttribute (\attrs -> { attrs | htmlAttributes = v })
+
+
+{-| -}
+customLabel : List (H.Html msg) -> ColumnAttribute msg a
+customLabel value =
+    ColumnAttribute (\attrs -> { attrs | customLabel = Just value })
 
 
 {-| -}
@@ -392,8 +398,9 @@ viewTableHeaderColumn (Column col) =
         (columnStyles col
             ++ [ HA.class "ew-m-0 ew-font-semibold ew-text-sm ew-text-base-aux" ]
         )
-        [ H.text col.label
-        ]
+        (col.customLabel
+            |> Maybe.withDefault [ H.text col.label ]
+        )
 
 
 viewTableRow : Attributes msg a -> List (Column msg a) -> a -> H.Html msg

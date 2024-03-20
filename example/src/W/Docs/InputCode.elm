@@ -1,14 +1,14 @@
-module W.Docs.InputCode exposing (Model, init, docs)
+module W.Docs.InputCode exposing (Model, docs, init)
 
-import ElmBook.Chapter exposing (Chapter, chapter, renderStatefulComponentList)
 import ElmBook.Actions exposing (updateState)
+import ElmBook.Chapter exposing (Chapter, chapter, renderStatefulComponentList)
 import Html as H
 import Html.Attributes as HA
 import W.InputCode
 
 
-type alias Model
-    = String
+type alias Model =
+    String
 
 
 init : Model

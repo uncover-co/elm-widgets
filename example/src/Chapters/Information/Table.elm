@@ -5,6 +5,7 @@ import ElmBook.Chapter exposing (Chapter, chapter, renderComponentList)
 import Html as H
 import Html.Attributes as HA
 import W.Table
+import W.Tooltip
 
 
 data :
@@ -111,5 +112,37 @@ chapter_ =
                         }
                     ]
                     data
+              )
+            , ( "Custom Column Label"
+              , W.Table.view
+                    [ W.Table.htmlAttrs [ HA.style "max-height" "400px" ]
+                    ]
+                    [ W.Table.string
+                        [ W.Table.customLabel
+                            [ W.Tooltip.view []
+                                { tooltip = [ H.text "Person name" ]
+                                , children = [ H.text "Name" ]
+                                }
+                            ]
+                        ]
+                        { label = "Name"
+                        , value = .name
+                        }
+                    , W.Table.int
+                        [ W.Table.width 80
+                        , W.Table.customLabel
+                            [ W.Tooltip.view []
+                                { tooltip = [ H.text "Person age" ]
+                                , children = [ H.text "Age" ]
+                                }
+                            ]
+                        ]
+                        { label = "Age"
+                        , value = .age
+                        }
+                    ]
+                    [ { name = "João", age = 28 }
+                    , { name = "Maria", age = 29 }
+                    ]
               )
             ]

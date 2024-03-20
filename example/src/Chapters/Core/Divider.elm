@@ -3,8 +3,8 @@ module Chapters.Core.Divider exposing (..)
 import ElmBook.Chapter exposing (Chapter, chapter, renderWithComponentList, withComponentList)
 import Html as H
 import Html.Attributes as HA
-import W.Divider
 import Theme
+import W.Divider
 
 
 chapter_ : Chapter x
