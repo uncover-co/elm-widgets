@@ -118,8 +118,7 @@ chapter_ =
                     [ W.Table.htmlAttrs [ HA.style "max-height" "400px" ]
                     ]
                     [ W.Table.string
-                        [ W.Table.groupLabel
-                        , W.Table.customLabel
+                        [ W.Table.customLabel
                             (W.Tooltip.view []
                                 { tooltip = [H.text "Person name"]
                                 , children = [H.text "Name"]
@@ -132,13 +131,6 @@ chapter_ =
                         }
                     , W.Table.int
                         [ W.Table.width 80
-                        , W.Table.groupValue
-                            (\_ xs ->
-                                xs
-                                    |> List.foldl (\x acc -> x.age + acc) 0
-                                    |> String.fromInt
-                                    |> H.text
-                            )
                         , W.Table.customLabel
                             (W.Tooltip.view []
                                 { tooltip = [H.text "Person age"]
