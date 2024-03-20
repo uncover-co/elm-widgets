@@ -185,7 +185,7 @@ type ColumnAttribute msg a
 
 type alias ColumnAttributes msg a =
     { label : String
-    , customLabel : Maybe (H.Html msg)
+    , customLabel : Maybe (List (H.Html msg))
     , alignment : H.Attribute msg
     , width : H.Attribute msg
     , largeScreenOnly : Bool
@@ -229,7 +229,7 @@ columnHtmlAttrs v =
 
 
 {-| -}
-customLabel : H.Html msg -> ColumnAttribute msg a
+customLabel : List (H.Html msg) -> ColumnAttribute msg a
 customLabel value =
     ColumnAttribute (\attrs -> { attrs | customLabel = Just value })
 
@@ -398,12 +398,8 @@ viewTableHeaderColumn (Column col) =
         (columnStyles col
             ++ [ HA.class "ew-m-0 ew-font-semibold ew-text-sm ew-text-base-aux" ]
         )
-        (case col.customLabel of
-            Just custom ->
-                [ custom ]
-
-            Nothing ->
-                [ H.text col.label ]
+        (col.customLabel
+            |> Maybe.withDefault [ H.text col.label ]
         )
 
 
