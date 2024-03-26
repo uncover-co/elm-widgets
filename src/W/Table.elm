@@ -1,7 +1,7 @@
 module W.Table exposing
     ( view
     , column, string, int, float, bool, Column
-    , customLabel, labelLeft, labelRight, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+    , customLabel, labelClass, labelLeft, labelRight, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
     , onClick, onMouseEnter, onMouseLeave
     , groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
     , noHeader, highlight
@@ -20,7 +20,7 @@ module W.Table exposing
 
 # Column Attributes
 
-@docs customLabel, labelLeft, labelRight, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+@docs customLabel, labelClass, labelLeft, labelRight, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
 
 
 # Actions
@@ -193,6 +193,7 @@ type ColumnAttribute msg a
 
 type alias ColumnAttributes msg a =
     { label : String
+    , labelClass : String
     , customLabel : Maybe (List (H.Html msg))
     , customLeft : Maybe (List (H.Html msg))
     , customRight : Maybe (List (H.Html msg))
@@ -213,6 +214,7 @@ column_ default attrs =
 columnAttrs : String -> (a -> H.Html msg) -> ColumnAttributes msg a
 columnAttrs label toHtml =
     { label = label
+    , labelClass = ""
     , customLabel = Nothing
     , customLeft = Nothing
     , customRight = Nothing
@@ -238,6 +240,27 @@ columnStyles attrs =
 columnHtmlAttrs : List (H.Attribute msg) -> ColumnAttribute msg a
 columnHtmlAttrs v =
     ColumnAttribute (\attrs -> { attrs | htmlAttributes = v })
+
+
+{-| Pass in extra classes for a column label.
+This can be useful for when you want to conditionally hide sorting icons unless the user is hovering a table header.
+
+An example using tailwindcss:
+
+    W.Table.string
+        [ W.Table.labelClass "group"
+        , W.Table.labelRight
+            [ div
+                [ class "opacity-0 group-hover:opacity-100" ]
+                [ .. ]
+            ]
+        ]
+        { .. }
+
+-}
+labelClass : String -> ColumnAttribute msg a
+labelClass value =
+    ColumnAttribute (\attrs -> { attrs | labelClass = value })
 
 
 {-| -}
@@ -430,6 +453,7 @@ viewTableHeaderColumn (Column col) =
             [ HA.class "ew-flex ew-items-center gap-1"
             , HA.class "ew-p-2"
             , HA.class "ew-border-b-2 ew-border-base-aux/[0.2]"
+            , HA.class col.labelClass
             ]
             [ col.customLeft
                 |> Maybe.map (H.span [ HA.class "ew-shrink-0" ])
