@@ -1,10 +1,10 @@
 module W.Table exposing
     ( view
     , column, string, int, float, bool, Column
-    , customLabel, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+    , customLabel, labelLeft, labelRight, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
     , onClick, onMouseEnter, onMouseLeave
     , groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
-    , highlight
+    , noHeader, highlight
     , htmlAttrs, noAttr, Attribute
     )
 
@@ -20,7 +20,7 @@ module W.Table exposing
 
 # Column Attributes
 
-@docs customLabel, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
+@docs customLabel, labelLeft, labelRight, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
 
 
 # Actions
@@ -35,7 +35,7 @@ module W.Table exposing
 
 # Table Attributes
 
-@docs highlight
+@docs noHeader, highlight
 
 
 # Html
@@ -62,7 +62,8 @@ type Attribute msg a
 
 
 type alias Attributes msg a =
-    { groupBy : Maybe (a -> String)
+    { showHeader : Bool
+    , groupBy : Maybe (a -> String)
     , groupSortBy : List ( String, a, List a ) -> List ( String, a, List a )
     , groupCollapsed : Maybe (a -> String -> Bool)
     , highlight : a -> Bool
@@ -83,7 +84,8 @@ applyAttrs attrs =
 
 defaultAttrs : Attributes msg a
 defaultAttrs =
-    { groupBy = Nothing
+    { showHeader = True
+    , groupBy = Nothing
     , groupSortBy = identity
     , groupCollapsed = Nothing
     , highlight = \_ -> False
@@ -95,6 +97,12 @@ defaultAttrs =
     , onGroupMouseLeave = Nothing
     , htmlAttributes = []
     }
+
+
+{-| -}
+noHeader : Attribute msg a
+noHeader =
+    Attribute (\attrs -> { attrs | showHeader = False })
 
 
 {-| -}
@@ -186,6 +194,8 @@ type ColumnAttribute msg a
 type alias ColumnAttributes msg a =
     { label : String
     , customLabel : Maybe (List (H.Html msg))
+    , customLeft : Maybe (List (H.Html msg))
+    , customRight : Maybe (List (H.Html msg))
     , alignment : H.Attribute msg
     , width : H.Attribute msg
     , largeScreenOnly : Bool
@@ -204,6 +214,8 @@ columnAttrs : String -> (a -> H.Html msg) -> ColumnAttributes msg a
 columnAttrs label toHtml =
     { label = label
     , customLabel = Nothing
+    , customLeft = Nothing
+    , customRight = Nothing
     , alignment = HA.class "ew-text-left"
     , width = HA.class ""
     , largeScreenOnly = False
@@ -232,6 +244,18 @@ columnHtmlAttrs v =
 customLabel : List (H.Html msg) -> ColumnAttribute msg a
 customLabel value =
     ColumnAttribute (\attrs -> { attrs | customLabel = Just value })
+
+
+{-| -}
+labelRight : List (H.Html msg) -> ColumnAttribute msg a
+labelRight value =
+    ColumnAttribute (\attrs -> { attrs | customRight = Just value })
+
+
+{-| -}
+labelLeft : List (H.Html msg) -> ColumnAttribute msg a
+labelLeft value =
+    ColumnAttribute (\attrs -> { attrs | customLeft = Just value })
 
 
 {-| -}
@@ -325,11 +349,15 @@ view attrs_ columns data =
                ]
         )
         [ -- Table Head
-          H.thead
-            [ HA.class "ew-sticky ew-z-20 ew-top-0 ew-z-10"
-            , HA.class "ew-bg-base-bg"
-            ]
-            [ H.tr [] (List.map viewTableHeaderColumn columns) ]
+          if attrs.showHeader then
+            H.thead
+                [ HA.class "ew-sticky ew-z-20 ew-top-0 ew-z-10"
+                , HA.class "ew-bg-base-bg"
+                ]
+                [ H.tr [] (List.map viewTableHeaderColumn columns) ]
+
+          else
+            H.text ""
         , --  Table Body
           H.tbody
             [ WH.maybeAttr HE.onMouseLeave attrs.onMouseLeave ]
@@ -398,9 +426,22 @@ viewTableHeaderColumn (Column col) =
         (columnStyles col
             ++ [ HA.class "ew-m-0 ew-font-semibold ew-text-sm ew-text-base-aux" ]
         )
-        (col.customLabel
-            |> Maybe.withDefault [ H.text col.label ]
-        )
+        [ H.div
+            [ HA.class "ew-flex ew-items-center gap-1"
+            , HA.class "ew-p-2"
+            , HA.class "ew-border-b-2 ew-border-base-aux/[0.2]"
+            ]
+            [ col.customLeft
+                |> Maybe.map (H.span [ HA.class "ew-shrink-0" ])
+                |> Maybe.withDefault (H.text "")
+            , col.customLabel
+                |> Maybe.withDefault [ H.text col.label ]
+                |> H.span [ HA.class "ew-grow" ]
+            , col.customRight
+                |> Maybe.map (H.span [ HA.class "ew-shrink-0" ])
+                |> Maybe.withDefault (H.text "")
+            ]
+        ]
 
 
 viewTableRow : Attributes msg a -> List (Column msg a) -> a -> H.Html msg

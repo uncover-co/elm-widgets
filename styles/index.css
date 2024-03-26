@@ -501,31 +501,20 @@ input[type="checkbox"].ew-checkbox:disabled::before {
   border-bottom: 1px solid rgb(var(--theme-base-aux-ch) / 0.2);
 }
 
-.ew-table thead {
-  border-bottom: 2px solid rgb(var(--theme-base-aux-ch) / 0.2);
+.ew-table thead tr {
+  border-bottom: none;
 }
 
 .ew-table tbody tr:last-child {
   border-bottom: 0;
 }
 
-.ew-table th,
 .ew-table td {
-  padding: 12px 6px;
-}
-
-.ew-table th:first-child,
-.ew-table td:first-child {
-  padding-left: 12px;
-}
-
-.ew-table th:last-child,
-.ew-table td:last-child {
-  padding-right: 12px;
+  padding: 12px 8px;
 }
 
 .ew-table-group-header td {
-  padding: 16px 6px;
+  padding: 16px 8px;
 }
 
 /* 

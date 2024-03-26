@@ -51,11 +51,14 @@ chapter_ =
                         , content =
                             \{ picture } -> H.img [ HA.src picture, HA.height 60 ] []
                         }
-                    , W.Table.string []
+                    , W.Table.string
+                        [ W.Table.labelLeft [ H.text "L" ]
+                        , W.Table.labelRight [ H.text "R" ]
+                        ]
                         { label = "Name"
                         , value = .name
                         }
-                    , W.Table.int [ W.Table.width 80 ]
+                    , W.Table.int [ W.Table.width 40 ]
                         { label = "Age"
                         , value = .age
                         }
