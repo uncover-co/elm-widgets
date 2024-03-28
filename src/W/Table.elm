@@ -3,7 +3,7 @@ module W.Table exposing
     , column, string, int, float, bool, Column
     , customLabel, labelClass, labelLeft, labelRight, alignRight, alignCenter, width, relativeWidth, largeScreenOnly, columnHtmlAttrs, ColumnAttribute
     , onClick, onMouseEnter, onMouseLeave
-    , groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
+    , groupBy, groupValue, groupValueCustom, groupSortBy, groupSortByDesc, groupSortWith, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
     , noHeader, highlight
     , htmlAttrs, noAttr, Attribute
     )
@@ -30,7 +30,7 @@ module W.Table exposing
 
 # Groups
 
-@docs groupBy, groupValue, groupValueCustom, groupSortBy, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
+@docs groupBy, groupValue, groupValueCustom, groupSortBy, groupSortByDesc, groupSortWith, groupCollapsed, groupLabel, onGroupClick, onGroupMouseEnter, onGroupMouseLeave
 
 
 # Table Attributes
@@ -115,6 +115,29 @@ groupBy v =
 groupSortBy : (a -> String -> comparable) -> Attribute msg a
 groupSortBy fn =
     Attribute (\attrs -> { attrs | groupSortBy = List.sortBy (\( l, a, _ ) -> fn a l) })
+
+
+{-| -}
+groupSortByDesc : (a -> String -> comparable) -> Attribute msg a
+groupSortByDesc fn =
+    groupSortWith
+        (\( labelA, a, _ ) ( labelB, b, _ ) ->
+            case Basics.compare (fn a labelA) (fn b labelB) of
+                LT ->
+                    GT
+
+                EQ ->
+                    EQ
+
+                GT ->
+                    LT
+        )
+
+
+{-| -}
+groupSortWith : (( String, a, List a ) -> ( String, a, List a ) -> Order) -> Attribute msg a
+groupSortWith fn =
+    Attribute (\attrs -> { attrs | groupSortBy = List.sortWith fn })
 
 
 {-| -}
