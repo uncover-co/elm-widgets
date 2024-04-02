@@ -36,6 +36,7 @@ chapter_ =
                     ([ W.Button.large
                      , W.Button.noAttr
                      , W.Button.small
+                     , W.Button.extraSmall
                      ]
                         |> List.map
                             (\attr ->
