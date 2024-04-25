@@ -68,31 +68,36 @@ applyAttrs attrs =
 -- Attributes : Setters
 
 
-{-| -}
+{-| Sets the height of the skeleton element in pixels.
+-}
 height : Int -> Attribute msg
 height v =
     Attribute (\attrs -> { attrs | height = WH.formatPx v })
 
 
-{-| -}
+{-| Sets the width of the skeleton element in pixels.
+-}
 width : Int -> Attribute msg
 width v =
     Attribute (\attrs -> { attrs | width = WH.formatPx v })
 
 
-{-| -}
+{-| Sets the height of the skeleton element as a percentage of its parent element.
+-}
 relativeHeight : Float -> Attribute msg
 relativeHeight v =
     Attribute (\attrs -> { attrs | height = WH.formatPct v })
 
 
-{-| -}
+{-| Sets the width of the skeleton element as a percentage of its parent element.
+-}
 relativeWidth : Float -> Attribute msg
 relativeWidth v =
     Attribute (\attrs -> { attrs | width = WH.formatPct v })
 
 
-{-| -}
+{-| Makes the skeleton element a circle with the specified size in pixels.
+-}
 circle : Int -> Attribute msg
 circle size =
     Attribute
@@ -105,7 +110,8 @@ circle size =
         )
 
 
-{-| -}
+{-| Disables the animation of the skeleton element.
+-}
 noAnimation : Attribute msg
 noAnimation =
     Attribute (\attrs -> { attrs | useAnimation = False })
@@ -129,11 +135,14 @@ noAttr =
 
 {-|
 
-    -- horizontal divider
-    W.Divider.view [] []
+    -- skeleton with default size
+    W.Skeleton.view [] []
 
-    -- horizontal divider with a centralized label
-    W.Dividier.view [] [ H.text "divide, not conquer" ]
+    -- skeleton with custom size
+    W.Skeleton.view [ W.Skeleton.width 100, W.Skeleton.height 100 ] []
+
+    -- skeleton with custom size and no animation
+    W.Skeleton.view [ W.Skeleton.width 100, W.Skeleton.height 100, W.Skeleton.noAnimation ] []
 
 -}
 view : List (Attribute msg) -> H.Html msg
