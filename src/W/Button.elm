@@ -1,7 +1,7 @@
 module W.Button exposing
     ( view, viewLink, viewSubmit, viewDummy
     , primary, secondary, success, warning, danger, theme, ButtonTheme
-    , outlined, invisible, rounded, large, small, icon, full, alignLeft, alignRight
+    , outlined, invisible, rounded, large, small, extraSmall, icon, full, alignLeft, alignRight
     , disabled
     , htmlAttrs, noAttr, Attribute
     )
@@ -20,7 +20,7 @@ By default, `neutral` color is used.
 
 # Styles
 
-@docs outlined, invisible, rounded, large, small, icon, full, alignLeft, alignRight
+@docs outlined, invisible, rounded, large, small, extraSmall, icon, full, alignLeft, alignRight
 
 
 # State
@@ -68,7 +68,8 @@ type ButtonStyle
 
 
 type ButtonSize
-    = Small
+    = ExtraSmall
+    | Small
     | Medium
     | Large
 
@@ -173,6 +174,13 @@ roundedAttrs attrs =
                 , ( "before:ew-rounded-[14px]", attrs.style == Outlined )
                 ]
 
+        ( True, ExtraSmall ) ->
+            HA.classList
+                [ ( "ew-rounded-[12px]", True )
+                , ( "before:ew-rounded-[12px]", attrs.style /= Outlined )
+                , ( "before:ew-rounded-[12px]", attrs.style == Outlined )
+                ]
+
 
 
 -- Main
@@ -190,13 +198,16 @@ attributes attrs =
            , HA.class "ew-font-text ew-font-semibold ew-leading-none ew-tracking-wider ew-no-underline"
            , HA.class "disabled:ew-pointer-events-none disabled:ew-opacity-60"
            , HA.classList
-                [ ( "ew-h-[32px] ew-text-sm", attrs.size == Small )
+                [ ( "ew-h-[24px] ew-text-xs", attrs.size == ExtraSmall )
+                , ( "ew-h-[32px] ew-text-sm", attrs.size == Small )
                 , ( "ew-h-[40px] ew-text-base", attrs.size == Medium )
                 , ( "ew-h-[48px] ew-text-base", attrs.size == Large )
+                , ( "ew-min-w-[24px]", attrs.size == ExtraSmall && attrs.width == Icon )
                 , ( "ew-min-w-[32px]", attrs.size == Small && attrs.width == Icon )
                 , ( "ew-min-w-[40px]", attrs.size == Medium && attrs.width == Icon )
                 , ( "ew-min-w-[48px]", attrs.size == Large && attrs.width == Icon )
                 , ( "ew-px-1", attrs.width == Icon )
+                , ( "ew-px-2 ew-gap-2", attrs.size == ExtraSmall && attrs.width /= Icon )
                 , ( "ew-px-3 ew-gap-2", attrs.size == Small && attrs.width /= Icon )
                 , ( "ew-px-5 ew-gap-3", attrs.size == Medium && attrs.width /= Icon )
                 , ( "ew-px-6 ew-gap-4", attrs.size == Large && attrs.width /= Icon )
@@ -360,6 +371,12 @@ icon =
 rounded : Attribute msg
 rounded =
     Attribute <| \attrs -> { attrs | rounded = True }
+
+
+{-| -}
+extraSmall : Attribute msg
+extraSmall =
+    Attribute <| \attrs -> { attrs | size = ExtraSmall }
 
 
 {-| -}
