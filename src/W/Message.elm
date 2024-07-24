@@ -1,10 +1,9 @@
 module W.Message exposing
     ( view
     , icon, footer
-    , primary, secondary, success, warning, danger, color
+    , primary, secondary, success, warning, danger, color, borderWidth
     , href, onClick
     , htmlAttrs, noAttr, Attribute
-    , borderWidth
     )
 
 {-|
@@ -19,7 +18,7 @@ module W.Message exposing
 
 # Styles
 
-@docs primary, secondary, success, warning, danger, color, noBorder, customBorder
+@docs primary, secondary, success, warning, danger, color, borderWidth
 
 
 # Actions
