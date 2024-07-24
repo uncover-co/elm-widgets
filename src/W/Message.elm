@@ -1,7 +1,7 @@
 module W.Message exposing
     ( view
     , icon, footer
-    , primary, secondary, success, warning, danger, color
+    , primary, secondary, success, warning, danger, color, borderWidth
     , href, onClick
     , htmlAttrs, noAttr, Attribute
     )
@@ -18,7 +18,7 @@ module W.Message exposing
 
 # Styles
 
-@docs primary, secondary, success, warning, danger, color
+@docs primary, secondary, success, warning, danger, color, borderWidth
 
 
 # Actions
@@ -55,6 +55,7 @@ type alias Attributes msg =
     , color : String
     , href : Maybe String
     , onClick : Maybe msg
+    , borderWidth : Int
     }
 
 
@@ -71,6 +72,7 @@ defaultAttrs =
     , color = Theme.neutralForeground
     , href = Nothing
     , onClick = Nothing
+    , borderWidth = 6
     }
 
 
@@ -160,6 +162,14 @@ danger =
             { attrs | color = Theme.dangerForeground }
 
 
+{-| -}
+borderWidth : Int -> Attribute msg
+borderWidth v =
+    Attribute <|
+        \attrs ->
+            { attrs | borderWidth = v }
+
+
 
 -- Main
 
@@ -183,7 +193,10 @@ view attrs_ children_ =
                    , HA.class "ew-font-text ew-text-base ew-font-medium"
                    , HA.class "ew-py-2 ew-px-4 ew-pr-6"
                    , HA.class "ew-bg-base-bg ew-rounded"
-                   , HA.class "ew-border-l-[6px] ew-border-0 ew-border-solid ew-border-current"
+                   , HA.style "border-left-width"
+                        (String.fromInt attrs.borderWidth ++ "px")
+                   , HA.class
+                        "ew-border-solid ew-border-current"
                    , HA.style "color" attrs.color
                    , HA.class "before:ew-block before:ew-content-['']"
                    , HA.class "before:ew-absolute before:ew-inset-0 ew-z-0"
