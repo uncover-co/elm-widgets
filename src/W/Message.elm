@@ -1,10 +1,10 @@
 module W.Message exposing
     ( view
     , icon, footer
-    , primary, secondary, success, warning, danger, color
+    , primary, secondary, success, warning, danger, color, noBorder
     , href, onClick
     , htmlAttrs, noAttr, Attribute
-    , borderWidth, noBorder
+    , borderWidth
     )
 
 {-|
@@ -19,7 +19,7 @@ module W.Message exposing
 
 # Styles
 
-@docs primary, secondary, success, warning, danger, color
+@docs primary, secondary, success, warning, danger, color, noBorder, customBorder
 
 
 # Actions
@@ -165,6 +165,7 @@ danger =
             { attrs | color = Theme.dangerForeground }
 
 
+{-| -}
 borderWidth : Int -> Attribute msg
 borderWidth v =
     Attribute <|
@@ -172,6 +173,7 @@ borderWidth v =
             { attrs | borderWidth = v }
 
 
+{-| -}
 noBorder : Attribute msg
 noBorder =
     Attribute <|
@@ -217,20 +219,6 @@ view attrs_ children_ =
                    , HA.class "before:ew-rounded-r before:ew-bg-current before:ew-opacity-[0.07]"
                    ]
 
-        -- baseAttrs : List (H.Attribute msg)
-        -- baseAttrs =
-        --     attrs.htmlAttributes
-        --         ++ [ HA.class "ew-m-0 ew-box-border ew-relative"
-        --            , HA.class "ew-flex ew-gap-4 ew-w-full"
-        --            , HA.class "ew-font-text ew-text-base ew-font-medium"
-        --            , HA.class "ew-py-2 ew-px-4 ew-pr-6"
-        --            , HA.class "ew-bg-base-bg ew-rounded"
-        --            , HA.class "ew-border-l-[6px] ew-border-0 ew-border-solid ew-border-current"
-        --            , HA.style "color" attrs.color
-        --            , HA.class "before:ew-block before:ew-content-['']"
-        --            , HA.class "before:ew-absolute before:ew-inset-0 ew-z-0"
-        --            , HA.class "before:ew-rounded-r before:ew-bg-current before:ew-opacity-[0.07]"
-        --            ]
         children : List (H.Html msg)
         children =
             [ WH.maybeHtml (\i -> H.div [] i) attrs.icon
