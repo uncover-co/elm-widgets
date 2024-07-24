@@ -1,7 +1,7 @@
 module W.Message exposing
     ( view
     , icon, footer
-    , primary, secondary, success, warning, danger, color, noBorder
+    , primary, secondary, success, warning, danger, color
     , href, onClick
     , htmlAttrs, noAttr, Attribute
     , borderWidth
@@ -57,7 +57,6 @@ type alias Attributes msg =
     , href : Maybe String
     , onClick : Maybe msg
     , borderWidth : Int
-    , noBorder : Bool
     }
 
 
@@ -75,7 +74,6 @@ defaultAttrs =
     , href = Nothing
     , onClick = Nothing
     , borderWidth = 6
-    , noBorder = False
     }
 
 
@@ -173,14 +171,6 @@ borderWidth v =
             { attrs | borderWidth = v }
 
 
-{-| -}
-noBorder : Attribute msg
-noBorder =
-    Attribute <|
-        \attrs ->
-            { attrs | noBorder = True }
-
-
 
 -- Main
 
@@ -205,12 +195,7 @@ view attrs_ children_ =
                    , HA.class "ew-py-2 ew-px-4 ew-pr-6"
                    , HA.class "ew-bg-base-bg ew-rounded"
                    , HA.style "border-left-width"
-                        (if attrs.noBorder then
-                            ""
-
-                         else
-                            String.fromInt attrs.borderWidth ++ "px"
-                        )
+                        (String.fromInt attrs.borderWidth ++ "px")
                    , HA.class
                         "ew-border-solid ew-border-current"
                    , HA.style "color" attrs.color

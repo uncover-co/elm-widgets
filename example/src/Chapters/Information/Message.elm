@@ -18,7 +18,7 @@ chapter_ =
              , ( [ W.Message.warning ], "Warning" )
              , ( [ W.Message.danger ], "Danger" )
              , ( [ W.Message.color "purple" ], "Custom" )
-             , ( [ W.Message.noBorder  ], "No border" )
+             , ( [ W.Message.borderWidth 0  ], "No border" )
              , ( [ W.Message.borderWidth 12 ], "Increased border" )
              ]
                 |> List.map
