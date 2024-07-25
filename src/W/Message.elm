@@ -1,7 +1,7 @@
 module W.Message exposing
     ( view
     , icon, footer
-    , primary, secondary, success, warning, danger, color, borderWidth
+    , primary, secondary, success, warning, danger, color, noBorder, borderWidth
     , href, onClick
     , htmlAttrs, noAttr, Attribute
     )
@@ -18,7 +18,7 @@ module W.Message exposing
 
 # Styles
 
-@docs primary, secondary, success, warning, danger, color, borderWidth
+@docs primary, secondary, success, warning, danger, color, noBorder, borderWidth
 
 
 # Actions
@@ -168,6 +168,14 @@ borderWidth v =
     Attribute <|
         \attrs ->
             { attrs | borderWidth = v }
+
+
+{-| -}
+noBorder : Attribute msg
+noBorder =
+    Attribute <|
+        \attrs ->
+            { attrs | borderWidth = 0 }
 
 
 
